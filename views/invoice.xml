@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+    <!--START CONTRACTOR VIEWS-->
+        <!--CONTRACTOR FORM VIEW-->
+        <record model="ir.ui.view" id="view_form_invoice">
+            <field name="name">Invoice</field>
+            <field name="model">budget.invoice</field>
+            <field name="arch" type="xml">
+                <form string="Invoice">
+                    <header>
+                        <button
+                            string="Verify Invoice"
+                            name="set2verify_invoice"
+                            type="object"
+                            states="new" />
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="invoice_no" default_focus="1" placeholder="Invoice No"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="contract_id"/>
+                                <field name="proj_no"/>
+                                <field name="invoice_type"/>
+                                <field name="payment_type"/>
+                                <field name="cost_center"/>
+                                <field name="expense_code"/>
+                            </group>
+                            <group>
+                                <field name="invoice_amount"/>
+                                <field name="capex_amount"/>
+                                <field name="opex_amount"/>
+                                <field name="revenue_amount"/>
+                                <field name="penalty"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="invoice_date"/>
+                                <field name="invoice_cert_date"/>
+                                <field name="received_date"/>
+                                <field name="signed_date"/>
+                            </group>
+                            <group>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                                <field name="rfs_date"/>
+                                <field name="reject_date"/>
+                                <field name="sent_finance_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                            <field name="remarks"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--CONTRACTOR FORM VIEW-->
+        <record model="ir.ui.view" id="view_tree_invoice">
+            <field name="name">Invoice</field>
+            <field name="model">budget.invoice</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="invoice_no"/>
+                    <field name="contract_id"/>
+                    <field name="invoice_amount"/>
+                    <field name="invoice_date"/>
+                    <field name="invoice_cert_date"/>
+                    <field name="received_date"/>
+                    <field name="sent_finance_date"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+    <!--END CONTRACTOR VIEWS-->
+
+    <!--START ACTIONS-->
+        <!--Invoice Action-->
+        <record model="ir.actions.act_window" id="action_invoice">
+            <field name="name">Invoice</field>
+            <field name="res_model">budget.invoice</field>
+            <!--<field name="domain">[('is_budget_invoice','=',True)]</field>-->
+            <!--<field name="context">{'default_is_budget_invoice': True}</field>-->
+        </record>
+
+        <!--Override View-->
+        <!--Override Default View-->
+        <record model="ir.actions.act_window.view" id="action_invoice_view_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="act_window_id" ref="action_invoice"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="action_invoice_view_form">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_form_invoice"/>
+            <field name="act_window_id" ref="action_invoice"/>
+        </record>
+    <!--END ACTIONS-->
+    </data>
+</openerp>
