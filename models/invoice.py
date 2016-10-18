@@ -7,28 +7,28 @@ class Invoice(models.Model):
     _name = 'budget.invoice'
     _rec_name = 'invoice_no'
     _description = 'Invoice'
+    _order = 'id desc'
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['new', 'verify invoices', 'overrun check', 'print summary',
-               'under certification', 'sent to finance', 'completed'], is_sorted=False)
+    STATES = choices_tuple(['draft', 'verified', 'summary printed',
+               'under certification', 'sent to finance', 'closed', 'rejected'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['to be filled up'], is_sorted=False)
     PAYMENT_TYPES = choices_tuple(['to be filled up'], is_sorted=False)
+    PROBLEMS = choices_tuple(['ok', 'duplicate', 'overrun'])
+    REGIONS = choices_tuple(['AUH', 'DXB', 'NE', 'HO'])
 
     # BASIC FIELDS
     # ----------------------------------------------------------
-    state = fields.Selection(STATES, default='new')
+    state = fields.Selection(STATES, default='draft')
 
-    #Regional for Sir Max Team, HO of mehmood team
-#    region = fields.Char(string="Contract No")
-
-    invoice_no = fields.Char(string="Invoice No")
+    invoice_no = fields.Char(string="Invoice No", required=True)
+    region = fields.Selection(REGIONS)
     invoice_type = fields.Selection(INVOICE_TYPES)
     payment_type = fields.Selection(PAYMENT_TYPES)
     revenue_amount = fields.Float(string='Revenue Amount', digits=(32, 4), default=0.00)
     opex_amount = fields.Float(string='OPEX Amount', digits=(32, 4), default=0.00)
     capex_amount = fields.Float(string='CAPEX Amount', digits=(32, 4), default=0.00)
-    invoice_amount = fields.Float(string='Invoice Amount', digits=(32, 4), default=0.00)
     penalty = fields.Float(string='Penalty Amount', digits=(32, 4), default=0.00)
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
@@ -49,10 +49,57 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     contract_id = fields.Many2one('budget.contract', string='Contract')
     compute_contractor_id = fields.Many2one('res.partner', string='Contractor')
-    #  task = models.ForeignKey(Task, null=True, on_delete=models.CASCADE)
+    task_id = fields.Many2one('budget.task', string='Task')
+    # task = models.ForeignKey(Task, null=True, on_delete=models.CASCADE)
 
-    # BUTTONS
+    # RELATED FIELDS
+    # ----------------------------------------------------------
+    related_authorized_amount = fields.Float(string='Authorized Amount',
+                                             related='task_id.authorized_amount')
+
+    # COMPUTE FIELDS
+    # ----------------------------------------------------------
+    problem = fields.Selection(PROBLEMS, compute='_compute_problem', store=True)
+    invoice_amount = fields.Float(string='Invoice Amount', digits=(32, 4), default=0.00,
+                                  compute='_compute_invoice_amount',
+                                  store=True)
+
+    @api.one
+    @api.depends('invoice_amount', 'task_id.authorized_amount')
+    def _compute_problem(self):
+        # Checks Duplicate
+        count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no)])
+        if count > 1:
+            self.problem = 'duplicate'
+        # Checks Overrun
+        elif self.task_id.authorized_amount < self.invoice_amount:
+            self.problem = 'overrun'
+        else:
+            self.problem = 'ok'
+
+    @api.one
+    @api.depends('opex_amount', 'capex_amount', 'revenue_amount', 'penalty')
+    def _compute_invoice_amount(self):
+        self.invoice_amount = self.opex_amount + self.capex_amount + self.revenue_amount - self.penalty
+
+    # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
     @api.one
-    def set2verify_invoice(self):
-        pass
+    def set2verified(self):
+        self.state = 'verified'
+
+    @api.one
+    def set2closed(self):
+        self.state = 'closed'
+
+    @api.one
+    def set2under_certification(self):
+        self.state = 'under certification'
+
+    @api.one
+    def set2sent_to_finance(self):
+        self.state = 'sent to finance'
+
+    @api.one
+    def set2rejected(self):
+        self.state = 'rejected'

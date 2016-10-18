@@ -11,11 +11,33 @@
                 <form string="Invoice">
                     <header>
                         <button
-                            string="Verify Invoice"
-                            name="set2verify_invoice"
+                            string="Verify"
+                            name="set2verified"
                             type="object"
-                            states="new" />
-                        <field name="state" widget="statusbar"/>
+                            states="draft" />
+                        <button
+                            string="Reject"
+                            name="set2rejected"
+                            type="object"
+                            states="draft,verified,summary printed,under certification,sent to finance"/>
+                        <button
+                            string="Under Certification"
+                            name="set2under_certification"
+                            type="object"
+                            states="verified" />
+                        <button
+                            string="Send to Finance"
+                            name="set2sent_to_finance"
+                            type="object"
+                            states="verified" />
+                        <button
+                            string="Close Invoice"
+                            name="set2closed"
+                            type="object"
+                            states="under certification,sent to finance" />
+
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,verified,summary printed,under certification,sent to finance,closed,rejected"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -24,10 +46,22 @@
                             <h1>
                                 <field name="invoice_no" default_focus="1" placeholder="Invoice No"/>
                             </h1>
+                            <h3>
+                                <field name="problem" decoration-danger="True" readonly="1"/>
+                            </h3>
                         </div>
                         <group>
                             <group>
-                                <field name="contract_id"/>
+                                <field name="task_id"/>
+                            </group>
+                            <group>
+                                <field name="related_authorized_amount" readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="contract_id"
+                                       context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>
                                 <field name="proj_no"/>
                                 <field name="invoice_type"/>
                                 <field name="payment_type"/>
@@ -35,7 +69,7 @@
                                 <field name="expense_code"/>
                             </group>
                             <group>
-                                <field name="invoice_amount"/>
+                                <field name="invoice_amount" readonly="1"/>
                                 <field name="capex_amount"/>
                                 <field name="opex_amount"/>
                                 <field name="revenue_amount"/>
@@ -70,7 +104,7 @@
             <field name="name">Invoice</field>
             <field name="model">budget.invoice</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree decoration-success="problem == 'ok'" decoration-danger="problem != 'ok'" decoration-muted="state=='closed'">
                     <field name="invoice_no"/>
                     <field name="contract_id"/>
                     <field name="invoice_amount"/>
@@ -78,6 +112,9 @@
                     <field name="invoice_cert_date"/>
                     <field name="received_date"/>
                     <field name="sent_finance_date"/>
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="problem"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -89,6 +126,7 @@
         <record model="ir.actions.act_window" id="action_invoice">
             <field name="name">Invoice</field>
             <field name="res_model">budget.invoice</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
             <!--<field name="domain">[('is_budget_invoice','=',True)]</field>-->
             <!--<field name="context">{'default_is_budget_invoice': True}</field>-->
         </record>

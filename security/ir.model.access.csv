@@ -1,2 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_budget_invoice_budget_invoice,budget_invoice.budget_invoice,model_budget_invoice_budget_invoice,,1,0,0,0
+access_budget_invoice_invoice_user,budget_invoice.invoice,model_budget_invoice,group_invoice_user,1,1,1,0
+access_budget_invoice_task_user,budget_invoice.invoice,model_budget_task,group_invoice_user,1,1,1,0
+access_budget_invoice_invoice_manager,budget_invoice.invoice,model_budget_invoice,group_invoice_manager,1,1,1,1
+access_budget_invoice_task_manager,budget_invoice.invoice,model_budget_task,group_invoice_manager,1,1,1,1

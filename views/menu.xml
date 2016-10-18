@@ -12,17 +12,29 @@
     <!--MENU CHILD-->
     <menuitem
         id="menu_contractor_top_left"
-        name="Contractor"
+        name="Invoice"
         sequence="1"
         parent="menu_invoice_top"
-        action="budget_contractor.action_contractor"/>
-
+        action="action_invoice"/>
     <menuitem
-        id="menu_invoice_top_left"
-        name="Invoice"
+        id="menu_task_top_left"
+        name="Task"
         sequence="2"
         parent="menu_invoice_top"
-        action="action_invoice"/>
+        action="action_task"/>
+    <menuitem
+        id="menu_external_top_left"
+        name="Dependencies"
+        sequence="3"
+        parent="menu_invoice_top"/>
+    <!--END MENU CHILD-->
+    <!--MENU CHILD-CHILD-->
+    <menuitem
+        id="menu_contractor"
+        name="Contractor"
+        sequence="1"
+        parent="menu_external_top_left"
+        action="budget_contractor.action_contractor"/>
 
     <!--<menuitem-->
         <!--id="menu_contract_top_left"-->

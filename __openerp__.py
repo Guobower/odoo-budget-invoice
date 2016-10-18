@@ -20,7 +20,11 @@ Invoice Management
     'category': 'TBPC Budget',
     'depends': ['budget_contractor'],
     'data': [
+        'security/budget_invoice.xml',
+        'security/ir.model.access.csv',
+
         'views/invoice.xml',
+        'views/task.xml',
         'views/contractor_inherit.xml',
         'views/menu.xml',
     ],
