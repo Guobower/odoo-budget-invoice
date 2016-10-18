@@ -56,7 +56,8 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     related_authorized_amount = fields.Float(string='Authorized Amount',
                                              related='task_id.authorized_amount')
-
+    related_utilized_amount = fields.Float(string='Utilized Amount',
+                                             related='task_id.utilized_amount')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Selection(PROBLEMS, compute='_compute_problem', store=True)
@@ -65,14 +66,16 @@ class Invoice(models.Model):
                                   store=True)
 
     @api.one
-    @api.depends('invoice_amount', 'task_id.authorized_amount')
+    @api.depends('invoice_amount', 'task_id.authorized_amount', 'task_id.utilized_amount')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no)])
         if count > 1:
             self.problem = 'duplicate'
         # Checks Overrun
-        elif self.task_id.authorized_amount < self.invoice_amount:
+        elif self.state == 'draft' and self.task_id.authorized_amount < self.task_id.utilized_amount + self.invoice_amount:
+            self.problem = 'overrun'
+        elif self.state != 'draft' and self.task_id.authorized_amount < self.task_id.utilized_amount:
             self.problem = 'overrun'
         else:
             self.problem = 'ok'

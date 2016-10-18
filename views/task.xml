@@ -36,6 +36,7 @@
                             </group>
                             <group>
                                 <field name="authorized_amount"/>
+                                <field name="utilized_amount"/>
                                 <field name="current_year"/>
                                 <field name="total_amount"/>
                                 <field name="transferable_amount"/>
@@ -88,6 +89,7 @@
                     <field name="category"/>
                     <field name="year"/>
                     <field name="task_no"/>
+                    <field name="utilized_amount"/>
                     <field name="authorized_amount"/>
                     <field name="transferable_amount"/>
                     <!--<field name="sent_finance_date"/>-->
