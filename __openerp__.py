@@ -18,12 +18,14 @@ Invoice Management
     'author': "Marc Philippe de Villeres",
     'website': "https://github.com/mpdevilleres",
     'category': 'TBPC Budget',
-    'depends': ['budget_contractor'],
+    'depends': ['document',
+                'budget_contractor'],
     'data': [
         'security/budget_invoice.xml',
         'security/ir.model.access.csv',
 
         'views/invoice.xml',
+        'views/invoice_summary.xml',
         'views/task.xml',
         'views/contractor_inherit.xml',
         'views/menu.xml',

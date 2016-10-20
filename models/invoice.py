@@ -13,8 +13,11 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'verified', 'summary printed',
                'under certification', 'sent to finance', 'closed', 'rejected'], is_sorted=False)
-    INVOICE_TYPES = choices_tuple(['to be filled up'], is_sorted=False)
-    PAYMENT_TYPES = choices_tuple(['to be filled up'], is_sorted=False)
+    INVOICE_TYPES = choices_tuple(['access network', 'cable works', 'damage case', 'development',
+                                   'fdh uplifting', 'fttm activities', 'maintainance work',
+                                   'man power', 'mega project', 'migration', 'on demand activities',
+                                   'provisioning', 'recharge', 'recovery'], is_sorted=False)
+    PAYMENT_TYPES = choices_tuple(['ready for service', 'interim'], is_sorted=False)
     PROBLEMS = choices_tuple(['ok', 'duplicate', 'overrun'])
     REGIONS = choices_tuple(['AUH', 'DXB', 'NE', 'HO'])
 
@@ -50,7 +53,6 @@ class Invoice(models.Model):
     contract_id = fields.Many2one('budget.contract', string='Contract')
     compute_contractor_id = fields.Many2one('res.partner', string='Contractor')
     task_id = fields.Many2one('budget.task', string='Task')
-    # task = models.ForeignKey(Task, null=True, on_delete=models.CASCADE)
 
     # RELATED FIELDS
     # ----------------------------------------------------------
@@ -61,6 +63,7 @@ class Invoice(models.Model):
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Selection(PROBLEMS, compute='_compute_problem', store=True)
+    invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
     invoice_amount = fields.Float(string='Invoice Amount', digits=(32, 4), default=0.00,
                                   compute='_compute_invoice_amount',
                                   store=True)
@@ -69,7 +72,8 @@ class Invoice(models.Model):
     @api.depends('invoice_amount', 'task_id.authorized_amount', 'task_id.utilized_amount')
     def _compute_problem(self):
         # Checks Duplicate
-        count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no)])
+        count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no),
+                                                         ('state', '!=', 'rejected')])
         if count > 1:
             self.problem = 'duplicate'
         # Checks Overrun

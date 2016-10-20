@@ -5,11 +5,7 @@ from openerp import models, fields, api
 class Contractor(models.Model):
     _inherit = 'res.partner'
 
-    # RELATED FIELDS
-    # ----------------------------------------------------------
-    # invoice_ids = fields.One2many('budget.invoice',
-    #                               related='contract_ids.invoice_ids',
-    #                               string="Invoices")
+    is_budget_invoice_contractor = fields.Boolean(string='Is Budget Invoice Contractor')
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------

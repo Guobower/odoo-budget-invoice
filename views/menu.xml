@@ -9,31 +9,43 @@
         sequence="5"/>
     <!--END MENU PARENT-->
 
-    <!--MENU CHILD-->
+    <!--MENU LEFT-->
     <menuitem
-        id="menu_contractor_top_left"
+        id="menu_invoice_left"
         name="Invoice"
         sequence="1"
-        parent="menu_invoice_top"
-        action="action_invoice"/>
+        parent="menu_invoice_top"/>
     <menuitem
-        id="menu_task_top_left"
+        id="menu_task_left"
         name="Task"
         sequence="2"
         parent="menu_invoice_top"
         action="action_task"/>
     <menuitem
-        id="menu_external_top_left"
+        id="menu_external_left"
         name="Dependencies"
         sequence="3"
         parent="menu_invoice_top"/>
-    <!--END MENU CHILD-->
-    <!--MENU CHILD-CHILD-->
+    <!--END MENU LEFT-->
+
+    <!--MENU LEFT-CHILD-->
     <menuitem
-        id="menu_contractor"
+        id="menu_invoice_left_child"
+        name="Invoice"
+        sequence="1"
+        parent="menu_invoice_left"
+        action="action_invoice"/>
+    <menuitem
+        id="menu_invoice_summary_left_child"
+        name="Invoice Summary"
+        sequence="2"
+        parent="menu_invoice_left"
+        action="action_invoice_summary"/>
+        <menuitem
+        id="menu_contractor_left_child"
         name="Contractor"
         sequence="1"
-        parent="menu_external_top_left"
+        parent="menu_external_left"
         action="budget_contractor.action_contractor"/>
 
     <!--<menuitem-->

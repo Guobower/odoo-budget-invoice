@@ -53,6 +53,7 @@
                         <group>
                             <group>
                                 <field name="task_id"/>
+                                <field name="region"/>
                             </group>
                             <group>
                                 <field name="related_authorized_amount" readonly="1"/>
@@ -121,13 +122,32 @@
             </field>
         </record>
     <!--END CONTRACTOR VIEWS-->
-
+    <!--START SEARCH-->
+        <record model="ir.ui.view" id="search_invoice">
+            <field name="name">Invoice</field>
+            <field name="model">budget.invoice</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="invoice_no"/>
+                    <!--<field name="contractor_id"/>-->
+                    <field name="create_uid"/>
+                    <field name="problem"/>
+                    <filter
+                        name="filter_state"
+                        string="Need Action"
+                        domain="[('state', 'in', ['draft', 'verified', 'summary printed','under certification', 'sent to finance'])]"/>
+                </search>
+            </field>
+        </record>
+    <!--END SEARCH-->
     <!--START ACTIONS-->
         <!--Invoice Action-->
         <record model="ir.actions.act_window" id="action_invoice">
             <field name="name">Invoice</field>
             <field name="res_model">budget.invoice</field>
             <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="search_view_id" ref="search_invoice"/>
+            <field name="context">{'search_default_filter_state': 1}</field>
             <!--<field name="domain">[('is_budget_invoice','=',True)]</field>-->
             <!--<field name="context">{'default_is_budget_invoice': True}</field>-->
         </record>
