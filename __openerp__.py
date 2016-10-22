@@ -24,6 +24,9 @@ Invoice Management
         'security/budget_invoice.xml',
         'security/ir.model.access.csv',
 
+       'workflow/invoice.xml',
+        'workflow/invoice_summary.xml',
+
         'views/invoice.xml',
         'views/invoice_summary.xml',
         'views/task.xml',

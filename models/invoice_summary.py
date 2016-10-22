@@ -15,15 +15,21 @@ class InvoiceSummary(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['draft', 'generated', 'sent to finance', 'closed', 'canceled'], is_sorted=False)
+    STATES = choices_tuple(['draft', 'file generated', 'under certification',
+                            'sent to finance', 'closed', 'canceled'], is_sorted=False)
     SECTIONS = choices_tuple(['cse', 'fan'], is_sorted=False)
 
     # BASIC FIELDS
     # ----------------------------------------------------------
-    state = fields.Selection(STATES, default='draft')
-    section = fields.Selection(SECTIONS)
     summary_no = fields.Char(string='Summary No',
                              default = lambda self: self._get_default_summary_no())
+    state = fields.Selection(STATES, default='draft')
+    section = fields.Selection(SECTIONS)
+
+    invoice_cert_date = fields.Date(string='Inv Certification Date')
+    signed_date = fields.Date(string='Signed Date')
+    closed_date = fields.Date(string='Closed Date')
+    sent_finance_date = fields.Date(string='Sent to Finance Date')
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
@@ -79,19 +85,12 @@ class InvoiceSummary(models.Model):
 
         return 'IM-%s%s-%03d' % (month, year, sr)
 
-    # dt = fields.Datetime.to_string(datetime.utcnow() - timedelta(days=7))
-    # repartition = record.channel_ids.rating_get_grades([('create_date', '>=', dt)])
-    # BUTTONS/TRANSITIONS
-    # ----------------------------------------------------------
     @api.one
-    def set2generated(self):
+    def generate_file(self):
         """
         generate/create a invoice summary
         set STATE to GENERATED
         """
-        if not self.section in [i[0] for i in self.SECTIONS]:
-            raise ValidationError('Section must be specified')
-
         from ..xlsx_creator.creator import Creator
         import tempfile, shutil
         # OPEN FORM TEMPLATE
@@ -149,26 +148,64 @@ class InvoiceSummary(models.Model):
 
         # Clear
         shutil.rmtree(temp_dir)
-        self.state = 'generated'
+
+    # BUTTONS/TRANSITIONS
+    # ----------------------------------------------------------
+    @api.one
+    def set2draft(self):
+        self.state = 'draft'
+
+    @api.one
+    def set2file_generated(self):
+        if not self.section in [i[0] for i in self.SECTIONS]:
+            raise ValidationError('Section must be specified')
+        elif len(self.invoice_ids) == 0:
+            raise ValidationError('Empty Invoice List')
+
+        self.generate_file()
 
         # Set related invoices state to "summary generated"
         for invoice in self.invoice_ids:
-            invoice.state = 'summary printed'
+            invoice.signal_workflow('summary_generate')
+
+        self.state = 'file generated'
+
+    @api.one
+    def set2under_certification(self):
+        for invoice in self.invoice_ids:
+            invoice.invoice_cert_date = self.invoice_cert_date
+            invoice.signal_workflow('certify')
+        self.state = 'under certification'
 
     @api.one
     def set2sent_to_finance(self):
+        if self.invoice_cert_date is False:
+            raise ValidationError('Invoice Certification Date is Required')
+        elif self.signed_date is False:
+            raise ValidationError('Signed Date is Required')
+        elif self.sent_finance_date is False:
+            raise ValidationError('Sent to Finance Date is Required')
+
         for invoice in self.invoice_ids:
-            invoice.state = 'sent to finance'
+            invoice.sent_finance_date = self.sent_finance_date
+            invoice.signed_date = self.signed_date
+            invoice.invoice_cert_date = self.invoice_cert_date
+            invoice.signal_workflow('send_to_finance')
         self.state = 'sent to finance'
 
     @api.one
     def set2closed(self):
+        if self.closed_date is False:
+            raise ValidationError('Close Date is Required')
         for invoice in self.invoice_ids:
-            invoice.state = 'closed'
+            invoice.closed_date = self.closed_date
+            invoice.signal_workflow('close')
         self.state = 'closed'
 
     @api.one
     def set2canceled(self):
+    # CONTINUE HERE
+    # MUST DO A TRANSITION FOR RETURNING TO DRAFT
         for invoice in self.invoice_ids:
-            invoice.state = 'verified'
+            invoice.signal_workflow('cancel')
         self.state = 'canceled'

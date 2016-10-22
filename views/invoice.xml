@@ -12,32 +12,17 @@
                     <header>
                         <button
                             string="Verify"
-                            name="set2verified"
-                            type="object"
+                            name="verify"
+                            type="workflow"
                             states="draft" />
                         <button
                             string="Reject"
-                            name="set2rejected"
-                            type="object"
-                            states="draft,verified,summary printed,under certification,sent to finance"/>
-                        <button
-                            string="Under Certification"
-                            name="set2under_certification"
-                            type="object"
-                            states="verified" />
-                        <button
-                            string="Send to Finance"
-                            name="set2sent_to_finance"
-                            type="object"
-                            states="verified" />
-                        <button
-                            string="Close Invoice"
-                            name="set2closed"
-                            type="object"
-                            states="under certification,sent to finance" />
+                            name="reject"
+                            type="workflow"
+                            states="draft,verified" />
 
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,verified,summary printed,under certification,sent to finance,closed,rejected"/>
+                           statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed,rejected"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -53,7 +38,7 @@
                         <group>
                             <group>
                                 <field name="task_id"/>
-                                <field name="region"/>
+                                <field name="region" required="1"/>
                             </group>
                             <group>
                                 <field name="related_authorized_amount" readonly="1"/>
@@ -80,20 +65,22 @@
                         </group>
                         <group>
                             <group>
+                                <field name="received_date"/>
                                 <field name="invoice_date"/>
                                 <field name="invoice_cert_date"/>
-                                <field name="received_date"/>
                                 <field name="signed_date"/>
+                                <field name="sent_finance_date"/>
+                                <field name="closed_date"/>
                             </group>
                             <group>
                                 <field name="start_date"/>
                                 <field name="end_date"/>
                                 <field name="rfs_date"/>
                                 <field name="reject_date"/>
-                                <field name="sent_finance_date"/>
                             </group>
                         </group>
                         <group>
+                            <field name="invoice_summary_id" readonly="1"/>
                             <field name="description"/>
                             <field name="remarks"/>
                         </group>
@@ -135,7 +122,7 @@
                     <filter
                         name="filter_state"
                         string="Need Action"
-                        domain="[('state', 'in', ['draft', 'verified', 'summary printed','under certification', 'sent to finance'])]"/>
+                        domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
                 </search>
             </field>
         </record>

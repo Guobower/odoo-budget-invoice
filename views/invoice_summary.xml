@@ -11,29 +11,34 @@
                 <form string="Invoice Summary">
                     <header>
                         <button
-                            string="Generate Summary"
-                            name="set2generated"
-                            type="object"
+                            string="Generate"
+                            name="generate"
+                            type="workflow"
                             states="draft" />
                         <button
+                            string="Certify"
+                            name="under_certification"
+                            type="workflow"
+                            states="file generated" />
+                        <button
                             string="Send to Finance"
-                            name="set2sent_to_finance"
-                            type="object"
-                            states="generated"/>
+                            name="sent_to_finance"
+                            type="workflow"
+                            states="under certification" />
                         <button
                             string="Close"
-                            name="set2closed"
-                            type="object"
-                            states="sent to finance"/>
+                            name="closed"
+                            type="workflow"
+                            states="sent to finance" />
                         <button
                             string="Cancel"
-                            name="set2canceled"
-                            type="object"
-                            states="draft,generated,sent to finance,closed,canceled"/>
+                            name="cancel"
+                            type="workflow"
+                            states="draft,file generated,under certification,sent to finance" />
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
+                        <div class="oe_button_box" name="box">
                         </div>
                         <div class="oe_title">
                             <h1>
@@ -43,6 +48,10 @@
                         <group>
                             <group>
                                 <field name="section"/>
+                                <field name="invoice_cert_date"/>
+                                <field name="signed_date"/>
+                                <field name="sent_finance_date"/>
+                                <field name="closed_date"/>
                             </group>
                             <group>
 
@@ -84,7 +93,7 @@
                     <filter
                         name="filter_state"
                         string="Need Action"
-                        domain="[('state', 'in', ['draft', 'generated', 'sent to finance'])]"/>
+                        domain="[('state', 'not in', ['closed', 'canceled'])]"/>
                 </search>
             </field>
         </record>

@@ -11,7 +11,7 @@ class Invoice(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['draft', 'verified', 'summary printed',
+    STATES = choices_tuple(['draft', 'verified', 'summary generated',
                'under certification', 'sent to finance', 'closed', 'rejected'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'cable works', 'damage case', 'development',
                                    'fdh uplifting', 'fttm activities', 'maintainance work',
@@ -42,6 +42,7 @@ class Invoice(models.Model):
     rfs_date = fields.Date(string='RFS Date')
     reject_date = fields.Date(string='Reject Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
+    closed_date = fields.Date(string='Closed Date')
     cost_center = fields.Char(string="Cost Center")
     expense_code = fields.Char(string="Expense Code")
     remarks = fields.Text(string='Remarks')
@@ -92,12 +93,16 @@ class Invoice(models.Model):
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
     @api.one
+    def set2draft(self):
+        self.state = 'draft'
+
+    @api.one
     def set2verified(self):
         self.state = 'verified'
 
     @api.one
-    def set2closed(self):
-        self.state = 'closed'
+    def set2summary_generated(self):
+        self.state = 'summary generated'
 
     @api.one
     def set2under_certification(self):
@@ -106,6 +111,10 @@ class Invoice(models.Model):
     @api.one
     def set2sent_to_finance(self):
         self.state = 'sent to finance'
+
+    @api.one
+    def set2closed(self):
+        self.state = 'closed'
 
     @api.one
     def set2rejected(self):

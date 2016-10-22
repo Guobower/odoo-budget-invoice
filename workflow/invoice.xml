@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+        <record model="workflow" id="wkf_budget_invoice">
+            <field name="name">Budget Invoice Workflow</field>
+            <field name="osv">budget.invoice</field>
+            <field name="on_create">True</field>
+        </record>
+        <!--START ACTIVITIES-->
+        <record model="workflow.activity" id="act_invoice_draft">
+            <field name="name">draft</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="flow_start" eval="True"/>
+            <field name="kind">function</field>
+            <field name="action">set2draft()</field>
+        </record>
+        <record model="workflow.activity" id="act_invoice_verified">
+            <field name="name">verified</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2verified()</field>
+        </record>
+        <record model="workflow.activity" id="act_invoice_summary_generated">
+            <field name="name">summary generated</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2summary_generated()</field>
+        </record>
+        <record model="workflow.activity" id="act_invoice_under_certification">
+            <field name="name">under certification</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2under_certification()</field>
+        </record>
+        <record model="workflow.activity" id="act_invoice_sent_to_finance">
+            <field name="name">sent to finance</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2sent_to_finance()</field>
+        </record>
+        <record model="workflow.activity" id="act_invoice_closed">
+            <field name="name">closed</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="flow_stop" eval="True"/>
+            <field name="kind">function</field>
+            <field name="action">set2closed()</field>
+        </record>
+        <record model="workflow.activity" id="act_invoice_rejected">
+            <field name="name">rejected</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2rejected()</field>
+        </record>
+        <!--END ACTIVITIES-->
+
+        <!--START TRANSITION-->
+        <record model="workflow.transition" id="invoice_draft_to_verified">
+            <field name="act_from" ref="act_invoice_draft"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">verify</field>
+        </record>
+        <record model="workflow.transition" id="invoice_verified_to_summary_generated">
+            <field name="act_from" ref="act_invoice_verified"/>
+            <field name="act_to" ref="act_invoice_summary_generated"/>
+            <field name="signal">summary_generate</field>
+        </record>
+        <record model="workflow.transition" id="invoice_summary_generated_to_under_certification">
+            <field name="act_from" ref="act_invoice_summary_generated"/>
+            <field name="act_to" ref="act_invoice_under_certification"/>
+            <field name="signal">certify</field>
+        </record>
+        <record model="workflow.transition" id="invoice_under_certification_to_sent_to_finance">
+            <field name="act_from" ref="act_invoice_under_certification"/>
+            <field name="act_to" ref="act_invoice_sent_to_finance"/>
+            <field name="signal">send_to_finance</field>
+        </record>
+        <record model="workflow.transition" id="invoice_sent_to_finance_to_closed">
+            <field name="act_from" ref="act_invoice_sent_to_finance"/>
+            <field name="act_to" ref="act_invoice_closed"/>
+            <field name="signal">close</field>
+        </record>
+        <!--BUTTON REJECTED-->
+        <record model="workflow.transition" id="invoice_verified_to_rejected">
+            <field name="act_from" ref="act_invoice_verified"/>
+            <field name="act_to" ref="act_invoice_rejected"/>
+            <field name="signal">reject</field>
+        </record>
+        <record model="workflow.transition" id="invoice_draft_to_rejected">
+            <field name="act_from" ref="act_invoice_draft"/>
+            <field name="act_to" ref="act_invoice_rejected"/>
+            <field name="signal">reject</field>
+        </record>
+        <!--END BUTTON REJECTED-->
+        <!--CANCEL-->
+        <!--USED BY INVOICE SUMMARY MODEL-->
+        <record model="workflow.transition" id="invoice_verified_to_verified">
+            <field name="act_from" ref="act_invoice_verified"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">cancel</field>
+        </record>
+        <record model="workflow.transition" id="invoice_verified_to_verified">
+            <field name="act_from" ref="act_invoice_verified"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">cancel</field>
+        </record>
+        <record model="workflow.transition" id="invoice_summary_generated_to_verified">
+            <field name="act_from" ref="act_invoice_summary_generated"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">cancel</field>
+        </record>
+        <record model="workflow.transition" id="invoice_under_certification_to_verified">
+            <field name="act_from" ref="act_invoice_under_certification"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">cancel</field>
+        </record>
+        <record model="workflow.transition" id="invoice_sent_to_finance_to_verified">
+            <field name="act_from" ref="act_invoice_sent_to_finance"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">cancel</field>
+        </record>
+        <record model="workflow.transition" id="invoice_sent_to_close_to_verified">
+            <field name="act_from" ref="act_invoice_closed"/>
+            <field name="act_to" ref="act_invoice_verified"/>
+            <field name="signal">cancel</field>
+        </record>
+        <!--END CANCEL-->
+    </data>
+</openerp>
