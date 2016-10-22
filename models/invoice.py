@@ -70,7 +70,7 @@ class Invoice(models.Model):
                                   store=True)
 
     @api.one
-    @api.depends('invoice_amount', 'task_id.authorized_amount', 'task_id.utilized_amount')
+    @api.depends('invoice_no', 'invoice_amount', 'task_id.authorized_amount', 'task_id.utilized_amount')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no),
