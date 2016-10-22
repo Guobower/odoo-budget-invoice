@@ -99,7 +99,7 @@ class InvoiceSummary(models.Model):
         wb = creator.get_wb()
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 9
+        row = 8
         column = 1
         sr = 1
         ws = wb.get_sheet_by_name('main')

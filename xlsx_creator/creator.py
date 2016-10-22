@@ -127,7 +127,7 @@ Worksheet.insert_rows = insert_rows
 # END OPENPYXL
 
 class Creator(object):
-    form_template_path = '/vagrant/odoo_modules/budget_invoice/form_template'
+    form_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'form_template'))
     form_template = os.path.join(form_template_path, 'invoice.summary.template.%s.xlsx')
 
     def __init__(self, section='', data=None):
