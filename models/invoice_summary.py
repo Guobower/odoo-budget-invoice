@@ -99,10 +99,13 @@ class InvoiceSummary(models.Model):
         wb = creator.get_wb()
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 7
+        row = 9
         column = 1
         sr = 1
         ws = wb.get_sheet_by_name('main')
+
+        ws.cell("C1").value = self.summary_no
+        ws.cell("C2").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -125,7 +128,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         temp_dir = tempfile.mkdtemp()
-        temp_file = os.path.join(temp_dir,'tmp.xlsx')
+        temp_file = os.path.join(temp_dir,'%s.xlsx' % self.summary_no)
         wb.save(temp_file)
 
         # Attach generated document to filestore

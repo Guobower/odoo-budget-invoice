@@ -20,6 +20,9 @@ Invoice Management
     'category': 'TBPC Budget',
     'depends': ['document',
                 'budget_contractor'],
+    'external_dependencies': {
+        'python': ['openpyxl']
+    },
     'data': [
         'security/budget_invoice.xml',
         'security/ir.model.access.csv',
