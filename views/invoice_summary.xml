@@ -48,7 +48,7 @@
                         <group>
                             <group>
                                 <field name="section"/>
-                                <field name="invoice_cert_date"/>
+                                <!--<field name="invoice_cert_date"/>-->
                                 <field name="signed_date"/>
                                 <field name="sent_finance_date"/>
                                 <field name="closed_date"/>

@@ -68,15 +68,21 @@
                                 <field name="received_date"/>
                                 <field name="invoice_date"/>
                                 <field name="invoice_cert_date"/>
-                                <field name="signed_date"/>
-                                <field name="sent_finance_date"/>
-                                <field name="closed_date"/>
                             </group>
                             <group>
                                 <field name="start_date"/>
                                 <field name="end_date"/>
                                 <field name="rfs_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="signed_date"/>
+                                <field name="sent_finance_date"/>
+                                <field name="closed_date"/>
                                 <field name="reject_date"/>
+                            </group>
+                            <group>
                             </group>
                         </group>
                         <group>

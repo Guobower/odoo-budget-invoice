@@ -26,7 +26,7 @@ class InvoiceSummary(models.Model):
     state = fields.Selection(STATES, default='draft')
     section = fields.Selection(SECTIONS)
 
-    invoice_cert_date = fields.Date(string='Inv Certification Date')
+    # invoice_cert_date = fields.Date(string='Inv Certification Date')
     signed_date = fields.Date(string='Signed Date')
     closed_date = fields.Date(string='Closed Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
@@ -182,9 +182,9 @@ class InvoiceSummary(models.Model):
 
     @api.one
     def set2sent_to_finance(self):
-        if self.invoice_cert_date is False:
-            raise ValidationError('Invoice Certification Date is Required')
-        elif self.signed_date is False:
+        # if self.invoice_cert_date is False:
+        #     raise ValidationError('Invoice Certification Date is Required')
+        if self.signed_date is False:
             raise ValidationError('Signed Date is Required')
         elif self.sent_finance_date is False:
             raise ValidationError('Sent to Finance Date is Required')
@@ -192,7 +192,7 @@ class InvoiceSummary(models.Model):
         for invoice in self.invoice_ids:
             invoice.sent_finance_date = self.sent_finance_date
             invoice.signed_date = self.signed_date
-            invoice.invoice_cert_date = self.invoice_cert_date
+            # invoice.invoice_cert_date = self.invoice_cert_date
             invoice.signal_workflow('send_to_finance')
         self.state = 'sent to finance'
 

@@ -23,11 +23,16 @@ class Task(models.Model):
     task_completion_date = fields.Date(string="Task Completion Date")
     task_status = fields.Char(string="Task Status")
 
-    authorized_amount = fields.Float(string='Authorized Amount', digits=(32, 4), default=0.00)
-    current_year = fields.Float(string='Current Year Amount', digits=(32, 4), default=0.00)
-    total_amount = fields.Float(string='Total Amount', digits=(32, 4), default=0.00)
-    transferable_amount = fields.Float(string='Transferable Amount', digits=(32, 4), default=0.00)
-    current_month_exp_amount = fields.Float(string='Current Month Expenditure Amount', digits=(32, 4), default=0.00)
+    authorized_amount = fields.Monetary(currency_field='company_currency_id',
+                                        string='Authorized Amount')
+    current_year = fields.Monetary(currency_field='company_currency_id',
+                                   string='Current Year Amount')
+    total_amount = fields.Monetary(currency_field='company_currency_id',
+                                    string='Total Amount')
+    transferable_amount = fields.Monetary(currency_field='company_currency_id',
+                                          string='Transferable Amount')
+    current_month_exp_amount = fields.Monetary(currency_field='company_currency_id',
+                                               string='Current Month Expenditure Amount')
     completion = fields.Integer(string="Completion")
 
     last_pcc_date = fields.Date(string="Last PCC Date")
@@ -57,15 +62,18 @@ class Task(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
+    company_currency_id = fields.Many2one('res.currency', readonly=True,
+                                          default=lambda self: self.env.user.company_id.currency_id)
     invoice_ids = fields.One2many('budget.invoice',
                                   'task_id',
                                   string="Invoices")
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    utilized_amount = fields.Float(string='Utilized Amount', digits=(32, 4), default=0.00,
-                                   compute='_compute_utilized_amount',
-                                   store=True)
+    utilized_amount = fields.Monetary(currency_field='company_currency_id',
+                                      string='Utilized Amount',
+                                      compute='_compute_utilized_amount',
+                                      store=True)
 
     @api.one
     @api.depends('invoice_ids.invoice_amount', 'invoice_ids.state')

@@ -13,7 +13,7 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'verified', 'summary generated',
                'under certification', 'sent to finance', 'closed', 'rejected'], is_sorted=False)
-    INVOICE_TYPES = choices_tuple(['access network', 'cable works', 'damage case', 'development',
+    INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works', 'damage case', 'development',
                                    'fdh uplifting', 'fttm activities', 'maintainance work',
                                    'man power', 'mega project', 'migration', 'on demand activities',
                                    'provisioning', 'recharge', 'recovery'], is_sorted=False)
@@ -29,10 +29,10 @@ class Invoice(models.Model):
     region = fields.Selection(REGIONS)
     invoice_type = fields.Selection(INVOICE_TYPES)
     payment_type = fields.Selection(PAYMENT_TYPES)
-    revenue_amount = fields.Float(string='Revenue Amount', digits=(32, 4), default=0.00)
-    opex_amount = fields.Float(string='OPEX Amount', digits=(32, 4), default=0.00)
-    capex_amount = fields.Float(string='CAPEX Amount', digits=(32, 4), default=0.00)
-    penalty = fields.Float(string='Penalty Amount', digits=(32, 4), default=0.00)
+    revenue_amount = fields.Monetary(string='Revenue Amount', currency_field='company_currency_id')
+    opex_amount = fields.Monetary(string='OPEX Amount', currency_field='company_currency_id')
+    capex_amount = fields.Monetary(string='CAPEX Amount', currency_field='company_currency_id')
+    penalty = fields.Monetary(string='Penalty Amount', currency_field='company_currency_id')
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
     received_date = fields.Date(string='Received Date')
@@ -51,23 +51,25 @@ class Invoice(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
+    company_currency_id = fields.Many2one('res.currency', readonly=True,
+                                          default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contract', string='Contract')
     compute_contractor_id = fields.Many2one('res.partner', string='Contractor')
     task_id = fields.Many2one('budget.task', string='Task')
+    invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
 
     # RELATED FIELDS
     # ----------------------------------------------------------
-    related_authorized_amount = fields.Float(string='Authorized Amount',
+    related_authorized_amount = fields.Monetary(string='Authorized Amount',
                                              related='task_id.authorized_amount')
-    related_utilized_amount = fields.Float(string='Utilized Amount',
+    related_utilized_amount = fields.Monetary(string='Utilized Amount',
                                              related='task_id.utilized_amount')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Selection(PROBLEMS, compute='_compute_problem', store=True)
-    invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
-    invoice_amount = fields.Float(string='Invoice Amount', digits=(32, 4), default=0.00,
-                                  compute='_compute_invoice_amount',
-                                  store=True)
+    invoice_amount = fields.Monetary(string='Invoice Amount', currency_field='company_currency_id',
+                                     compute='_compute_invoice_amount',
+                                     store=True)
 
     @api.one
     @api.depends('invoice_no', 'invoice_amount', 'task_id.authorized_amount', 'task_id.utilized_amount')

@@ -94,16 +94,6 @@
         <!--END BUTTON REJECTED-->
         <!--CANCEL-->
         <!--USED BY INVOICE SUMMARY MODEL-->
-        <record model="workflow.transition" id="invoice_verified_to_verified">
-            <field name="act_from" ref="act_invoice_verified"/>
-            <field name="act_to" ref="act_invoice_verified"/>
-            <field name="signal">cancel</field>
-        </record>
-        <record model="workflow.transition" id="invoice_verified_to_verified">
-            <field name="act_from" ref="act_invoice_verified"/>
-            <field name="act_to" ref="act_invoice_verified"/>
-            <field name="signal">cancel</field>
-        </record>
         <record model="workflow.transition" id="invoice_summary_generated_to_verified">
             <field name="act_from" ref="act_invoice_summary_generated"/>
             <field name="act_to" ref="act_invoice_verified"/>
@@ -116,11 +106,6 @@
         </record>
         <record model="workflow.transition" id="invoice_sent_to_finance_to_verified">
             <field name="act_from" ref="act_invoice_sent_to_finance"/>
-            <field name="act_to" ref="act_invoice_verified"/>
-            <field name="signal">cancel</field>
-        </record>
-        <record model="workflow.transition" id="invoice_sent_to_close_to_verified">
-            <field name="act_from" ref="act_invoice_closed"/>
             <field name="act_to" ref="act_invoice_verified"/>
             <field name="signal">cancel</field>
         </record>
