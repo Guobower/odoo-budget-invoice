@@ -16,13 +16,18 @@
                             type="workflow"
                             states="draft" />
                         <button
+                            string="Place On-hold"
+                            name="on_hold"
+                            type="workflow"
+                            states="draft,verified" />
+                        <button
                             string="Reject"
                             name="reject"
                             type="workflow"
-                            states="draft,verified" />
+                            states="draft,verified,on hold" />
 
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed,rejected"/>
+                           statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed,on hold,rejected"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -42,7 +47,8 @@
                             </group>
                             <group>
                                 <field name="related_authorized_amount" readonly="1"/>
-                                <field name="related_utilized_amount"/>
+                                <field name="related_utilized_amount" readonly="1"/>
+                                <field name="related_total_amount" readonly="1"/>
                             </group>
                         </group>
                         <group>

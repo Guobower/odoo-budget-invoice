@@ -46,9 +46,16 @@
             <field name="kind">function</field>
             <field name="action">set2closed()</field>
         </record>
+        <record model="workflow.activity" id="act_invoice_on_hold">
+            <field name="name">on hold</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2on_hold()</field>
+        </record>
         <record model="workflow.activity" id="act_invoice_rejected">
             <field name="name">rejected</field>
             <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="flow_stop" eval="True"/>
             <field name="kind">function</field>
             <field name="action">set2rejected()</field>
         </record>
@@ -91,7 +98,26 @@
             <field name="act_to" ref="act_invoice_rejected"/>
             <field name="signal">reject</field>
         </record>
+        <record model="workflow.transition" id="invoice_on_hold_to_rejected">
+            <field name="act_from" ref="act_invoice_on_hold"/>
+            <field name="act_to" ref="act_invoice_rejected"/>
+            <field name="signal">reject</field>
+        </record>
         <!--END BUTTON REJECTED-->
+
+        <!--BUTTON ON HOLD-->
+        <record model="workflow.transition" id="invoice_draft_to__on_hold">
+            <field name="act_from" ref="act_invoice_draft"/>
+            <field name="act_to" ref="act_invoice_on_hold"/>
+            <field name="signal">on_hold</field>
+        </record>
+        <record model="workflow.transition" id="invoice_verified_to_on_hold">
+            <field name="act_from" ref="act_invoice_verified"/>
+            <field name="act_to" ref="act_invoice_on_hold"/>
+            <field name="signal">on_hold</field>
+        </record>
+        <!--END BUTTON ON HOLD-->
+
         <!--CANCEL-->
         <!--USED BY INVOICE SUMMARY MODEL-->
         <record model="workflow.transition" id="invoice_summary_generated_to_verified">

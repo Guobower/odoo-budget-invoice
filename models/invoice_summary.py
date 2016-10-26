@@ -86,26 +86,37 @@ class InvoiceSummary(models.Model):
         return 'IM-%s%s-%03d' % (month, year, sr)
 
     @api.one
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        default = dict(default or {})
+        default.update(summary_no=self._get_default_summary_no())
+        return super(InvoiceSummary, self).copy(default)
+
+    @api.one
     def generate_file(self):
         """
         generate/create a invoice summary
         set STATE to GENERATED
         """
+        from openpyxl.drawing.image import Image
         from ..xlsx_creator.creator import Creator
         import tempfile, shutil
         # OPEN FORM TEMPLATE
 
         creator = Creator(section=self.section)
-        wb = creator.get_wb()
+        wb, logo_img, signature_img = creator.get_context()
+
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 8
+        row = 12
         column = 1
         sr = 1
+        signature_coor = "B17" # B18
+        logo_coor = "J1"     # J1
         ws = wb.get_sheet_by_name('main')
 
-        ws.cell("C1").value = self.summary_no
-        ws.cell("C2").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        ws.cell("C4").value = self.summary_no
+        ws.cell("C5").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -117,15 +128,21 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 2).value = r.compute_contractor_id.name or ''
             ws.cell(row=row, column=column + 3).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 4).value = r.contract_id.contract_no or ''
-            ws.cell(row=row, column=column + 5).value = ''
-            ws.cell(row=row, column=column + 6).value = r.revenue_amount or ''
-            ws.cell(row=row, column=column + 7).value = r.opex_amount or ''
-            ws.cell(row=row, column=column + 8).value = r.capex_amount or ''
-            ws.cell(row=row, column=column + 9).value = r.invoice_amount or ''
-            ws.cell(row=row, column=column + 10).value = r.task_id.task_no or ''
+            ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
+            ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
+            ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
+            ws.cell(row=row, column=column + 8).value = r.invoice_amount or ''
+            ws.cell(row=row, column=column + 9).value = r.task_id.task_no or ''
 
             row += 1
             sr += 1
+
+        # INSERT HEADER LOGO AND SIGNATURE
+        logo = Image(logo_img)
+        signature = Image(signature_img)
+
+        ws.add_image(logo, logo_coor)
+        ws.add_image(signature, "%s" % signature_coor[0] + str(int(signature_coor[1:])+sr))
 
         temp_dir = tempfile.mkdtemp()
         temp_file = os.path.join(temp_dir,'%s.xlsx' % self.summary_no)

@@ -128,18 +128,20 @@ Worksheet.insert_rows = insert_rows
 
 class Creator(object):
     form_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'form_template'))
-    form_template = os.path.join(form_template_path, 'invoice.summary.template.%s.xlsx')
+    form_template = os.path.join(form_template_path, 'invoice.summary.template.xlsx')
 
     def __init__(self, section='', data=None):
-        self.form = self.form_template % section
+        self.form = self.form_template
 
         self.wb = load_workbook(self.form)
         self.ws = self.wb.get_sheet_by_name('main')
         self.data = data
 
+        self.logo_path = os.path.join(self.form_template_path, "img", "logo.png")
+        self.sign_path = os.path.join(self.form_template_path, "img", "signature_%s.png" % section)
 
 
-    def get_wb(self):
+    def get_context(self):
         self.wb = load_workbook(self.form)
+        return self.wb, self.logo_path, self.sign_path
 
-        return self.wb

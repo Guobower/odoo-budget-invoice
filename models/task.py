@@ -28,7 +28,7 @@ class Task(models.Model):
     current_year = fields.Monetary(currency_field='company_currency_id',
                                    string='Current Year Amount')
     total_amount = fields.Monetary(currency_field='company_currency_id',
-                                    string='Total Amount')
+                                    string='Utilized Amount (FN)')
     transferable_amount = fields.Monetary(currency_field='company_currency_id',
                                           string='Transferable Amount')
     current_month_exp_amount = fields.Monetary(currency_field='company_currency_id',
@@ -71,7 +71,7 @@ class Task(models.Model):
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     utilized_amount = fields.Monetary(currency_field='company_currency_id',
-                                      string='Utilized Amount',
+                                      string='Utilized Amount (IM)',
                                       compute='_compute_utilized_amount',
                                       store=True)
 

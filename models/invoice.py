@@ -12,7 +12,7 @@ class Invoice(models.Model):
     # CHOICES
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'verified', 'summary generated',
-               'under certification', 'sent to finance', 'closed', 'rejected'], is_sorted=False)
+               'under certification', 'sent to finance', 'closed', 'on hold', 'rejected'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works', 'damage case', 'development',
                                    'fdh uplifting', 'fttm activities', 'maintainance work',
                                    'man power', 'mega project', 'migration', 'on demand activities',
@@ -62,8 +62,10 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     related_authorized_amount = fields.Monetary(string='Authorized Amount',
                                              related='task_id.authorized_amount')
-    related_utilized_amount = fields.Monetary(string='Utilized Amount',
+    related_utilized_amount = fields.Monetary(string='Utilized Amount (IM)',
                                              related='task_id.utilized_amount')
+    related_total_amount = fields.Monetary(string='Utilized Amount (FN)',
+                                              related='task_id.total_amount')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Selection(PROBLEMS, compute='_compute_problem', store=True)
@@ -82,8 +84,10 @@ class Invoice(models.Model):
         # Checks Overrun
         elif self.state == 'draft' and self.task_id.authorized_amount < self.task_id.utilized_amount + self.invoice_amount:
             self.problem = 'overrun'
-        elif self.state != 'draft' and self.task_id.authorized_amount < self.task_id.utilized_amount:
+        elif self.state == 'draft' and self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
             self.problem = 'overrun'
+        # elif self.state != 'draft' and self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
+        #     self.problem = 'overrun'
         else:
             self.problem = 'ok'
 
@@ -117,6 +121,10 @@ class Invoice(models.Model):
     @api.one
     def set2closed(self):
         self.state = 'closed'
+
+    @api.one
+    def set2on_hold(self):
+        self.state = 'on hold'
 
     @api.one
     def set2rejected(self):
