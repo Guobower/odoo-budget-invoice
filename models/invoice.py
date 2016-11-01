@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import models, fields, api
+from odoo import models, fields, api
 from .utils import choices_tuple
 
 class Invoice(models.Model):
@@ -12,9 +12,9 @@ class Invoice(models.Model):
     # CHOICES
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'verified', 'summary generated',
-               'under certification', 'sent to finance', 'closed', 'on hold', 'rejected'], is_sorted=False)
+                            'under certification', 'sent to finance', 'closed', 'on hold', 'rejected'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works', 'damage case', 'development',
-                                   'fdh uplifting', 'fttm activities', 'maintainance work',
+                                   'fdh uplifting', 'fttm activities', 'maintenance work',
                                    'man power', 'mega project', 'migration', 'on demand activities',
                                    'provisioning', 'recharge', 'recovery'], is_sorted=False)
     PAYMENT_TYPES = choices_tuple(['ready for service', 'interim'], is_sorted=False)
@@ -61,11 +61,11 @@ class Invoice(models.Model):
     # RELATED FIELDS
     # ----------------------------------------------------------
     related_authorized_amount = fields.Monetary(string='Authorized Amount',
-                                             related='task_id.authorized_amount')
+                                                related='task_id.authorized_amount')
     related_utilized_amount = fields.Monetary(string='Utilized Amount (IM)',
-                                             related='task_id.utilized_amount')
+                                              related='task_id.utilized_amount')
     related_total_amount = fields.Monetary(string='Utilized Amount (FN)',
-                                              related='task_id.total_amount')
+                                           related='task_id.total_amount')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Selection(PROBLEMS, compute='_compute_problem', store=True)
@@ -74,22 +74,31 @@ class Invoice(models.Model):
                                      store=True)
 
     @api.one
-    @api.depends('invoice_no', 'invoice_amount', 'task_id.authorized_amount', 'task_id.utilized_amount')
+    @api.depends('invoice_type', 'invoice_no', 'invoice_amount',
+                 'task_id.authorized_amount', 'task_id.utilized_amount', 'task_id.category')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no),
                                                          ('state', '!=', 'rejected')])
+        # import ipdb;        ipdb.set_trace()
         if count > 1:
             self.problem = 'duplicate'
         # Checks Overrun
-        elif self.state == 'draft' and self.task_id.authorized_amount < self.task_id.utilized_amount + self.invoice_amount:
-            self.problem = 'overrun'
-        elif self.state == 'draft' and self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
-            self.problem = 'overrun'
-        # elif self.state != 'draft' and self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
-        #     self.problem = 'overrun'
+
+        elif self.state != 'draft':
+            self.problem = 'ok'
+
+        elif self.state == 'draft' and (self.invoice_type == 'maintenance work' or self.task_id.category == "Y"):
+            self.problem = 'ok'
+
+        elif self.state == 'draft' and (self.invoice_type != 'maintenance work' or self.task_id.category != "Y"):
+            if self.task_id.authorized_amount < self.task_id.utilized_amount + self.invoice_amount:
+                self.problem = 'overrun'
+            elif self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
+                self.problem = 'overrun'
         else:
             self.problem = 'ok'
+
 
     @api.one
     @api.depends('opex_amount', 'capex_amount', 'revenue_amount', 'penalty')

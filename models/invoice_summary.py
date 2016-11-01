@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from openerp import models, fields, api
-from openerp.exceptions import UserError, ValidationError
-from openerp.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
+from odoo import models, fields, api
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
 from .utils import choices_tuple
 import os
 
@@ -108,10 +108,10 @@ class InvoiceSummary(models.Model):
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 12
+        row = 13
         column = 1
         sr = 1
-        signature_coor = "B17" # B18
+        signature_coor = "B18" # B18
         logo_coor = "J1"     # J1
         ws = wb.get_sheet_by_name('main')
 
@@ -132,7 +132,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
             ws.cell(row=row, column=column + 8).value = r.invoice_amount or ''
-            ws.cell(row=row, column=column + 9).value = r.task_id.task_no or ''
+            ws.cell(row=row, column=column + 9).value = r.task_id.task_no or fields.Datetime.from_string(r.rfs_date).strftime('%d-%b-%Y')
 
             row += 1
             sr += 1
@@ -193,7 +193,7 @@ class InvoiceSummary(models.Model):
     @api.one
     def set2under_certification(self):
         for invoice in self.invoice_ids:
-            invoice.invoice_cert_date = self.invoice_cert_date
+            # invoice.invoice_cert_date = self.invoice_cert_date
             invoice.signal_workflow('certify')
         self.state = 'under certification'
 
