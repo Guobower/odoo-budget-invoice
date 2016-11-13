@@ -52,22 +52,6 @@
                             </group>
                         </group>
                         <group>
-                            <group>
-                                <field name="proj_no"/>
-                                <field name="proj_description"/>
-                                <field name="proj_owner"/>
-                                <field name="proj_start_date"/>
-                            </group>
-                            <group>
-                                <field name="engineer_pf"/>
-                                <field name="engineer_name"/>
-                                <field name="engineer_contact"/>
-                                <field name="engineer_email"/>
-                                <field name="engineer_department"/>
-                                <field name="organization"/>
-                            </group>
-                        </group>
-                        <group>
                             <field name="notes"/>
                         </group>
                         <notebook>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import models, fields, api
+from odoo import models, fields, api
 
 class Contractor(models.Model):
     _inherit = 'res.partner'
@@ -10,18 +10,18 @@ class Contractor(models.Model):
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     total_invoice = fields.Integer(compute='_compute_total_invoice', store=True)
-    invoice_ids = fields.One2many('budget.invoice',
+    contractor_invoice_ids = fields.One2many('budget.invoice',
                                   'compute_contractor_id',
                                   compute='_compute_invoice_ids',
                                   string="Invoices",
                                   store=True)
 
     @api.one
-    @api.depends('contract_ids.invoice_ids')
+    @api.depends('contractor_contract_ids.invoice_ids')
     def _compute_total_invoice(self):
-        self.total_invoice = len(self.mapped('contract_ids.invoice_ids'))
+        self.total_invoice = len(self.mapped('contractor_contract_ids.invoice_ids'))
 
     @api.one
-    @api.depends('contract_ids.invoice_ids')
+    @api.depends('contractor_contract_ids.invoice_ids')
     def _compute_invoice_ids(self):
-        self.invoice_ids = self.mapped('contract_ids.invoice_ids')
+        self.invoice_ids = self.mapped('contractor_contract_ids.invoice_ids')

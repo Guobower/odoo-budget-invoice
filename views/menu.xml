@@ -20,7 +20,7 @@
         name="Task"
         sequence="2"
         parent="menu_invoice_top"
-        action="action_task"/>
+        action="budget_capex.action_task"/>
     <menuitem
         id="menu_external_left"
         name="Dependencies"

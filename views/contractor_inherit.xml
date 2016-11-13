@@ -18,9 +18,8 @@
                 <xpath expr="//notebook" position="inside">
 
                     <page string="Invoice">
-                        <field name="invoice_ids" readonly="0"/>
+                        <field name="contractor_invoice_ids" readonly="0"/>
                     </page>
-
                 </xpath>
             </field>
         </record>

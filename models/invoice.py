@@ -26,6 +26,8 @@ class Invoice(models.Model):
     state = fields.Selection(STATES, default='draft')
 
     invoice_no = fields.Char(string="Invoice No", required=True)
+    # TODO: convert region to region_id and delete region next patch
+    # DEPRECATED
     region = fields.Selection(REGIONS)
     invoice_type = fields.Selection(INVOICE_TYPES)
     payment_type = fields.Selection(PAYMENT_TYPES)
@@ -57,6 +59,8 @@ class Invoice(models.Model):
     compute_contractor_id = fields.Many2one('res.partner', string='Contractor')
     task_id = fields.Many2one('budget.task', string='Task')
     invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
+    # TODO: place region to region_id
+    region_id = fields.Many2one('budget.region', string="Region")
 
     # RELATED FIELDS
     # ----------------------------------------------------------
@@ -76,6 +80,7 @@ class Invoice(models.Model):
     @api.one
     @api.depends('invoice_type', 'invoice_no', 'invoice_amount',
                  'task_id.authorized_amount', 'task_id.utilized_amount', 'task_id.category')
+    # TODO check logic for FN overrun
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no),

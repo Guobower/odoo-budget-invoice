@@ -19,7 +19,8 @@ Invoice Management
     'website': "https://github.com/mpdevilleres",
     'category': 'TBPC Budget',
     'depends': ['document',
-                'budget_contractor'],
+                'budget_contractor',
+                'budget_capex'],
     'external_dependencies': {
         'python': ['openpyxl']
     },
@@ -32,7 +33,7 @@ Invoice Management
 
         'views/invoice.xml',
         'views/invoice_summary.xml',
-        'views/task.xml',
+        # 'views/task.xml',
         'views/contractor_inherit.xml',
         'views/menu.xml',
     ],
