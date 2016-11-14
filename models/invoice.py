@@ -85,22 +85,22 @@ class Invoice(models.Model):
         # Checks Duplicate
         count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no),
                                                          ('state', '!=', 'rejected')])
-        # import ipdb;        ipdb.set_trace()
         if count > 1:
             self.problem = 'duplicate'
-        # Checks Overrun
 
+        # Checks Overrun
         elif self.state != 'draft':
             self.problem = 'ok'
 
         elif self.state == 'draft' and (self.invoice_type == 'maintenance work' or self.task_id.category == "Y"):
             self.problem = 'ok'
 
-        elif self.state == 'draft' and (self.invoice_type != 'maintenance work' or self.task_id.category != "Y"):
-            if self.task_id.authorized_amount < self.task_id.utilized_amount + self.invoice_amount:
-                self.problem = 'overrun'
-            elif self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
-                self.problem = 'overrun'
+        elif self.task_id.authorized_amount < self.task_id.utilized_amount + self.invoice_amount:
+            self.problem = 'overrun'
+
+        elif self.task_id.authorized_amount < self.task_id.total_amount + self.invoice_amount:
+            self.problem = 'overrun'
+
         else:
             self.problem = 'ok'
 

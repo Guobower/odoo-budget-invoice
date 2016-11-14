@@ -90,6 +90,7 @@ class InvoiceSummary(models.Model):
     def copy(self, default=None):
         default = dict(default or {})
         default.update(summary_no=self._get_default_summary_no())
+        default.update(invoice_ids = [(6, None, self.invoice_ids.mapped('id'))])
         return super(InvoiceSummary, self).copy(default)
 
     @api.one
@@ -124,8 +125,8 @@ class InvoiceSummary(models.Model):
         #1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
         for r in self.invoice_ids:
             ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = r.region.upper() or ''
-            ws.cell(row=row, column=column + 2).value = r.compute_contractor_id.name or ''
+            ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
+            ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
             ws.cell(row=row, column=column + 3).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 4).value = r.contract_id.contract_no or ''
             ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''

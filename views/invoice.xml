@@ -27,7 +27,7 @@
                             states="draft,verified,on hold" />
 
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed,on hold,rejected"/>
+                           statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -43,7 +43,7 @@
                         <group>
                             <group>
                                 <field name="task_id"/>
-                                <field name="region" required="1"/>
+                                <field name="region_id" required="1"/>
                             </group>
                             <group>
                                 <field name="related_authorized_amount" readonly="1"/>
@@ -105,7 +105,9 @@
             <field name="name">Invoice</field>
             <field name="model">budget.invoice</field>
             <field name="arch" type="xml">
-                <tree decoration-success="problem == 'ok'" decoration-danger="problem != 'ok'" decoration-muted="state=='closed'">
+                <tree decoration-success="problem in ['ok', False]"
+                      decoration-danger="problem in ['duplicate', 'overrun']"
+                      decoration-muted="state == 'closed'">
                     <field name="invoice_no"/>
                     <field name="contract_id"/>
                     <field name="invoice_amount"/>
