@@ -11,10 +11,9 @@ class Contractor(models.Model):
     # ----------------------------------------------------------
     total_invoice = fields.Integer(compute='_compute_total_invoice', store=True)
     contractor_invoice_ids = fields.One2many('budget.invoice',
-                                  'compute_contractor_id',
-                                  compute='_compute_invoice_ids',
-                                  string="Invoices",
-                                  store=True)
+                                             compute='_compute_invoice_ids',
+                                             string="Invoices"
+                                             )
 
     @api.one
     @api.depends('contractor_contract_ids.invoice_ids')
@@ -24,4 +23,4 @@ class Contractor(models.Model):
     @api.one
     @api.depends('contractor_contract_ids.invoice_ids')
     def _compute_invoice_ids(self):
-        self.invoice_ids = self.mapped('contractor_contract_ids.invoice_ids')
+        self.contractor_invoice_ids = self.mapped('contractor_contract_ids.invoice_ids')

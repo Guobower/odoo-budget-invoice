@@ -56,7 +56,7 @@ class Invoice(models.Model):
     company_currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contract', string='Contract')
-    compute_contractor_id = fields.Many2one('res.partner', string='Contractor')
+    related_contractor_id = fields.Many2one(relate='contract_id.contractor_id', string='Contractor')
     task_id = fields.Many2one('budget.task', string='Task')
     invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
     # TODO: place region to region_id
