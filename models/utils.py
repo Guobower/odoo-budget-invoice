@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 def choices_tuple(choices, is_sorted=True):
     choices = [(i.lower(), i.upper()) for i in choices]
 

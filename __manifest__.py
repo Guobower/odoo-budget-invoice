@@ -36,6 +36,10 @@ Invoice Management
         # 'views/task.xml',
         'views/contractor_inherit.xml',
         'views/menu.xml',
+
+        # Reports
+#        'reports/invoice.xml',
+
     ],
     'demo': [
     ],
