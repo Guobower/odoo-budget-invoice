@@ -44,6 +44,8 @@
                             <group>
                                 <field name="task_id"/>
                                 <field name="region_id" required="1"/>
+                                <field name="section_id"/>
+                                <field name="sub_section_id"/>
                             </group>
                             <group>
                                 <field name="related_authorized_amount" readonly="1"/>
