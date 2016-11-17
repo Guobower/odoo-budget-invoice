@@ -26,9 +26,6 @@ class Invoice(models.Model):
     state = fields.Selection(STATES, default='draft')
 
     invoice_no = fields.Char(string="Invoice No", required=True)
-    # TODO: convert region to region_id and delete region next patch
-    # DEPRECATED
-    region = fields.Selection(REGIONS)
     invoice_type = fields.Selection(INVOICE_TYPES)
     payment_type = fields.Selection(PAYMENT_TYPES)
     revenue_amount = fields.Monetary(string='Revenue Amount', currency_field='company_currency_id')
@@ -56,15 +53,18 @@ class Invoice(models.Model):
     company_currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contract', string='Contract')
-    # TODO: make compute field to store contractor_id for group by
-    related_contractor_id = fields.Many2one(related='contract_id.contractor_id', string='Contractor', store=True)
     task_id = fields.Many2one('budget.task', string='Task')
     invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
-    # TODO: place region to region_id
     region_id = fields.Many2one('budget.region', string="Region")
+
+    section_id = fields.Many2one('res.partner', string="Section", domain=[('is_budget_section','=',True)])
+    sub_section_id = fields.Many2one('res.partner', string="Sub Section", domain=[('is_budget_sub_section','=',True)])
 
     # RELATED FIELDS
     # ----------------------------------------------------------
+    related_contractor_id = fields.Many2one( string='Contractor',
+                                             related='contract_id.contractor_id',
+                                             store=True)
     related_authorized_amount = fields.Monetary(string='Authorized Amount',
                                                 related='task_id.authorized_amount')
     related_utilized_amount = fields.Monetary(string='Utilized Amount (IM)',
