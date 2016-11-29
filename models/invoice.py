@@ -55,7 +55,7 @@ class Invoice(models.Model):
     contract_id = fields.Many2one('budget.contract', string='Contract')
     task_id = fields.Many2one('budget.task', string='Task')
     invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
-    region_id = fields.Many2one('budget.region', string="Region")
+    region_id = fields.Many2one('budget.enduser.region', string="Region")
 
     section_id = fields.Many2one('res.partner', string="Section", domain=[('is_budget_section','=',True)])
     sub_section_id = fields.Many2one('res.partner', string="Sub Section", domain=[('is_budget_sub_section','=',True)])
@@ -144,3 +144,25 @@ class Invoice(models.Model):
     @api.one
     def set2rejected(self):
         self.state = 'rejected'
+
+    @api.multi
+    def to_record(self):
+        """
+        :return: a list of dictionary for pandas module
+        """
+        output = []
+        fields = self.fields_get_keys()
+
+        for record in self:
+            temp_dict = {}
+            for field in fields:
+                key = field
+                value = getattr(record, key)
+                if isinstance(value, (str, int)):
+                    temp_dict.update(key = value)
+
+                else:
+                    temp_dict.update(key = value.display_name)
+
+            output.append(temp_dict)
+        return output

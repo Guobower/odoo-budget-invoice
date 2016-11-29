@@ -27,7 +27,7 @@ class TaskInherit(models.Model):
     @api.depends('invoice_ids.invoice_amount', 'invoice_ids.state')
     def _compute_utilized_amount(self):
         invoices = self.env['budget.invoice'].search([('task_id', '=', self.id),
-                                           ('state', 'in', ['verified', 'summary printed',
+                                           ('state', 'in', ['verified', 'summary generated',
                                                             'under certification', 'sent to finance', 'closed',])
                                            ])
         self.utilized_amount = sum(invoices.mapped('invoice_amount'))

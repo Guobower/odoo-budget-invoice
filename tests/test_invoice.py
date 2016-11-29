@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from odoo.tests import common
+from odoo.tests.common import TransactionCase
 
 
-class TestInvoice(common.TransactionCase):
+class TestInvoice(TransactionCase):
+    at_install = False
+    post_install = True
+
     def setUp(self):
         super(TestInvoice, self).setUp()
 
     def test_fields(self):
+        """
+        Checks for the fields required
+        """
         req_fields = [
             'region_id',
             'related_authorized_amount',
@@ -53,8 +59,6 @@ class TestInvoice(common.TransactionCase):
 
         set_fields = set(fields)
         set_req_fields = set(req_fields)
-        self.assertTrue(False)
-        self.assertFalse(True)
         self.assertFalse(len(set_fields & set_req_fields) == len(set(set_req_fields)),
                         'missing required fields %s' % ', '.join(set_req_fields - set_fields))
 
