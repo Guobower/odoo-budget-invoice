@@ -10,7 +10,7 @@ class Contractor(models.Model):
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     total_invoice = fields.Integer(compute='_compute_total_invoice', store=True)
-    contractor_invoice_ids = fields.One2many('budget.invoice',
+    contractor_invoice_ids = fields.One2many('budget.invoice.invoice',
                                              compute='_compute_invoice_ids',
                                              string="Invoices"
                                              )

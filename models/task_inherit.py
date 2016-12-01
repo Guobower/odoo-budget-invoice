@@ -3,8 +3,9 @@
 from odoo import models, fields, api
 from .utils import choices_tuple
 
+# TODO REVISIT
 class TaskInherit(models.Model):
-    _inherit = 'budget.task'
+    _inherit = 'budget.capex.task'
 
     # BASIC FIELDS
     # ----------------------------------------------------------
@@ -12,7 +13,7 @@ class TaskInherit(models.Model):
     # RELATIONSHIPS
     # ----------------------------------------------------------
     # company_currency_id already exist in the parent model
-    invoice_ids = fields.One2many('budget.invoice',
+    invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'task_id',
                                   string="Invoices")
 
@@ -26,7 +27,7 @@ class TaskInherit(models.Model):
     @api.one
     @api.depends('invoice_ids.invoice_amount', 'invoice_ids.state')
     def _compute_utilized_amount(self):
-        invoices = self.env['budget.invoice'].search([('task_id', '=', self.id),
+        invoices = self.env['budget.invoice.invoice'].search([('task_id', '=', self.id),
                                            ('state', 'in', ['verified', 'summary generated',
                                                             'under certification', 'sent to finance', 'closed',])
                                            ])

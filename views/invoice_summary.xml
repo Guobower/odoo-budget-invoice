@@ -59,8 +59,7 @@
                         </group>
                         <notebook>
                             <page string="Invoices">
-                                <field name="invoice_ids" widget="many2many"
-                                       domain="[('state','in',['verified'])]"/>
+                                <field name="invoice_ids"/>
                             </page>
                         </notebook>
                     </sheet>

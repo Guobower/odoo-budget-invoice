@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
 from .utils import choices_tuple
 import os
 
@@ -33,7 +32,14 @@ class InvoiceSummary(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    invoice_ids = fields.One2many('budget.invoice',
+    # TODO MUST NOT EDITABLE WHEN ON PROCESS, CHECK RULE ACCESS
+    invoice_ids = fields.Many2many('budget.invoice.invoice',
+                                  'budget_invoice_summary_invoice',
+                                  'summary_id',
+                                  'invoice_id')
+
+    # TODO USE FOR TRANSFERING INVOICES
+    tmp_invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'invoice_summary_id',
                                   string="Invoices")
     attachment_ids = fields.One2many('ir.attachment',
@@ -47,34 +53,35 @@ class InvoiceSummary(models.Model):
             '_uniq_summary_no',
             'UNIQUE(summary_no)',
             'summary must be unqiue!',
-            ),
+            )
     ]
-    # MISC FUNCTIONS
-    # ----------------------------------------------------------
-    @api.one
-    def export_file(self):
-        attachment_id = None
-        filename=None
-        if len(self.attachment_ids) > 0:
-            attachment_id = self.attachment_ids[0].id
-
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/web/content/%s/%s' % (attachment_id, filename),
-            'target': 'self',
-        }
+    # # MISC FUNCTIONS
+    # # ----------------------------------------------------------
+    # @api.one
+    # def export_file(self):
+    #     attachment_id = None
+    #     filename=None
+    #     if len(self.attachment_ids) > 0:
+    #         attachment_id = self.attachment_ids[0].id
+    #
+    #     return {
+    #         'type': 'ir.actions.act_url',
+    #         'url': '/web/content/%s/%s' % (attachment_id, filename),
+    #         'target': 'self',
+    #     }
 
     @api.model
     def _get_default_summary_no(self):
-        import datetime
         from datetime import datetime as dt
+        from dateutil.relativedelta import relativedelta
         now = dt.utcnow()
         month = '{:%^b}'.format(now)
         year = '{:%y}'.format(now)
         start = dt(now.year, now.month, 1)
-        end = dt(now.year, now.month + 1, 1) - datetime.timedelta (days = 1)
+        end = dt(now.year, now.month, 1) + relativedelta(months=1)
+        # end should be the first day next month to make time consider as 23:59:99
         domain = [('create_date', '>=', fields.Datetime.to_string(start)),
-                  ('create_date', '<=', fields.Datetime.to_string(end))]
+                  ('create_date', '<', fields.Datetime.to_string(end))]
 
         summaries = self.env['budget.invoice.summary'].search(domain)
         if len(summaries) == 0:
@@ -85,13 +92,13 @@ class InvoiceSummary(models.Model):
 
         return 'IM-%s%s-%03d' % (month, year, sr)
 
-    @api.one
-    @api.returns('self', lambda value: value.id)
-    def copy(self, default=None):
-        default = dict(default or {})
-        default.update(summary_no=self._get_default_summary_no())
-        default.update(invoice_ids = [(6, None, self.invoice_ids.mapped('id'))])
-        return super(InvoiceSummary, self).copy(default)
+    # @api.one
+    # @api.returns('self', lambda value: value.id)
+    # def copy(self, default=None):
+    #     default = dict(default or {})
+    #     default.update(summary_no=self._get_default_summary_no())
+    #     default.update(invoice_ids = [(6, None, self.invoice_ids.mapped('id'))])
+    #     return super(InvoiceSummary, self).copy(default)
 
     @api.one
     def generate_file(self):
@@ -159,7 +166,6 @@ class InvoiceSummary(models.Model):
         values = dict(
             name=filename,
             datas_fname=filename,
-            invoice_summary_id=self.id,
             res_id=self.id,
             res_model='budget.invoice.summary',
             type='binary',

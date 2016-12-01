@@ -4,7 +4,7 @@ from odoo import models, fields, api
 from .utils import choices_tuple
 
 class Invoice(models.Model):
-    _name = 'budget.invoice'
+    _name = 'budget.invoice.invoice'
     _rec_name = 'invoice_no'
     _description = 'Invoice'
     _order = 'id desc'
@@ -25,7 +25,7 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     state = fields.Selection(STATES, default='draft')
 
-    invoice_no = fields.Char(string="Invoice No", required=True)
+    invoice_no = fields.Char(string="Invoice No")
     invoice_type = fields.Selection(INVOICE_TYPES)
     payment_type = fields.Selection(PAYMENT_TYPES)
     revenue_amount = fields.Monetary(string='Revenue Amount', currency_field='company_currency_id')
@@ -46,14 +46,24 @@ class Invoice(models.Model):
     expense_code = fields.Char(string="Expense Code")
     remarks = fields.Text(string='Remarks')
     description = fields.Text(string='Description')
+    # TODO proj_no to pec_no
     proj_no = fields.Char(string="Project No")
+    pec_no = fields.Char(string="PEC No")
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
     company_currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
-    contract_id = fields.Many2one('budget.contract', string='Contract')
-    task_id = fields.Many2one('budget.task', string='Task')
+    contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
+    task_id = fields.Many2one('budget.capex.task', string='Task')
+    # TODO MUST NOT BE MANY
+    summary_ids = fields.Many2many('budget.invoice.summary',
+                                   'budget_invoice_summary_invoice',
+                                   'invoice_id',
+                                   'summary_id',
+                                   string='Summaries'
+                                  )
+    # TODO MUST TRANSFER TO SUMMARY IDS
     invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
     region_id = fields.Many2one('budget.enduser.region', string="Region")
 
@@ -81,10 +91,10 @@ class Invoice(models.Model):
     @api.one
     @api.depends('invoice_type', 'invoice_no', 'invoice_amount',
                  'task_id.authorized_amount', 'task_id.utilized_amount', 'task_id.category')
-    # TODO check logic for FN overrun
+
     def _compute_problem(self):
         # Checks Duplicate
-        count = self.env['budget.invoice'].search_count([('invoice_no', '=', self.invoice_no),
+        count = self.env['budget.invoice.invoice'].search_count([('invoice_no', '=', self.invoice_no),
                                                          ('state', '!=', 'rejected')])
         if count > 1:
             self.problem = 'duplicate'
@@ -144,25 +154,3 @@ class Invoice(models.Model):
     @api.one
     def set2rejected(self):
         self.state = 'rejected'
-
-    @api.multi
-    def to_record(self):
-        """
-        :return: a list of dictionary for pandas module
-        """
-        output = []
-        fields = self.fields_get_keys()
-
-        for record in self:
-            temp_dict = {}
-            for field in fields:
-                key = field
-                value = getattr(record, key)
-                if isinstance(value, (str, int)):
-                    temp_dict.update(key = value)
-
-                else:
-                    temp_dict.update(key = value.display_name)
-
-            output.append(temp_dict)
-        return output
