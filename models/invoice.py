@@ -50,6 +50,9 @@ class Invoice(models.Model):
     proj_no = fields.Char(string="Project No")
     pec_no = fields.Char(string="PEC No")
 
+    # Used for Invoice Summary sequence
+    sequence = fields.Integer('Display order')
+
     # RELATIONSHIPS
     # ----------------------------------------------------------
     company_currency_id = fields.Many2one('res.currency', readonly=True,
@@ -57,14 +60,14 @@ class Invoice(models.Model):
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     task_id = fields.Many2one('budget.capex.task', string='Task')
     # TODO MUST NOT BE MANY
-    summary_ids = fields.Many2many('budget.invoice.summary',
+    summary_ids = fields.Many2many('budget.invoice.invoice.summary',
                                    'budget_invoice_summary_invoice',
                                    'invoice_id',
                                    'summary_id',
                                    string='Summaries'
                                   )
     # TODO MUST TRANSFER TO SUMMARY IDS
-    invoice_summary_id = fields.Many2one('budget.invoice.summary', string="Invoice Summary")
+    invoice_summary_id = fields.Many2one('budget.invoice.invoice.summary', string="Invoice Summary")
     region_id = fields.Many2one('budget.enduser.region', string="Region")
 
     section_id = fields.Many2one('res.partner', string="Section", domain=[('is_budget_section','=',True)])

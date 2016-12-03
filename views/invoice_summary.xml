@@ -6,7 +6,7 @@
         <!--INVOICE SUMMARY FORM VIEW-->
         <record model="ir.ui.view" id="view_form_invoice_summary">
             <field name="name">Invoice Summary</field>
-            <field name="model">budget.invoice.summary</field>
+            <field name="model">budget.invoice.invoice.summary</field>
             <field name="arch" type="xml">
                 <form string="Invoice Summary">
                     <header>
@@ -59,7 +59,12 @@
                         </group>
                         <notebook>
                             <page string="Invoices">
-                                <field name="invoice_ids"/>
+                                <field name="invoice_ids">
+                                    <tree default_order="sequence">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="invoice_no"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -69,7 +74,7 @@
         <!--INVOICE SUMMARY TREE VIEW-->
         <record model="ir.ui.view" id="view_tree_invoice_summary">
             <field name="name">Invoice Summary</field>
-            <field name="model">budget.invoice.summary</field>
+            <field name="model">budget.invoice.invoice.summary</field>
             <field name="arch" type="xml">
                 <tree decoration-muted="state=='closed'">
                     <field name="summary_no"/>
@@ -85,7 +90,7 @@
     <!--START SEARCH-->
         <record model="ir.ui.view" id="search_invoice_summary">
             <field name="name">Invoice Summary</field>
-            <field name="model">budget.invoice.summary</field>
+            <field name="model">budget.invoice.invoice.summary</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="summary_no"/>
@@ -102,7 +107,7 @@
         <!--Invoice Action-->
         <record model="ir.actions.act_window" id="action_invoice_summary">
             <field name="name">Invoice Summary</field>
-            <field name="res_model">budget.invoice.summary</field>
+            <field name="res_model">budget.invoice.invoice.summary</field>
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'search_default_filter_state': 1}</field>

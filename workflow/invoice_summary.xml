@@ -4,7 +4,7 @@
   <data>
     <record model="workflow" id="wkf_budget_invoice_summary">
         <field name="name">Budget Invoice Summary Workflow</field>
-        <field name="osv">budget.invoice.summary</field>
+        <field name="osv">budget.invoice.invoice.summary</field>
         <field name="on_create">True</field>
     </record>
       

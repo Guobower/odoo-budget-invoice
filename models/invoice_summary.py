@@ -7,7 +7,7 @@ import os
 
 
 class InvoiceSummary(models.Model):
-    _name = 'budget.invoice.summary'
+    _name = 'budget.invoice.invoice.summary'
     _rec_name = 'summary_no'
     _description = 'Invoice Summary'
     _order = 'id desc'
@@ -42,10 +42,10 @@ class InvoiceSummary(models.Model):
     tmp_invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'invoice_summary_id',
                                   string="Invoices")
-    attachment_ids = fields.One2many('ir.attachment',
-                                     'invoice_summary_id',
-                                     string="Attachments",
-                                     auto_join=True)
+    # attachment_ids = fields.One2many('ir.attachment',
+    #                                  'invoice_summary_id',
+    #                                  string="Attachments",
+    #                                  auto_join=True)
     # CONSTRAINTS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -83,7 +83,7 @@ class InvoiceSummary(models.Model):
         domain = [('create_date', '>=', fields.Datetime.to_string(start)),
                   ('create_date', '<', fields.Datetime.to_string(end))]
 
-        summaries = self.env['budget.invoice.summary'].search(domain)
+        summaries = self.search(domain)
         if len(summaries) == 0:
             sr = 1
         else:
@@ -130,7 +130,7 @@ class InvoiceSummary(models.Model):
         ws.insert_rows(row, len(self.invoice_ids) - 1)
         #No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         #1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids:
+        for r in self.invoice_ids.sorted(key=lambda r: r.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
@@ -167,7 +167,7 @@ class InvoiceSummary(models.Model):
             name=filename,
             datas_fname=filename,
             res_id=self.id,
-            res_model='budget.invoice.summary',
+            res_model='budget.invoice.invoice.summary',
             type='binary',
             datas=data,
         )
