@@ -2,7 +2,7 @@
 
 <openerp>
     <data>
-    <!--START INVOICE SUMMARY VIEWS-->
+        <!--START INVOICE SUMMARY VIEWS-->
         <!--INVOICE SUMMARY FORM VIEW-->
         <record model="ir.ui.view" id="view_form_invoice_summary">
             <field name="name">Invoice Summary</field>
@@ -11,30 +11,30 @@
                 <form string="Invoice Summary">
                     <header>
                         <button
-                            string="Generate"
-                            name="generate"
-                            type="workflow"
-                            states="draft" />
+                                string="Generate"
+                                name="generate"
+                                type="workflow"
+                                states="draft"/>
                         <button
-                            string="Certify"
-                            name="under_certification"
-                            type="workflow"
-                            states="file generated" />
+                                string="Certify"
+                                name="under_certification"
+                                type="workflow"
+                                states="file generated"/>
                         <button
-                            string="Send to Finance"
-                            name="sent_to_finance"
-                            type="workflow"
-                            states="under certification" />
+                                string="Send to Finance"
+                                name="sent_to_finance"
+                                type="workflow"
+                                states="under certification"/>
                         <button
-                            string="Close"
-                            name="closed"
-                            type="workflow"
-                            states="sent to finance" />
+                                string="Close"
+                                name="closed"
+                                type="workflow"
+                                states="sent to finance"/>
                         <button
-                            string="Cancel"
-                            name="cancel"
-                            type="workflow"
-                            states="draft,file generated,under certification,sent to finance" />
+                                string="Cancel"
+                                name="cancel"
+                                type="workflow"
+                                states="draft,file generated,under certification,sent to finance"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -47,7 +47,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="section"/>
+                                <field name="section_id"/>
                                 <!--<field name="invoice_cert_date"/>-->
                                 <field name="signed_date"/>
                                 <field name="sent_finance_date"/>
@@ -59,10 +59,20 @@
                         </group>
                         <notebook>
                             <page string="Invoices">
-                                <field name="invoice_ids">
-                                    <tree default_order="sequence">
+                                <field name="invoice_ids" domain="[('state','=','verified')]">
+                                    <tree default_order="sequence"
+                                          decoration-success="problem in ['ok', False]"
+                                          decoration-danger="problem in ['duplicate', 'overrun']">
+                                        <field name="problem"/>
+                                        <field name="state"/>
                                         <field name="sequence" widget="handle"/>
                                         <field name="invoice_no"/>
+                                        <field name="contract_id"/>
+                                        <field name="invoice_amount"/>
+                                        <field name="invoice_date"/>
+                                        <field name="invoice_cert_date"/>
+                                        <field name="received_date"/>
+                                        <field name="sent_finance_date"/>
                                     </tree>
                                 </field>
                             </page>
@@ -86,8 +96,8 @@
                 </tree>
             </field>
         </record>
-    <!--END INVOICE SUMMARY VIEWS-->
-    <!--START SEARCH-->
+        <!--END INVOICE SUMMARY VIEWS-->
+        <!--START SEARCH-->
         <record model="ir.ui.view" id="search_invoice_summary">
             <field name="name">Invoice Summary</field>
             <field name="model">budget.invoice.invoice.summary</field>
@@ -95,15 +105,15 @@
                 <search>
                     <field name="summary_no"/>
                     <filter
-                        name="filter_state"
-                        string="Need Action"
-                        domain="[('state', 'not in', ['closed', 'canceled'])]"/>
+                            name="filter_state"
+                            string="Need Action"
+                            domain="[('state', 'not in', ['closed', 'canceled'])]"/>
                 </search>
             </field>
         </record>
-    <!--END SEARCH-->
+        <!--END SEARCH-->
 
-    <!--START ACTIONS-->
+        <!--START ACTIONS-->
         <record model="ir.actions.act_window" id="action_invoice_summary">
             <field name="name">Invoice Summary</field>
             <field name="res_model">budget.invoice.invoice.summary</field>
@@ -112,9 +122,10 @@
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary',
-                                   'search_default_filter_state': 1}</field>
+                'search_default_filter_state': 1}
+            </field>
         </record>
-    <!--END ACTIONS-->
+        <!--END ACTIONS-->
 
     </data>
 </openerp>

@@ -138,7 +138,7 @@ class Creator(object):
         self.data = data
 
         self.logo_path = os.path.join(self.form_template_path, "img", "logo.png")
-        self.sign_path = os.path.join(self.form_template_path, "img", "signature_%s.png" % section)
+        self.sign_path = os.path.join(self.form_template_path, "img", "signature_%s.png" % section.lower())
 
 
     def get_context(self):

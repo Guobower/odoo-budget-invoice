@@ -16,19 +16,18 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'file generated', 'under certification',
                             'sent to finance', 'closed', 'canceled'], is_sorted=False)
-    SECTIONS = choices_tuple(['cse', 'fan'], is_sorted=False)
-
     # BASIC FIELDS
     # ----------------------------------------------------------
+    # TODO CONSIDER MAKING SUMMARY NO AS NAME
     summary_no = fields.Char(string='Summary No',
                              default = lambda self: self._get_default_summary_no())
     state = fields.Selection(STATES, default='draft')
-    # TODO MUST RELATE TO section model
-    section = fields.Selection(SECTIONS)
 
     signed_date = fields.Date(string='Signed Date')
     closed_date = fields.Date(string='Closed Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
+
+    sequence = fields.Integer(string='Sequence')
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
@@ -42,7 +41,8 @@ class InvoiceSummary(models.Model):
     tmp_invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'invoice_summary_id',
                                   string="Invoices")
-
+    section_id = fields.Many2one('res.partner', string='Section',
+                                 domain=[('is_budget_section', '=', True)])
     # CONSTRAINTS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -75,13 +75,12 @@ class InvoiceSummary(models.Model):
 
         return 'IM-%s%s-%03d' % (month, year, sr)
 
-    # @api.one
-    # @api.returns('self', lambda value: value.id)
-    # def copy(self, default=None):
-    #     default = dict(default or {})
-    #     default.update(summary_no=self._get_default_summary_no())
-    #     default.update(invoice_ids = [(6, None, self.invoice_ids.mapped('id'))])
-    #     return super(InvoiceSummary, self).copy(default)
+    @api.one
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        default = dict(default or {})
+        default.update(summary_no=self._get_default_summary_no())
+        return super(InvoiceSummary, self).copy(default)
 
     @api.one
     def generate_file(self):
@@ -94,7 +93,7 @@ class InvoiceSummary(models.Model):
         import tempfile, shutil
         # OPEN FORM TEMPLATE
 
-        creator = Creator(section=self.section)
+        creator = Creator(section=self.section_id.alias)
         wb, logo_img, signature_img = creator.get_context()
 
         # WORK SHEET MAIN
@@ -167,8 +166,9 @@ class InvoiceSummary(models.Model):
 
     @api.one
     def set2file_generated(self):
-        if not self.section in [i[0] for i in self.SECTIONS]:
-            raise ValidationError('Section must be specified')
+        if not self.section_id:
+            raise ValidationError('Section is required')
+
         elif len(self.invoice_ids) == 0:
             raise ValidationError('Empty Invoice List')
 
