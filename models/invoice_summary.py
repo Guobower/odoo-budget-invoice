@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
-from .utils import choices_tuple
+from odoo.addons.budget_core.models.utilities import choices_tuple
 import os
 
 
@@ -23,9 +23,9 @@ class InvoiceSummary(models.Model):
     summary_no = fields.Char(string='Summary No',
                              default = lambda self: self._get_default_summary_no())
     state = fields.Selection(STATES, default='draft')
+    # TODO MUST RELATE TO section model
     section = fields.Selection(SECTIONS)
 
-    # invoice_cert_date = fields.Date(string='Inv Certification Date')
     signed_date = fields.Date(string='Signed Date')
     closed_date = fields.Date(string='Closed Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
@@ -42,10 +42,7 @@ class InvoiceSummary(models.Model):
     tmp_invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'invoice_summary_id',
                                   string="Invoices")
-    # attachment_ids = fields.One2many('ir.attachment',
-    #                                  'invoice_summary_id',
-    #                                  string="Attachments",
-    #                                  auto_join=True)
+
     # CONSTRAINTS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -55,20 +52,6 @@ class InvoiceSummary(models.Model):
             'summary must be unqiue!',
             )
     ]
-    # # MISC FUNCTIONS
-    # # ----------------------------------------------------------
-    # @api.one
-    # def export_file(self):
-    #     attachment_id = None
-    #     filename=None
-    #     if len(self.attachment_ids) > 0:
-    #         attachment_id = self.attachment_ids[0].id
-    #
-    #     return {
-    #         'type': 'ir.actions.act_url',
-    #         'url': '/web/content/%s/%s' % (attachment_id, filename),
-    #         'target': 'self',
-    #     }
 
     @api.model
     def _get_default_summary_no(self):
@@ -200,14 +183,11 @@ class InvoiceSummary(models.Model):
     @api.one
     def set2under_certification(self):
         for invoice in self.invoice_ids:
-            # invoice.invoice_cert_date = self.invoice_cert_date
             invoice.signal_workflow('certify')
         self.state = 'under certification'
 
     @api.one
     def set2sent_to_finance(self):
-        # if self.invoice_cert_date is False:
-        #     raise ValidationError('Invoice Certification Date is Required')
         if self.signed_date is False:
             raise ValidationError('Signed Date is Required')
         elif self.sent_finance_date is False:
@@ -216,7 +196,6 @@ class InvoiceSummary(models.Model):
         for invoice in self.invoice_ids:
             invoice.sent_finance_date = self.sent_finance_date
             invoice.signed_date = self.signed_date
-            # invoice.invoice_cert_date = self.invoice_cert_date
             invoice.signal_workflow('send_to_finance')
         self.state = 'sent to finance'
 
@@ -231,8 +210,7 @@ class InvoiceSummary(models.Model):
 
     @api.one
     def set2canceled(self):
-    # CONTINUE HERE
-    # MUST DO A TRANSITION FOR RETURNING TO DRAFT
+    # TODO MUST DO A TRANSITION FOR RETURNING TO DRAFT
         for invoice in self.invoice_ids:
             invoice.signal_workflow('cancel')
         self.state = 'canceled'

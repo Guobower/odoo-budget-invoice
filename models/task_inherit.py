@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .utils import choices_tuple
+from odoo.addons.budget_core.models.utilities import choices_tuple
 
 # TODO REVISIT
 class TaskInherit(models.Model):

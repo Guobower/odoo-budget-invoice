@@ -48,13 +48,5 @@
         parent="menu_external_left"
         action="budget_contractor.action_contractor"/>
 
-    <!--<menuitem-->
-        <!--id="menu_contract_top_left"-->
-        <!--name="Contract"-->
-        <!--sequence="2"-->
-        <!--parent="menu_contractor_top"-->
-        <!--action="action_contract"/>-->
-    <!--END MENU CHILD-->
-
     </data>
 </openerp>

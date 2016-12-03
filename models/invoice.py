@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .utils import choices_tuple
+from odoo.addons.budget_core.models.utilities import choices_tuple
 
 class Invoice(models.Model):
     _name = 'budget.invoice.invoice'
@@ -59,7 +59,6 @@ class Invoice(models.Model):
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     task_id = fields.Many2one('budget.capex.task', string='Task')
-    # TODO MUST NOT BE MANY
     summary_ids = fields.Many2many('budget.invoice.invoice.summary',
                                    'budget_invoice_summary_invoice',
                                    'invoice_id',

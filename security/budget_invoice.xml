@@ -8,6 +8,12 @@
             <field name="description">Category for the Invoice</field>
         </record>
 
+        <record model="res.groups" id="group_invoice_dependent">
+            <field name="name">Dependent</field>
+            <field name="category_id" ref="category_invoice"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
         <record model="res.groups" id="group_invoice_user">
             <field name="name">User</field>
             <field name="category_id" ref="category_invoice"/>
@@ -17,7 +23,7 @@
         <record id="group_invoice_manager" model="res.groups">
             <field name="name">Manager</field>
             <field name="category_id" ref="category_invoice"/>
-            <field name="implied_ids" eval="[(4, ref('group_invoice_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
     </data>
 </openerp>
