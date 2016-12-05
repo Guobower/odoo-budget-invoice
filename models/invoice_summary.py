@@ -15,18 +15,20 @@ class InvoiceSummary(models.Model):
     # CHOICES
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'file generated', 'under certification',
-                            'sent to finance', 'closed', 'canceled'], is_sorted=False)
+                            'sent to finance', 'closed', 'cancelled'], is_sorted=False)
+    OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])
+
     # BASIC FIELDS
     # ----------------------------------------------------------
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     summary_no = fields.Char(string='Summary No',
                              default = lambda self: self._get_default_summary_no())
     state = fields.Selection(STATES, default='draft')
+    objective = fields.Selection(OBJECTIVES, default='invoice certification')
 
     signed_date = fields.Date(string='Signed Date')
     closed_date = fields.Date(string='Closed Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
-
     sequence = fields.Integer(string='Sequence')
 
     # RELATIONSHIPS
@@ -36,13 +38,9 @@ class InvoiceSummary(models.Model):
                                   'budget_invoice_summary_invoice',
                                   'summary_id',
                                   'invoice_id')
-
-    # TODO USE FOR TRANSFERING INVOICES
-    tmp_invoice_ids = fields.One2many('budget.invoice.invoice',
-                                  'invoice_summary_id',
-                                  string="Invoices")
     section_id = fields.Many2one('res.partner', string='Section',
                                  domain=[('is_budget_section', '=', True)])
+
     # CONSTRAINTS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -121,8 +119,9 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
-            ws.cell(row=row, column=column + 8).value = r.invoice_amount or ''
-            ws.cell(row=row, column=column + 9).value = r.task_id.task_no or fields.Datetime.from_string(r.rfs_date).strftime('%d-%b-%Y')
+            ws.cell(row=row, column=column + 8).value = r.on_hold_percentage / 100 or ''
+            ws.cell(row=row, column=column + 9).value = r.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 10).value = r.task_id.task_no or fields.Datetime.from_string(r.rfs_date).strftime('%d-%b-%Y')
 
             row += 1
             sr += 1
@@ -158,8 +157,23 @@ class InvoiceSummary(models.Model):
         # Clear
         shutil.rmtree(temp_dir)
 
+    # ONCHANGE
+    # ----------------------------------------------------------
+    @api.onchange('objective')
+    def _check_objective(self):
+        if self.objective == 'invoice certification':
+            return {
+                'domain': {'invoice_ids': [('state','=','verified')]}
+            }
+        elif self.objective == 'on hold certification':
+            return {
+                'domain': {'invoice_ids': [('state','=','amount hold')]}
+            }
+
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
+    # TODO MUST DO A TRANSITION FOR RETURNING TO DRAFT
+
     @api.one
     def set2draft(self):
         self.state = 'draft'
@@ -205,12 +219,14 @@ class InvoiceSummary(models.Model):
             raise ValidationError('Close Date is Required')
         for invoice in self.invoice_ids:
             invoice.closed_date = self.closed_date
-            invoice.signal_workflow('close')
+            if invoice.on_hold_amount > 0 and invoice.state != 'amount hold':
+                invoice.signal_workflow('amount_hold')
+            else:
+                invoice.signal_workflow('close')
         self.state = 'closed'
 
     @api.one
-    def set2canceled(self):
-    # TODO MUST DO A TRANSITION FOR RETURNING TO DRAFT
+    def set2cancelled(self):
         for invoice in self.invoice_ids:
             invoice.signal_workflow('cancel')
-        self.state = 'canceled'
+        self.state = 'cancelled'

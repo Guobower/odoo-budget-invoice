@@ -59,6 +59,13 @@
             <field name="kind">function</field>
             <field name="action">set2rejected()</field>
         </record>
+        <record model="workflow.activity" id="act_amount_hold">
+            <field name="name">amount hold</field>
+            <field name="wkf_id" ref="wkf_budget_invoice"/>
+            <field name="kind">function</field>
+            <field name="action">set2amount_hold()</field>
+        </record>
+
         <!--END ACTIVITIES-->
 
         <!--START TRANSITION-->
@@ -87,6 +94,19 @@
             <field name="act_to" ref="act_invoice_closed"/>
             <field name="signal">close</field>
         </record>
+
+        <!-- AMOUNT HOLD WORKFLOW -->
+        <record model="workflow.transition" id="invoice_sent_to_finance_to_amount_hold">
+            <field name="act_from" ref="act_invoice_sent_to_finance"/>
+            <field name="act_to" ref="act_amount_hold"/>
+            <field name="signal">amount_hold</field>
+        </record>
+        <record model="workflow.transition" id="invoice_amount_hold_to_closed">
+            <field name="act_from" ref="act_amount_hold"/>
+            <field name="act_to" ref="act_invoice_closed"/>
+            <field name="signal">close</field>
+        </record>
+
         <!--BUTTON REJECTED-->
         <record model="workflow.transition" id="invoice_verified_to_rejected">
             <field name="act_from" ref="act_invoice_verified"/>

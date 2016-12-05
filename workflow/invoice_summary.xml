@@ -45,7 +45,7 @@
         <field name="name">Canceled</field>
         <field name="wkf_id" ref="wkf_budget_invoice_summary"/>
         <field name="kind">function</field>
-        <field name="action">set2canceled()</field>
+        <field name="action">set2cancelled()</field>
     </record>
     <!--END ACTIVITIES-->
 

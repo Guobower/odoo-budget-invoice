@@ -51,6 +51,8 @@
                                 <field name="related_authorized_amount" readonly="1"/>
                                 <field name="related_utilized_amount" readonly="1"/>
                                 <field name="related_total_amount" readonly="1"/>
+                                <field name="certified_invoice_amount"/>
+                                <field name="invoice_amount"/>
                             </group>
                         </group>
                         <group>
@@ -64,11 +66,17 @@
                                 <field name="expense_code"/>
                             </group>
                             <group>
-                                <field name="invoice_amount" readonly="1"/>
                                 <field name="capex_amount"/>
                                 <field name="opex_amount"/>
                                 <field name="revenue_amount"/>
-                                <field name="penalty"/>
+                                <field name="penalty_amount"/>
+                                <label for="on_hold_amount"/>
+                                <div>
+                                    <field name="on_hold_amount" class="oe_inline"/>
+                                    <label string=" : " class="oe_inline"/>
+                                    <field name="on_hold_percentage" class="oe_inline"/>
+                                    <label string="%" class="oe_inline"/>
+                                </div>
                             </group>
                         </group>
                         <group>
@@ -112,7 +120,7 @@
                       decoration-muted="state == 'closed'">
                     <field name="invoice_no"/>
                     <field name="contract_id"/>
-                    <field name="invoice_amount"/>
+                    <field name="certified_invoice_amount"/>
                     <field name="invoice_date"/>
                     <field name="invoice_cert_date"/>
                     <field name="received_date"/>

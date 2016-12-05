@@ -47,8 +47,8 @@
                         </div>
                         <group>
                             <group>
+                                <field name="objective"/>
                                 <field name="section_id"/>
-                                <!--<field name="invoice_cert_date"/>-->
                                 <field name="signed_date"/>
                                 <field name="sent_finance_date"/>
                                 <field name="closed_date"/>
@@ -59,7 +59,7 @@
                         </group>
                         <notebook>
                             <page string="Invoices">
-                                <field name="invoice_ids" domain="[('state','=','verified')]">
+                                <field name="invoice_ids">
                                     <tree default_order="sequence"
                                           decoration-success="problem in ['ok', False]"
                                           decoration-danger="problem in ['duplicate', 'overrun']">
@@ -88,11 +88,12 @@
             <field name="arch" type="xml">
                 <tree decoration-muted="state=='closed'">
                     <field name="summary_no"/>
+                    <field name="objective"/>
                     <field name="create_uid"/>
                     <field name="create_date"/>
                     <field name="state"/>
-                    <button name="export_file" string="Download" type="object" icon="fa-download"
-                            attrs="{'invisible':[('state','=','draft')]}"/>
+                    <!--<button name="export_file" string="Download" type="object" icon="fa-download"-->
+                            <!--attrs="{'invisible':[('state','=','draft')]}"/>-->
                 </tree>
             </field>
         </record>
