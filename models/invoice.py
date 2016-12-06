@@ -10,6 +10,7 @@ class Invoice(models.Model):
     _rec_name = 'invoice_no'
     _description = 'Invoice'
     _order = 'id desc'
+    _inherit = ['mail.thread']
 
     # CHOICES
     # ----------------------------------------------------------
@@ -91,16 +92,19 @@ class Invoice(models.Model):
                                            related='task_id.total_amount')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    problem = fields.Char(string='Problem', compute='_compute_problem', store=True)
+    problem = fields.Char(string='Problem',
+                          compute='_compute_problem',
+                          store=True)
     invoice_amount = fields.Monetary(string='Invoice Amount', currency_field='company_currency_id',
                                      compute='_compute_invoice_amount',
                                      store=True)
     certified_invoice_amount = fields.Monetary(string='Certified Amount', currency_field='company_currency_id',
                                                compute='_compute_certified_invoice_amount',
+                                               inverse='_set_certified_invoice_amount',
                                                store=True)
 
     @api.one
-    @api.depends('invoice_no', 'task_id.problem')
+    @api.depends('certified_invoice_amount', 'task_id.problem', 'invoice_no')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice.invoice'].search_count([('invoice_no', '=', self.invoice_no),
@@ -111,11 +115,12 @@ class Invoice(models.Model):
         elif self.task_id.problem != 'ok':
             self.problem = self.task_id.problem
 
-        elif self.task_id.problem == 'ok' and self.task_id.utilized_amount + self.certified_invoice_amount:
+        # TODO USE CATEGORY ALSO TO IGNORE Y
+        elif self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.utilized_amount:
             self.problem = 'overrun'
 
         # TODO MUST BE PLACED IN ACTUALS
-        elif self.task_id.problem == 'ok' and self.task_id.total_amount + self.certified_invoice_amount:
+        elif self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.total_amount:
             self.problem = 'overrun'
 
         else:
@@ -127,6 +132,12 @@ class Invoice(models.Model):
         self.invoice_amount = self.opex_amount + \
                               self.capex_amount + \
                               self.revenue_amount
+
+    @api.one
+    def _set_certified_invoice_amount(self):
+        if self.certified_invoice_amount != self.opex_amount + self.capex_amount + self.revenue_amount:
+            self._compute_certified_invoice_amount()
+
 
     @api.one
     @api.depends('revenue_amount', 'opex_amount',

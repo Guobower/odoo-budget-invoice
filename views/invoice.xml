@@ -51,7 +51,7 @@
                                 <field name="related_authorized_amount" readonly="1"/>
                                 <field name="related_utilized_amount" readonly="1"/>
                                 <field name="related_total_amount" readonly="1"/>
-                                <field name="certified_invoice_amount"/>
+                                <field name="certified_invoice_amount" readonly="1"/>
                                 <field name="invoice_amount"/>
                             </group>
                         </group>
@@ -107,6 +107,10 @@
                             <field name="remarks"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>

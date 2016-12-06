@@ -155,8 +155,9 @@ class TestInvoice(TransactionCase):
         )
 
         # Task Overrun
-        self.assertTrue(invoice.problem == 'overrun', 'Must be Overrun Utilized Amount {}; Certified Amount {}'. \
-                        format(invoice.task_id.utilized_amount, invoice.certified_invoice_amount))
+
+        self.assertTrue(invoice.problem == 'overrun', 'Must be Overrun Utilized Amount {}; Authorize Amount {}'. \
+                        format(invoice.task_id.utilized_amount, invoice.task_id.authorized_amount))
 
     def test_compute_certified_invoice_amount(self):
         """

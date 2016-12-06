@@ -3,7 +3,7 @@
 from odoo import models, fields, api
 from odoo.addons.budget_core.models.utilities import choices_tuple
 
-# TODO REVISIT
+
 class TaskInherit(models.Model):
     _inherit = 'budget.capex.task'
 
@@ -27,17 +27,22 @@ class TaskInherit(models.Model):
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    problem = fields.Char(string='Problem', compute='_compute_invoice_problem', store=True)
+    problem = fields.Char(string='Problem', compute='_compute_problem', store=True)
     utilized_amount = fields.Monetary(currency_field='company_currency_id',
                                       string='Utilized Amount (IM)',
                                       compute='_compute_utilized_amount',
                                       store=True)
+    total_invoice =fields.Integer(string='# Invoices', compute='_compute_total_invoice', store=True)
 
     @api.one
+    @api.depends('invoice_ids')
+    def _compute_total_invoice(self):
+        self.total_invoice = len(self.invoice_ids)
+    @api.one
     @api.depends('authorized_amount', 'utilized_amount', 'category', 'state', 'total_amount')
-    def _compute_invoice_problem(self):
+    def _compute_problem(self):
 
-        if self.state == 'draft' and (self.category == "Y"):
+        if self.category == "Y":
             self.problem = 'ok'
 
         elif self.authorized_amount < self.utilized_amount:

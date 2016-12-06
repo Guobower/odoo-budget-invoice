@@ -11,6 +11,7 @@ class InvoiceSummary(models.Model):
     _rec_name = 'summary_no'
     _description = 'Invoice Summary'
     _order = 'id desc'
+    _inherit = ['mail.thread']
 
     # CHOICES
     # ----------------------------------------------------------
