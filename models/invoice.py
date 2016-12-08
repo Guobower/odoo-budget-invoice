@@ -116,12 +116,13 @@ class Invoice(models.Model):
             self.problem = self.task_id.problem
 
         # TODO USE CATEGORY ALSO TO IGNORE Y
-        elif self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.utilized_amount:
-            self.problem = 'overrun'
+        elif self.state == 'draft':
+            if self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.utilized_amount:
+                self.problem = 'overrun'
 
         # TODO MUST BE PLACED IN ACTUALS
-        elif self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.total_amount:
-            self.problem = 'overrun'
+            if self.state == 'draft' and self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.total_amount:
+                self.problem = 'overrun'
 
         else:
             self.problem = 'ok'

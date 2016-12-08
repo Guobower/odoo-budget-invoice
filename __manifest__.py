@@ -35,6 +35,7 @@ Invoice Management
         'views/invoice_summary.xml',
         'views/contractor_inherit.xml',
         'views/task_inherit.xml',
+        'views/budget_inherit.xml',
         'views/menu.xml',
     ],
     'demo': [

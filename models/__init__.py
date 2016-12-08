@@ -2,7 +2,7 @@
 
 # INHERITANCE MODELS
 # ----------------------------------------------------------
-from . import contract_inherit, contractor_inherit, \
+from . import budget_inherit, contract_inherit, contractor_inherit, \
     task_inherit
 
 # BASIC MODELS

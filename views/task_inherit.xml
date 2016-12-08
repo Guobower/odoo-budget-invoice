@@ -15,10 +15,23 @@
                         <field string="Invoice" name="total_invoice" widget="statinfo"/>
                     </button>
                 </xpath>
+                <xpath expr="//field[@name='authorized_amount']" position="after">
+                    <field name="utilized_amount"/>
+                </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page string="Invoice">
                         <field name="invoice_ids"/>
                     </page>
+                </xpath>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_tree_task_inherit">
+            <field name="name">Task Inherit</field>
+            <field name="model">budget.capex.task</field>
+            <field name="inherit_id" ref="budget_capex.view_tree_task"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='authorized_amount']" position="after">
+                    <field name="utilized_amount"/>
                 </xpath>
             </field>
         </record>
