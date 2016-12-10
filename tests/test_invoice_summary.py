@@ -14,6 +14,8 @@ class TestInvoiceSummary(TransactionCase):
         """
             Check Generation of Summary No
         """
+        self.env['budget.invoice.invoice.summary'].create({})
+
         latest_summary = self.env['budget.invoice.invoice.summary'].search([])[0]
         latest_no = int(latest_summary.summary_no.split('-')[-1])
 
