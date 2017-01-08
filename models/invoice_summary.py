@@ -122,7 +122,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
             ws.cell(row=row, column=column + 8).value = r.on_hold_percentage / 100 or ''
             ws.cell(row=row, column=column + 9).value = r.certified_invoice_amount or ''
-            ws.cell(row=row, column=column + 10).value = r.task_id.task_no or fields.Datetime.from_string(r.rfs_date).strftime('%d-%b-%Y')
+            ws.cell(row=row, column=column + 10).value = r.task_id.no or fields.Datetime.from_string(r.rfs_date).strftime('%d-%b-%Y')
 
             row += 1
             sr += 1
