@@ -20,7 +20,8 @@ Invoice Management
     'category': 'TBPC Budget',
     'depends': ['document',
                 'budget_contractor',
-                'budget_capex'],
+                'budget_capex',
+                'budget_opex'],
     'external_dependencies': {
         'python': ['openpyxl']
     },
@@ -35,6 +36,7 @@ Invoice Management
         'views/invoice_summary.xml',
         'views/contractor_inherit.xml',
         'views/task_inherit.xml',
+        'views/account_code_inherit.xml',
         'views/budget_inherit.xml',
         'views/menu.xml',
     ],

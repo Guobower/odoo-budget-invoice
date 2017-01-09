@@ -69,6 +69,7 @@ class Invoice(models.Model):
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     task_id = fields.Many2one('budget.capex.task', string='Task')
+    account_code_id = fields.Many2one('budget.opex.account.code', string='Account Code')
     summary_ids = fields.Many2many('budget.invoice.invoice.summary',
                                    'budget_invoice_summary_invoice',
                                    'invoice_id',
