@@ -6,7 +6,7 @@
     <menuitem
         id="menu_invoice_top"
         name="Invoicing"
-        sequence="5"/>
+        sequence="7"/>
     <!--END MENU PARENT-->
 
     <!--MENU LEFT-->

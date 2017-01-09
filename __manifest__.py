@@ -3,7 +3,7 @@
     'name': "Invoice",
     'version': '0.1',
     'summary': 'Invoice Management',
-    'sequence': 3,
+    'sequence': 6,
     'description': """
 Odoo Module
 ===========
