@@ -14,10 +14,10 @@ class TestInvoice(TransactionCase):
         """
             Check Problem Duplicate Conditions
         """
-        task = self.env['budget.capex.task'].create(
+        cear = self.env['budget.capex.cear'].create(
             {
                 u'authorized_amount': 100,
-                u'task_no': u'Task - 1',
+                u'cear_no': u'Task - 1',
                 u'total_amount': 50  # FN actual
             }
         )
@@ -25,7 +25,7 @@ class TestInvoice(TransactionCase):
         # authorized amount = 100
         # FN amount = 50
         # IM amount = 25 + 25 + 25
-        task.write({
+        cear.write({
             'invoice_ids': [(0, 0, {
                 'invoice_no': 'Invoice #',
                 'revenue_amount': 25,
@@ -33,7 +33,7 @@ class TestInvoice(TransactionCase):
                 'capex_amount': 25
             })]
         })
-        # self.assertTrue(task.invoice_ids[0].problem == 'overrun')
+        # self.assertTrue(cear.invoice_ids[0].problem == 'overrun')
 
         invoice_a = self.env['budget.invoice.invoice'].create(
             {'invoice_no': 'dup_check'}
@@ -46,14 +46,14 @@ class TestInvoice(TransactionCase):
         self.assertTrue(invoice_a.problem != 'duplicate')
         self.assertTrue(invoice_b.problem == 'duplicate')
 
-    def test_compute_problem_task_overrun(self):
+    def test_compute_problem_cear_overrun(self):
         """
             Check Problem Task Overrun Conditions
         """
-        task = self.env['budget.capex.task'].create(
+        cear = self.env['budget.capex.cear'].create(
             {
                 u'authorized_amount': 200,
-                u'task_no': u'Task - 1',
+                u'cear_no': u'Task - 1',
                 u'total_amount': 50  # FN actual
             }
         )
@@ -62,7 +62,7 @@ class TestInvoice(TransactionCase):
         # FN amount = 50
         # IM amount = 25 + 25 + 25 + 25 + 25 + 25
 
-        task.write({
+        cear.write({
             'invoice_ids': [
                 (0, 0, {'invoice_no': 'Invoice 1',
                         'revenue_amount': 25,
@@ -72,7 +72,7 @@ class TestInvoice(TransactionCase):
             ]
         })
 
-        task.write({
+        cear.write({
             'invoice_ids': [
                 (0, 0, {'invoice_no': 'Invoice 2',
                         'revenue_amount': 25,
@@ -82,15 +82,15 @@ class TestInvoice(TransactionCase):
             ]
         })
 
-        for invoice in task.invoice_ids:
+        for invoice in cear.invoice_ids:
             invoice.signal_workflow('verify')
 
-        self.assertTrue(task.utilized_amount == 150.00, 'Utilized Amount {} is not 150.00'. \
-                        format(task.utilized_amount))
-        self.assertTrue(task.problem == 'ok', 'Must be OK Utilized Amount {}; Authorized Amount {}'. \
-                        format(task.utilized_amount, task.authorized_amount))
+        self.assertTrue(cear.utilized_amount == 150.00, 'Utilized Amount {} is not 150.00'. \
+                        format(cear.utilized_amount))
+        self.assertTrue(cear.problem == 'ok', 'Must be OK Utilized Amount {}; Authorized Amount {}'. \
+                        format(cear.utilized_amount, cear.authorized_amount))
 
-        task.write({
+        cear.write({
             'invoice_ids': [
                 (0, 0, {'invoice_no': 'Invoice 3',
                         'revenue_amount': 25,
@@ -99,21 +99,21 @@ class TestInvoice(TransactionCase):
                         })
             ]
         })
-        for invoice in task.invoice_ids:
+        for invoice in cear.invoice_ids:
             invoice.signal_workflow('verify')
 
         # Task Overrun
-        self.assertTrue(task.problem == 'overrun', 'Must be Overrun Utilized Amount {}; Authorized Amount {}'. \
-                        format(task.utilized_amount, task.authorized_amount))
+        self.assertTrue(cear.problem == 'overrun', 'Must be Overrun Utilized Amount {}; Authorized Amount {}'. \
+                        format(cear.utilized_amount, cear.authorized_amount))
 
     def test_compute_problem_invoice_overrun(self):
         """
             Check Problem Invoice Overrun Conditions
         """
-        task = self.env['budget.capex.task'].create(
+        cear = self.env['budget.capex.cear'].create(
             {
                 u'authorized_amount': 200,
-                u'task_no': u'Task - 1',
+                u'cear_no': u'Task - 1',
                 u'total_amount': 50  # FN actual
             }
         )
@@ -122,7 +122,7 @@ class TestInvoice(TransactionCase):
         # FN amount = 50
         # IM amount = 25 + 25 + 25 + 25 + 25 + 25
 
-        task.write({
+        cear.write({
             'invoice_ids': [
                 (0, 0, {'invoice_no': 'Invoice 1',
                         'revenue_amount': 25,
@@ -132,7 +132,7 @@ class TestInvoice(TransactionCase):
             ]
         })
 
-        task.write({
+        cear.write({
             'invoice_ids': [
                 (0, 0, {'invoice_no': 'Invoice 2',
                         'revenue_amount': 150,
@@ -142,7 +142,7 @@ class TestInvoice(TransactionCase):
             ]
         })
 
-        for inv in task.invoice_ids:
+        for inv in cear.invoice_ids:
             inv.signal_workflow('verify')
 
         invoice = self.env['budget.invoice.invoice'].create(
@@ -150,14 +150,14 @@ class TestInvoice(TransactionCase):
              'revenue_amount': 25,
              'opex_amount': 25,
              'capex_amount': 25,
-             'task_id': task.id
+             'cear_id': cear.id
              }
         )
 
         # Task Overrun
 
         self.assertTrue(invoice.problem == 'overrun', 'Must be Overrun Utilized Amount {}; Authorize Amount {}'. \
-                        format(invoice.task_id.utilized_amount, invoice.task_id.authorized_amount))
+                        format(invoice.cear_id.utilized_amount, invoice.cear_id.authorized_amount))
 
     def test_compute_certified_invoice_amount(self):
         """

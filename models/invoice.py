@@ -4,7 +4,6 @@ from odoo import models, fields, api
 from odoo.addons.budget_core.models.utilities import choices_tuple
 
 
-# TODO ADD ON HOLD AMOUNT
 class Invoice(models.Model):
     _name = 'budget.invoice.invoice'
     _rec_name = 'invoice_no'
@@ -21,7 +20,6 @@ class Invoice(models.Model):
                                    'damage case', 'development', 'fdh uplifting', 'fttm activities',
                                    'maintenance work', 'man power', 'mega project', 'migration',
                                    'on demand activities', 'provisioning', 'recharge', 'recovery'], is_sorted=False)
-    PAYMENT_TYPES = choices_tuple(['ready for service', 'interim'], is_sorted=False)
 
     # BASIC FIELDS
     # ----------------------------------------------------------
@@ -29,13 +27,10 @@ class Invoice(models.Model):
 
     invoice_no = fields.Char(string="Invoice No")
     invoice_type = fields.Selection(INVOICE_TYPES)
-    payment_type = fields.Selection(PAYMENT_TYPES)
 
     revenue_amount = fields.Monetary(string='Revenue Amount', currency_field='company_currency_id')
     opex_amount = fields.Monetary(string='OPEX Amount', currency_field='company_currency_id')
     capex_amount = fields.Monetary(string='CAPEX Amount', currency_field='company_currency_id')
-    # TODO TRANSFER PENALTY TO PENALTY AMOUNT
-    penalty = fields.Monetary(string='Penalty Amount', currency_field='company_currency_id')
     penalty_amount = fields.Monetary(string='Penalty Amount', currency_field='company_currency_id')
 
     on_hold_amount = fields.Monetary(string='On Hold Amount', currency_field='company_currency_id')
@@ -56,9 +51,7 @@ class Invoice(models.Model):
     expense_code = fields.Char(string="Expense Code")
     remarks = fields.Text(string='Remarks')
     description = fields.Text(string='Description')
-    # TODO proj_no to pec_no
     proj_no = fields.Char(string="Project No")
-    pec_no = fields.Char(string="PEC No")
 
     # Used for Invoice Summary sequence
     sequence = fields.Integer('Display order')
@@ -68,14 +61,20 @@ class Invoice(models.Model):
     company_currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
-    task_id = fields.Many2one('budget.capex.task', string='Task')
-    account_code_id = fields.Many2one('budget.opex.account.code', string='Account Code')
+    amount_ids = fields.One2many('budget.invoice.amount',
+                                 'invoice_id',
+                                 string="Amounts")
+    cear_allocation_ids = fields.One2many('budget.invoice.cear.allocation',
+                                          'invoice_id',
+                                          string="CEARs")
+    oear_allocation_ids = fields.One2many('budget.invoice.oear.allocation',
+                                          'invoice_id',
+                                          string="OEARs")
     summary_ids = fields.Many2many('budget.invoice.invoice.summary',
                                    'budget_invoice_summary_invoice',
                                    'invoice_id',
                                    'summary_id',
-                                   string='Summaries'
-                                   )
+                                   string='Summaries')
     region_id = fields.Many2one('budget.enduser.region', string="Region")
     section_id = fields.Many2one('res.partner', string="Section", domain=[('is_budget_section', '=', True)])
     sub_section_id = fields.Many2one('res.partner', string="Sub Section", domain=[('is_budget_sub_section', '=', True)])
@@ -85,12 +84,6 @@ class Invoice(models.Model):
     related_contractor_id = fields.Many2one(string='Contractor',
                                             related='contract_id.contractor_id',
                                             store=True)
-    related_authorized_amount = fields.Monetary(string='Authorized Amount',
-                                                related='task_id.authorized_amount')
-    related_utilized_amount = fields.Monetary(string='Utilized Amount (IM)',
-                                              related='task_id.utilized_amount')
-    related_total_amount = fields.Monetary(string='Utilized Amount (FN)',
-                                           related='task_id.total_amount')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Char(string='Problem',
@@ -103,9 +96,15 @@ class Invoice(models.Model):
                                                compute='_compute_certified_invoice_amount',
                                                inverse='_set_certified_invoice_amount',
                                                store=True)
+    total_capex_amount = fields.Monetary(string='CAPEX Amount to be Allocated', currency_field='company_currency_id',
+                                         compute='_compute_total_capex_amount',
+                                         store=True)
+    total_opex_amount = fields.Monetary(string='OPEX Amount to be Allocated', currency_field='company_currency_id',
+                                         compute='_compute_total_opex_amount',
+                                         store=True)
 
     @api.one
-    @api.depends('certified_invoice_amount', 'task_id.problem', 'invoice_no')
+    @api.depends('certified_invoice_amount', 'invoice_no')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice.invoice'].search_count([('invoice_no', '=', self.invoice_no),
@@ -113,17 +112,17 @@ class Invoice(models.Model):
         if count > 1:
             self.problem = 'duplicate'
 
-        elif self.task_id.problem != 'ok':
-            self.problem = self.task_id.problem
-
-        # TODO USE CATEGORY ALSO TO IGNORE Y
-        elif self.state == 'draft':
-            if self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.utilized_amount:
-                self.problem = 'overrun'
-
-        # TODO MUST BE PLACED IN ACTUALS
-            if self.state == 'draft' and self.task_id.authorized_amount < self.certified_invoice_amount + self.task_id.total_amount:
-                self.problem = 'overrun'
+        # elif self.cear_id.problem != 'ok':
+        #     self.problem = self.cear_id.problem
+        #
+        # # TODO USE CATEGORY ALSO TO IGNORE Y
+        # elif self.state == 'draft':
+        #     if self.cear_id.authorized_amount < self.certified_invoice_amount + self.cear_id.utilized_amount:
+        #         self.problem = 'overrun'
+        #
+        #         # TODO MUST BE PLACED IN ACTUALS
+        #     if self.state == 'draft' and self.cear_id.authorized_amount < self.certified_invoice_amount + self.cear_id.total_amount:
+        #         self.problem = 'overrun'
 
         else:
             self.problem = 'ok'
@@ -140,7 +139,6 @@ class Invoice(models.Model):
         if self.certified_invoice_amount != self.opex_amount + self.capex_amount + self.revenue_amount:
             self._compute_certified_invoice_amount()
 
-
     @api.one
     @api.depends('revenue_amount', 'opex_amount',
                  'capex_amount', 'penalty_amount', 'on_hold_amount')
@@ -150,6 +148,17 @@ class Invoice(models.Model):
                                         self.revenue_amount - \
                                         self.penalty_amount - \
                                         self.on_hold_amount
+
+    @api.one
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    def _compute_total_opex_amount(self):
+        self.total_opex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type == 'opex').mapped('amount'))
+
+    @api.one
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    def _compute_total_capex_amount(self):
+        self.total_capex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type in ['capex', 'revenue']). \
+                                      mapped('amount'))
 
     # ONCHANGE
     # ----------------------------------------------------------

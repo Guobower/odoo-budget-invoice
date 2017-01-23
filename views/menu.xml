@@ -16,11 +16,22 @@
         sequence="1"
         parent="menu_invoice_top"/>
     <menuitem
-        id="menu_task_left"
+        id="menu_cear_left"
         name="Task"
         sequence="2"
-        parent="menu_invoice_top"
-        action="budget_capex.action_task"/>
+        parent="menu_invoice_top"/>
+            <menuitem
+                id="menu_cear_commitment_left_left"
+                name="Commitment"
+                sequence="1"
+                parent="menu_cear_left"
+                action="budget_capex.action_cear_commitment"/>
+            <menuitem
+                id="menu_cear_expenditure_left_left"
+                name="Expenditure"
+                sequence="2"
+                parent="menu_cear_left"
+                action="budget_capex.action_cear_expenditure"/>
     <menuitem
         id="menu_external_left"
         name="Dependencies"

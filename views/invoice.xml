@@ -2,7 +2,7 @@
 
 <openerp>
     <data>
-    <!--START VIEWS-->
+        <!--START VIEWS-->
         <!--FORM VIEW-->
         <record model="ir.ui.view" id="view_form_invoice">
             <field name="name">Invoice</field>
@@ -11,23 +11,23 @@
                 <form string="Invoice">
                     <header>
                         <button
-                            string="Verify"
-                            name="verify"
-                            type="workflow"
-                            states="draft" />
+                                string="Verify"
+                                name="verify"
+                                type="workflow"
+                                states="draft"/>
                         <button
-                            string="Place On-hold"
-                            name="on_hold"
-                            type="workflow"
-                            states="draft,verified" />
+                                string="Place On-hold"
+                                name="on_hold"
+                                type="workflow"
+                                states="draft,verified"/>
                         <button
-                            string="Reject"
-                            name="reject"
-                            type="workflow"
-                            states="draft,verified,on hold" />
+                                string="Reject"
+                                name="reject"
+                                type="workflow"
+                                states="draft,verified,on hold"/>
 
-                    <field name="state" widget="statusbar"
-                           statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -40,71 +40,101 @@
                                 <field name="problem" decoration-danger="True" readonly="1"/>
                             </h3>
                         </div>
+                        <notebook>
+                            <page string="General">
+                                <group>
+                                    <group>
+                                        <field name="region_id"/>
+                                        <field name="section_id"/>
+                                        <field name="sub_section_id"/>
+                                    </group>
+                                    <group>
+                                        <field name="contract_id"
+                                               context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>
+                                        <field name="proj_no"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="summary_ids" widget="many2many_tags"/>
+                                    <field name="description"/>
+                                    <field name="remarks"/>
+                                </group>
+                            </page>
+                            <page string="Summary">
+                                <group>
+                                    <field name="certified_invoice_amount" readonly="1"/>
+                                    <field name="invoice_amount"/>
+                                    <field name="capex_amount"/>
+                                    <field name="opex_amount"/>
+                                    <field name="revenue_amount"/>
+                                    <field name="penalty_amount"/>
+                                    <label for="on_hold_amount"/>
+                                    <div>
+                                        <field name="on_hold_amount" class="oe_inline"/>
+                                        <label string=" : " class="oe_inline"/>
+                                        <field name="on_hold_percentage" class="oe_inline"/>
+                                        <label string="%" class="oe_inline"/>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string="Date">
+                                <group>
+                                    <group>
+                                        <field name="received_date"/>
+                                        <field name="invoice_date"/>
+                                        <field name="invoice_cert_date"/>
+                                    </group>
+                                    <group>
+                                        <field name="start_date"/>
+                                        <field name="end_date"/>
+                                        <field name="rfs_date"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="signed_date"/>
+                                        <field name="sent_finance_date"/>
+                                        <field name="closed_date"/>
+                                        <field name="reject_date"/>
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
                         <group>
-                            <group>
-                                <field name="task_id"/>
-                                <field name="region_id"/>
-                                <field name="section_id"/>
-                                <field name="sub_section_id"/>
-                            </group>
-                            <group>
-                                <field name="related_authorized_amount" readonly="1"/>
-                                <field name="related_utilized_amount" readonly="1"/>
-                                <field name="related_total_amount" readonly="1"/>
-                                <field name="certified_invoice_amount" readonly="1"/>
-                                <field name="invoice_amount"/>
-                            </group>
+                            <field name="amount_ids" context="{'default_invoice_id': id}">
+                                <tree editable="bottom">
+                                    <field name="invoice_id" groups="base.group_system"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="budget_type" required="1"/>
+                                    <field name="invoice_type" required="1"/>
+                                    <field name="payment_type" required="1"/>
+                                    <field name="amount" required="1" sum="1"/>
+                                </tree>
+                            </field>
                         </group>
                         <group>
-                            <group>
-                                <field name="contract_id"
-                                       context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>
-                                <field name="proj_no"/>
-                                <field name="invoice_type"/>
-                                <field name="payment_type"/>
-                                <field name="cost_center"/>
-                                <field name="expense_code"/>
-                            </group>
-                            <group>
-                                <field name="capex_amount"/>
-                                <field name="opex_amount"/>
-                                <field name="revenue_amount"/>
-                                <field name="penalty_amount"/>
-                                <label for="on_hold_amount"/>
-                                <div>
-                                    <field name="on_hold_amount" class="oe_inline"/>
-                                    <label string=" : " class="oe_inline"/>
-                                    <field name="on_hold_percentage" class="oe_inline"/>
-                                    <label string="%" class="oe_inline"/>
-                                </div>
-                            </group>
+                            <field name="total_capex_amount"/>
+                            <field name="cear_allocation_ids" context="{'default_invoice_id': id}">
+                                <tree editable="bottom">
+                                    <field name="invoice_id" groups="base.group_system"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="cear_id"/>
+                                    <field name="amount" required="1" sum="1"/>
+                                </tree>
+                            </field>
                         </group>
                         <group>
-                            <group>
-                                <field name="received_date"/>
-                                <field name="invoice_date"/>
-                                <field name="invoice_cert_date"/>
-                            </group>
-                            <group>
-                                <field name="start_date"/>
-                                <field name="end_date"/>
-                                <field name="rfs_date"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="signed_date"/>
-                                <field name="sent_finance_date"/>
-                                <field name="closed_date"/>
-                                <field name="reject_date"/>
-                            </group>
-                            <group>
-                            </group>
-                        </group>
-                        <group>
-                            <field name="summary_ids" widget="many2many_tags"/>
-                            <field name="description"/>
-                            <field name="remarks"/>
+                            <field name="total_opex_amount"/>
+                            <field name="oear_allocation_ids" context="{'default_invoice_id': id}">
+                                <tree editable="bottom">
+                                    <field name="invoice_id" groups="base.group_system"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="oear_id"/>
+                                    <field name="amount" required="1" sum="1"/>
+                                </tree>
+                            </field>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
@@ -136,26 +166,24 @@
                 </tree>
             </field>
         </record>
-    <!--END VIEWS-->
-    <!--START SEARCH-->
+        <!--END VIEWS-->
+        <!--START SEARCH-->
         <record model="ir.ui.view" id="search_invoice">
             <field name="name">Invoice</field>
             <field name="model">budget.invoice.invoice</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="invoice_no"/>
-                    <field name="pec_no"/>
                     <field name="contract_id"/>
-                    <field name="task_id"/>
                     <filter
-                        name="filter_state"
-                        string="Need Action"
-                        domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                            name="filter_state"
+                            string="Need Action"
+                            domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
                 </search>
             </field>
         </record>
-    <!--END SEARCH-->
-    <!--START ACTIONS-->
+        <!--END SEARCH-->
+        <!--START ACTIONS-->
         <!--Invoice Action-->
         <record model="ir.actions.act_window" id="action_invoice">
             <field name="name">Invoice</field>
@@ -165,7 +193,8 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                                   'search_default_filter_state': 1}</field>
+                'search_default_filter_state': 1}
+            </field>
         </record>
         <!--END ACTIONS-->
     </data>
