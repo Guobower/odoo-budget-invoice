@@ -28,14 +28,11 @@ class Invoice(models.Model):
     invoice_no = fields.Char(string="Invoice No")
     invoice_type = fields.Selection(INVOICE_TYPES)
 
-    revenue_amount = fields.Monetary(string='Revenue Amount', currency_field='company_currency_id')
-    opex_amount = fields.Monetary(string='OPEX Amount', currency_field='company_currency_id')
-    capex_amount = fields.Monetary(string='CAPEX Amount', currency_field='company_currency_id')
-    penalty_amount = fields.Monetary(string='Penalty Amount', currency_field='company_currency_id')
-
-    on_hold_amount = fields.Monetary(string='On Hold Amount', currency_field='company_currency_id')
+    penalty_amount_input = fields.Monetary(string='Penalty Amount', currency_field='company_currency_id')
+    on_hold_amount_input = fields.Monetary(string='On Hold Amount', currency_field='company_currency_id')
     # TODO Make Validation for max 100%
-    on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
+    on_hold_percentage_input = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
+    penalty_percentage_input = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
@@ -89,19 +86,98 @@ class Invoice(models.Model):
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
-    invoice_amount = fields.Monetary(string='Invoice Amount', currency_field='company_currency_id',
+    opex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                  compute='_compute_opex_amount',
+                                  string='OPEX Amount')
+    capex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                   compute="_compute_capex_amount",
+                                   string='CAPEX Amount')
+    revenue_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_revenue_amount',
+                                     string='Revenue Amount')
+    invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_invoice_amount',
-                                     store=True)
-    certified_invoice_amount = fields.Monetary(string='Certified Amount', currency_field='company_currency_id',
+                                     string='Invoice Amount')
+    penalty_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_penalty_amount',
+                                     string='Penalty Amount')
+    on_hold_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_on_hold_amount',
+                                     string='On Hold Amount')
+    certified_invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
-                                               inverse='_set_certified_invoice_amount',
-                                               store=True)
-    total_capex_amount = fields.Monetary(string='CAPEX Amount to be Allocated', currency_field='company_currency_id',
-                                         compute='_compute_total_capex_amount',
-                                         store=True)
-    total_opex_amount = fields.Monetary(string='OPEX Amount to be Allocated', currency_field='company_currency_id',
-                                         compute='_compute_total_opex_amount',
-                                         store=True)
+                                               string='Certified Amount')
+    balance_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_balance_amount',
+                                     string='Balance Amount')
+    cear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                  compute='_compute_cear_amount',
+                                  string='Total CEAR Amount')
+    oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                  compute='_compute_oear_amount',
+                                  string='Total OEAR Amount')
+
+    @api.one
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    def _compute_opex_amount(self):
+        self.opex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type == 'opex'). \
+                               mapped('amount'))
+
+    @api.one
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    def _compute_capex_amount(self):
+        self.capex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type in ['capex']). \
+                                mapped('amount'))
+
+    @api.one
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    def _compute_revenue_amount(self):
+        self.revenue_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type in ['revenue']). \
+                                  mapped('amount'))
+
+    @api.one
+    @api.depends('revenue_amount', 'opex_amount', 'capex_amount')
+    def _compute_invoice_amount(self):
+        self.invoice_amount = self.opex_amount + \
+                              self.capex_amount + \
+                              self.revenue_amount
+
+    @api.one
+    @api.depends('penalty_amount_input', 'penalty_percentage_input', 'invoice_amount')
+    def _compute_penalty_amount(self):
+        if self.penalty_amount > 0:
+            self.penalty_amount = self.penalty_amount_input
+        else:
+            self.penalty_amount = self.invoice_amount * self.penalty_percentage_input
+
+    @api.one
+    @api.depends('on_hold_amount_input', 'on_hold_percentage_input', 'invoice_amount')
+    def _compute_on_hold_amount(self):
+        if self.on_hold_amount > 0:
+            self.on_hold_amount = self.on_hold_amount_input
+        else:
+            self.on_hold_amount = self.invoice_amount * self.on_hold_percentage_input
+
+    @api.one
+    @api.depends('invoice_amount', 'penalty_amount')
+    def _compute_certified_invoice_amount(self):
+        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount
+
+    @api.one
+    @api.depends('revenue_amount', 'opex_amount',
+                 'capex_amount', 'penalty_amount', 'on_hold_amount')
+    def _compute_balance_amount(self):
+        self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
+
+    @api.one
+    @api.depends('revenue_amount', 'capex_amount')
+    def _compute_cear_amount(self):
+        self.cear_amount = self.capex_amount + self.revenue_amount
+
+    @api.one
+    @api.depends('opex_amount')
+    def _compute_cear_amount(self):
+        self.oear_amount = self.opex_amount
 
     @api.one
     @api.depends('certified_invoice_amount', 'invoice_no')
@@ -127,57 +203,27 @@ class Invoice(models.Model):
         else:
             self.problem = 'ok'
 
-    @api.one
-    @api.depends('revenue_amount', 'opex_amount', 'capex_amount')
-    def _compute_invoice_amount(self):
-        self.invoice_amount = self.opex_amount + \
-                              self.capex_amount + \
-                              self.revenue_amount
-
-    @api.one
-    def _set_certified_invoice_amount(self):
-        if self.certified_invoice_amount != self.opex_amount + self.capex_amount + self.revenue_amount:
-            self._compute_certified_invoice_amount()
-
-    @api.one
-    @api.depends('revenue_amount', 'opex_amount',
-                 'capex_amount', 'penalty_amount', 'on_hold_amount')
-    def _compute_certified_invoice_amount(self):
-        self.certified_invoice_amount = self.opex_amount + \
-                                        self.capex_amount + \
-                                        self.revenue_amount - \
-                                        self.penalty_amount - \
-                                        self.on_hold_amount
-
-    @api.one
-    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
-    def _compute_total_opex_amount(self):
-        self.total_opex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type == 'opex').mapped('amount'))
-
-    @api.one
-    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
-    def _compute_total_capex_amount(self):
-        self.total_capex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type in ['capex', 'revenue']). \
-                                      mapped('amount'))
-
     # ONCHANGE
     # ----------------------------------------------------------
-    # certified_invoice_amount
-    # on_hold_amount = certified_invoice_amount * on_hold_percentage / 100.00
-    # on_hold_percentage = on_hold_amount / certified_invoice_amount * 100.00
+    @api.onchange('on_hold_amount_input')
+    def onchange_on_hold_percentage_input(self):
+        if self.on_hold_percentage_input > 0 and self.on_hold_amount_input > 0:
+            self.on_hold_percentage_input = 0
 
-    @api.onchange('on_hold_amount')
-    def onchange_on_hold_percentage(self):
-        total_amount = self.opex_amount + self.capex_amount + self.revenue_amount - self.penalty_amount
-        # if self.on_hold_amount != total_amount * self.on_hold_percentage / 100.00:
-        if total_amount > 0.00:
-            self.on_hold_percentage = self.on_hold_amount / total_amount * 100.00
+    @api.onchange('on_hold_percentage_input')
+    def onchange_on_hold_amount_input(self):
+        if self.on_hold_percentage_input > 0 and self.on_hold_amount_input > 0:
+            self.on_hold_amount_input = 0
 
-    @api.onchange('on_hold_percentage')
-    def onchange_on_hold_amount(self):
-        total_amount = self.opex_amount + self.capex_amount + self.revenue_amount - self.penalty_amount
-        # if self.on_hold_percentage != self.on_hold_amount / total_amount * 100.00:
-        self.on_hold_amount = total_amount * self.on_hold_percentage / 100.00
+    @api.onchange('penalty_amount_input')
+    def onchange_penalty_percentage_input(self):
+        if self.penalty_percentage_input > 0 and self.penalty_amount_input > 0:
+            self.penalty_percentage_input = 0
+
+    @api.onchange('penalty_percentage_input')
+    def onchange_penalty_amount_input(self):
+        if self.penalty_percentage_input > 0 and self.penalty_amount_input > 0:
+            self.penalty_amount_input = 0
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
