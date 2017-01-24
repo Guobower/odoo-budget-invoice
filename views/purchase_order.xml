@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+        <!--START INVOICE SUMMARY VIEWS-->
+        <!--INVOICE SUMMARY FORM VIEW-->
+        <record model="ir.ui.view" id="view_form_purchase_order">
+            <field name="name">Invoice Summary</field>
+            <field name="model">budget.invoice.purchase.order</field>
+            <field name="arch" type="xml">
+                <form string="Invoice Summary">
+                    <header>
+                        <!--<button-->
+                        <!--string="Generate"-->
+                        <!--name="generate"-->
+                        <!--type="workflow"-->
+                        <!--states="draft"/>-->
+                        <!--<field name="state" widget="statusbar"/>-->
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="box">
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="no"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="date"/>
+                                <field name="amount"/>
+                                <field name="status"/>
+                                <field name="type"/>
+                            </group>
+                            <group>
+
+                            </group>
+                        </group>
+                        <group>
+                            <field name="remark"/>
+                            <field name="cear_ids"/>
+                            <field name="oear_ids"/>
+                            <field name="invoice_ids"/>
+                        </group>
+                        <notebook>
+                            <!--<page string="Invoices">-->
+                            <!--<field name="invoice_ids">-->
+                            <!--<tree default_order="sequence"-->
+                            <!--decoration-success="problem in ['ok', False]"-->
+                            <!--decoration-danger="problem in ['duplicate', 'overrun']">-->
+                            <!--<field name="problem"/>-->
+                            <!--<field name="state"/>-->
+                            <!--<field name="sequence" widget="handle"/>-->
+                            <!--<field name="invoice_no"/>-->
+                            <!--<field name="contract_id"/>-->
+                            <!--<field name="invoice_amount"/>-->
+                            <!--<field name="invoice_date"/>-->
+                            <!--<field name="invoice_cert_date"/>-->
+                            <!--<field name="received_date"/>-->
+                            <!--<field name="sent_finance_date"/>-->
+                            <!--</tree>-->
+                            <!--</field>-->
+                            <!--</page>-->
+                        </notebook>
+                    </sheet>
+                    <!--<div class="oe_chatter">-->
+                    <!--<field name="message_follower_ids" widget="mail_followers"/>-->
+                    <!--<field name="message_ids" widget="mail_thread"/>-->
+                    <!--</div>-->
+                </form>
+            </field>
+        </record>
+        <!--INVOICE SUMMARY TREE VIEW-->
+        <record model="ir.ui.view" id="view_tree_purchase_order">
+            <field name="name">Purchase Order</field>
+            <field name="model">budget.invoice.purchase.order</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="no"/>
+                    <field name="date"/>
+                    <field name="amount"/>
+                    <field name="status"/>
+                    <field name="type"/>
+                    <!--<button name="export_file" string="Download" type="object" icon="fa-download"-->
+                    <!--attrs="{'invisible':[('state','=','draft')]}"/>-->
+                </tree>
+            </field>
+        </record>
+        <!--END INVOICE SUMMARY VIEWS-->
+        <!--START SEARCH-->
+        <record model="ir.ui.view" id="search_purchase_order">
+            <field name="name">Invoice Summary</field>
+            <field name="model">budget.invoice.purchase.order</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="no"/>
+                    <filter
+                            name="no"
+                            string="Need Action"
+                            domain="[]"/>
+                </search>
+            </field>
+        </record>
+        <!--END SEARCH-->
+
+        <!--START ACTIONS-->
+        <record model="ir.actions.act_window" id="action_purchase_order">
+            <field name="name">Invoice Summary</field>
+            <field name="res_model">budget.invoice.purchase.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="view_id" ref="view_tree_purchase_order"/>
+            <field name="search_view_id" ref="search_purchase_order"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_purchase_order',
+                'search_default_filter_state': 1}
+            </field>
+        </record>
+        <!--END ACTIONS-->
+
+    </data>
+</openerp>

@@ -34,6 +34,7 @@ Invoice Management
 
         'views/invoice.xml',
         'views/invoice_summary.xml',
+        'views/purchase_order.xml',
         'views/contractor_inherit.xml',
         'views/cear_inherit.xml',
 #        'views/account_code_inherit.xml',

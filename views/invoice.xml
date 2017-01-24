@@ -47,6 +47,7 @@
                                         <field name="region_id"/>
                                         <field name="contract_id"
                                                context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>
+                                        <field name="po_id"/>
                                         <field name="section_id"/>
                                         <field name="sub_section_id"/>
                                         <field name="proj_no"/>

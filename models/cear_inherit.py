@@ -24,7 +24,8 @@ class TaskInherit(models.Model):
     # invoice_ids = fields.One2many('budget.invoice.invoice',
     #                               'cear_id',
     #                               string="Invoices")
-
+    po_id = fields.Many2one('budget.invoice.purchase.order',
+                            string='Purchase Order')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Char(string='Problem')
@@ -36,6 +37,7 @@ class TaskInherit(models.Model):
     # @api.one
     # @api.depends('invoice_ids')
     # def _compute_total_invoice(self):
+
 #        self.total_invoice = len(self.invoice_ids)
 #     @api.one
 #     @api.depends('authorized_amount', 'utilized_amount', 'category', 'state', 'total_amount')
@@ -54,15 +56,15 @@ class TaskInherit(models.Model):
 #         else:
 #             self.problem = 'ok'
 
-    # @api.one
-    # @api.depends('invoice_ids.certified_invoice_amount', 'invoice_ids.state')
-    # def _compute_utilized_amount(self):
-    #     pass
-        # invoices = self.env['budget.invoice.invoice'].search([('cear_id', '=', self.id),
-        #                                    ('state', 'in', ['verified', 'summary generated', 'amount hold',
-        #                                                     'under certification', 'sent to finance', 'closed'])
-        #                                    ])
-        # self.utilized_amount = sum(invoices.mapped('certified_invoice_amount'))
+# @api.one
+# @api.depends('invoice_ids.certified_invoice_amount', 'invoice_ids.state')
+# def _compute_utilized_amount(self):
+#     pass
+# invoices = self.env['budget.invoice.invoice'].search([('cear_id', '=', self.id),
+#                                    ('state', 'in', ['verified', 'summary generated', 'amount hold',
+#                                                     'under certification', 'sent to finance', 'closed'])
+#                                    ])
+# self.utilized_amount = sum(invoices.mapped('certified_invoice_amount'))
 
-    # BUTTONS
-    # ----------------------------------------------------------
+# BUTTONS
+# ----------------------------------------------------------

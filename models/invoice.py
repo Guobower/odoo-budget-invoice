@@ -58,6 +58,8 @@ class Invoice(models.Model):
     company_currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
+    po_id = fields.Many2one('budget.invoice.purchase.order',
+                            string='Purchase Order')
     amount_ids = fields.One2many('budget.invoice.amount',
                                  'invoice_id',
                                  string="Amounts")
