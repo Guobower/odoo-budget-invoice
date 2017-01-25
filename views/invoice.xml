@@ -53,20 +53,8 @@
                                         <field name="proj_no"/>
                                     </group>
                                     <group>
-                                        <label for="penalty_amount_input"/>
-                                        <div>
-                                            <field name="penalty_amount_input" class="oe_inline"/>
-                                            <label string=" : " class="oe_inline"/>
-                                            <field name="penalty_percentage_input" class="oe_inline"/>
-                                            <label string="%" class="oe_inline"/>
-                                        </div>
-                                        <label for="on_hold_amount_input"/>
-                                        <div>
-                                            <field name="on_hold_amount_input" class="oe_inline"/>
-                                            <label string=" : " class="oe_inline"/>
-                                            <field name="on_hold_percentage_input" class="oe_inline"/>
-                                            <label string="%" class="oe_inline"/>
-                                        </div>
+                                        <field name="penalty_percentage"/>
+                                        <field name="on_hold_percentage"/>
                                     </group>
                                 </group>
                                 <group>
@@ -85,7 +73,7 @@
                                     </group>
                                     <group>
                                         <field name="penalty_amount"/>
-                                        <field name="invoice_amount"/>
+                                        <field name="certified_invoice_amount"/>
                                         <field name="on_hold_amount"/>
                                         <field name="balance_amount"/>
                                     </group>
@@ -129,18 +117,21 @@
                             </field>
                         </group>
                         <group>
-                            <field name="cear_amount"/>
                             <field name="cear_allocation_ids" context="{'default_invoice_id': id}">
-                                <tree editable="bottom">
+                                <tree editable="bottom" decoration-success="problem in ['ok', False]"
+                                                        decoration-danger="problem in ['overrun']">
                                     <field name="invoice_id" groups="base.group_system"/>
                                     <field name="sequence" widget="handle"/>
                                     <field name="cear_id"/>
+                                    <field name="problem"/>
+                                    <field name="related_cear_authorized_amount" readonly="1" sum="1"/>
+                                    <field name="related_cear_fn_utilized_amount" readonly="1" sum="1"/>
+                                    <field name="related_cear_im_utilized_amount" readonly="1" sum="1"/>
                                     <field name="amount" required="1" sum="1"/>
                                 </tree>
                             </field>
                         </group>
                         <group>
-                            <field name="oear_amount"/>
                             <field name="oear_allocation_ids" context="{'default_invoice_id': id}">
                                 <tree editable="bottom">
                                     <field name="invoice_id" groups="base.group_system"/>

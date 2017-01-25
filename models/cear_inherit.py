@@ -10,7 +10,6 @@ class TaskInherit(models.Model):
     # CHOICES
     # ----------------------------------------------------------
 
-
     # BASIC FIELDS
     # ----------------------------------------------------------
     # state already exist in the parent model
@@ -21,50 +20,46 @@ class TaskInherit(models.Model):
     # ----------------------------------------------------------
     # company_currency_id already exist in the parent model
 
-    # invoice_ids = fields.One2many('budget.invoice.invoice',
-    #                               'cear_id',
-    #                               string="Invoices")
+    allocation_ids = fields.One2many('budget.invoice.cear.allocation',
+                                     'cear_id',
+                                     string="Allocations")
     po_id = fields.Many2one('budget.invoice.purchase.order',
                             string='Purchase Order')
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    problem = fields.Char(string='Problem')
-    # utilized_amount = fields.Monetary(currency_field='company_currency_id',
-    #                                   string='Utilized Amount (IM)',
-    #                                   compute='_compute_utilized_amount',
-    #                                   store=True)
+    problem = fields.Char(string='Problem',
+                          compute='_compute_problem')
+    im_utilized_amount = fields.Monetary(currency_field='company_currency_id',
+                                         string='Utilized Amount (IM)',
+                                         compute='_compute_im_utilized_amount',
+                                         store=True)
 
-    # @api.one
-    # @api.depends('invoice_ids')
-    # def _compute_total_invoice(self):
+    @api.one
+    @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')
+    def _compute_im_utilized_amount(self):
+        cear_allocations = self.env['budget.invoice.cear.allocation'].search([('cear_id', '=', self.id),
+                                                                              ('related_invoice_state', 'not in',
+                                                                               ['draft', 'on hold', 'rejected'])
+                                                                              ])
+        self.im_utilized_amount = sum(cear_allocations.mapped('amount'))
 
-#        self.total_invoice = len(self.invoice_ids)
-#     @api.one
-#     @api.depends('authorized_amount', 'utilized_amount', 'category', 'state', 'total_amount')
-#     def _compute_problem(self):
-#
-#         if self.category == "Y":
-#             self.problem = 'ok'
-#
-#         elif self.authorized_amount < self.utilized_amount:
-#             self.problem = 'overrun'
-#
-#         # TODO THIS GOES TO ACTUAL
-#         elif self.authorized_amount < self.total_amount:
-#             self.problem = 'overrun'
-#
-#         else:
-#             self.problem = 'ok'
+    @api.one
+    @api.depends('authorized_amount', 'fn_utilized_amount', 'im_utilized_amount', 'category', 'state')
+    def _compute_problem(self):
 
-# @api.one
-# @api.depends('invoice_ids.certified_invoice_amount', 'invoice_ids.state')
-# def _compute_utilized_amount(self):
-#     pass
-# invoices = self.env['budget.invoice.invoice'].search([('cear_id', '=', self.id),
-#                                    ('state', 'in', ['verified', 'summary generated', 'amount hold',
-#                                                     'under certification', 'sent to finance', 'closed'])
-#                                    ])
-# self.utilized_amount = sum(invoices.mapped('certified_invoice_amount'))
+        if self.category == "Y":
+            # False to represent that problem check is not to be perform
+            self.problem = False
 
-# BUTTONS
-# ----------------------------------------------------------
+        elif self.authorized_amount < self.im_utilized_amount:
+            self.problem = 'overrun'
+
+        # TODO THIS GOES TO ACTUAL
+        elif self.authorized_amount < self.fn_utilized_amount:
+            self.problem = 'overrun'
+
+        else:
+            self.problem = 'ok'
+
+    # BUTTONS
+    # ----------------------------------------------------------

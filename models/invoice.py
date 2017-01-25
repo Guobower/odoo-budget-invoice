@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.addons.budget_core.models.utilities import choices_tuple
+
+from odoo.exceptions import ValidationError, UserError
 
 
 class Invoice(models.Model):
@@ -28,11 +30,9 @@ class Invoice(models.Model):
     invoice_no = fields.Char(string="Invoice No")
     invoice_type = fields.Selection(INVOICE_TYPES)
 
-    penalty_amount_input = fields.Monetary(string='Penalty Amount', currency_field='company_currency_id')
-    on_hold_amount_input = fields.Monetary(string='On Hold Amount', currency_field='company_currency_id')
     # TODO Make Validation for max 100%
-    on_hold_percentage_input = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
-    penalty_percentage_input = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
+    on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
+    penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
@@ -112,12 +112,6 @@ class Invoice(models.Model):
     balance_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_balance_amount',
                                      string='Balance Amount')
-    cear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
-                                  compute='_compute_cear_amount',
-                                  string='Total CEAR Amount')
-    oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
-                                  compute='_compute_oear_amount',
-                                  string='Total OEAR Amount')
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -145,20 +139,9 @@ class Invoice(models.Model):
                               self.revenue_amount
 
     @api.one
-    @api.depends('penalty_amount_input', 'penalty_percentage_input', 'invoice_amount')
+    @api.depends('penalty_percentage', 'invoice_amount')
     def _compute_penalty_amount(self):
-        if self.penalty_amount > 0:
-            self.penalty_amount = self.penalty_amount_input
-        else:
-            self.penalty_amount = self.invoice_amount * self.penalty_percentage_input
-
-    @api.one
-    @api.depends('on_hold_amount_input', 'on_hold_percentage_input', 'invoice_amount')
-    def _compute_on_hold_amount(self):
-        if self.on_hold_amount > 0:
-            self.on_hold_amount = self.on_hold_amount_input
-        else:
-            self.on_hold_amount = self.invoice_amount * self.on_hold_percentage_input
+        self.penalty_amount = self.invoice_amount * self.penalty_percentage / 100
 
     @api.one
     @api.depends('invoice_amount', 'penalty_amount')
@@ -166,23 +149,17 @@ class Invoice(models.Model):
         self.certified_invoice_amount = self.invoice_amount - self.penalty_amount
 
     @api.one
-    @api.depends('revenue_amount', 'opex_amount',
-                 'capex_amount', 'penalty_amount', 'on_hold_amount')
+    @api.depends('on_hold_percentage', 'certified_invoice_amount')
+    def _compute_on_hold_amount(self):
+        self.on_hold_amount = self.certified_invoice_amount * self.on_hold_percentage / 100
+
+    @api.one
+    @api.depends('certified_invoice_amount', 'on_hold_amount')
     def _compute_balance_amount(self):
         self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
 
     @api.one
-    @api.depends('revenue_amount', 'capex_amount')
-    def _compute_cear_amount(self):
-        self.cear_amount = self.capex_amount + self.revenue_amount
-
-    @api.one
-    @api.depends('opex_amount')
-    def _compute_cear_amount(self):
-        self.oear_amount = self.opex_amount
-
-    @api.one
-    @api.depends('certified_invoice_amount', 'invoice_no')
+    @api.depends('cear_allocation_ids.cear_id.problem', 'invoice_no')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice.invoice'].search_count([('invoice_no', '=', self.invoice_no),
@@ -190,42 +167,31 @@ class Invoice(models.Model):
         if count > 1:
             self.problem = 'duplicate'
 
-        # elif self.cear_id.problem != 'ok':
-        #     self.problem = self.cear_id.problem
-        #
-        # # TODO USE CATEGORY ALSO TO IGNORE Y
-        # elif self.state == 'draft':
-        #     if self.cear_id.authorized_amount < self.certified_invoice_amount + self.cear_id.utilized_amount:
-        #         self.problem = 'overrun'
-        #
-        #         # TODO MUST BE PLACED IN ACTUALS
-        #     if self.state == 'draft' and self.cear_id.authorized_amount < self.certified_invoice_amount + self.cear_id.total_amount:
-        #         self.problem = 'overrun'
-
         else:
-            self.problem = 'ok'
+            problems = self.cear_allocation_ids.mapped('related_cear_problem')
+            uniq_problems = set(problems) - set(['ok', False])
+            self.problem = '; '.join(uniq_problems)
 
-    # ONCHANGE
+    # CONSTRAINS
     # ----------------------------------------------------------
-    @api.onchange('on_hold_amount_input')
-    def onchange_on_hold_percentage_input(self):
-        if self.on_hold_percentage_input > 0 and self.on_hold_amount_input > 0:
-            self.on_hold_percentage_input = 0
+    @api.one
+    @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
+    def _check_total_capex(self):
+        cear_amount = self.capex_amount + self.opex_amount
+        allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
+        if cear_amount != allocation_cear_amount:
+            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
+            raise ValidationError(msg)
 
-    @api.onchange('on_hold_percentage_input')
-    def onchange_on_hold_amount_input(self):
-        if self.on_hold_percentage_input > 0 and self.on_hold_amount_input > 0:
-            self.on_hold_amount_input = 0
-
-    @api.onchange('penalty_amount_input')
-    def onchange_penalty_percentage_input(self):
-        if self.penalty_percentage_input > 0 and self.penalty_amount_input > 0:
-            self.penalty_percentage_input = 0
-
-    @api.onchange('penalty_percentage_input')
-    def onchange_penalty_amount_input(self):
-        if self.penalty_percentage_input > 0 and self.penalty_amount_input > 0:
-            self.penalty_amount_input = 0
+    @api.one
+    @api.constrains('opex_amount', 'oear_allocation_ids')
+    def _check_total_opex(self):
+        oear_amount = self.opex_amount
+        allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
+        if oear_amount != allocation_oear_amount:
+            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
+                                                                                   oear_amount)
+            raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------

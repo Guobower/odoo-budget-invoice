@@ -3,12 +3,16 @@
 from odoo.tests.common import TransactionCase
 
 
-class TestInvoice(TransactionCase):
-    at_install = False
-    post_install = True
-
+class TestInvoiceAmounts(TransactionCase):
     def setUp(self):
-        super(TestInvoice, self).setUp()
+        self.invoice = self.env['budget.invoice.invoice'].create(
+            {
+                u'authorized_amount': 200,
+                u'cear_no': u'Task - 1',
+                u'total_amount': 50  # FN actual
+            }
+        )
+        super(TestInvoiceAmounts, self).setUp()
 
     def test_compute_problem_duplicate(self):
         """
