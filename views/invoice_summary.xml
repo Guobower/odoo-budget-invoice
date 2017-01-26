@@ -58,24 +58,24 @@
                             </group>
                         </group>
                         <notebook>
-                            <!--<page string="Invoices">-->
-                                <!--<field name="invoice_ids">-->
-                                    <!--<tree default_order="sequence"-->
-                                          <!--decoration-success="problem in ['ok', False]"-->
-                                          <!--decoration-danger="problem in ['duplicate', 'overrun']">-->
-                                        <!--<field name="problem"/>-->
-                                        <!--<field name="state"/>-->
-                                        <!--<field name="sequence" widget="handle"/>-->
-                                        <!--<field name="invoice_no"/>-->
-                                        <!--<field name="contract_id"/>-->
-                                        <!--<field name="invoice_amount"/>-->
-                                        <!--<field name="invoice_date"/>-->
-                                        <!--<field name="invoice_cert_date"/>-->
-                                        <!--<field name="received_date"/>-->
-                                        <!--<field name="sent_finance_date"/>-->
-                                    <!--</tree>-->
-                                <!--</field>-->
-                            <!--</page>-->
+                            <page string="Invoices">
+                                <field name="invoice_ids">
+                                    <tree default_order="sequence"
+                                          decoration-success="problem in ['ok', False]"
+                                          decoration-danger="problem in ['duplicate', 'overrun']">
+                                        <field name="problem"/>
+                                        <field name="state"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="invoice_no"/>
+                                        <field name="contract_id"/>
+                                        <field name="invoice_amount"/>
+                                        <field name="invoice_date"/>
+                                        <field name="invoice_cert_date"/>
+                                        <field name="received_date"/>
+                                        <field name="sent_finance_date"/>
+                                    </tree>
+                                </field>
+                            </page>
                         </notebook>
                     </sheet>
                     <div class="oe_chatter">
