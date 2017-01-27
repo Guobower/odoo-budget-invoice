@@ -60,7 +60,7 @@
                                 <group>
                                     <field name="summary_ids" widget="many2many_tags"/>
                                     <field name="description"/>
-                                    <field name="remarks"/>
+                                    <field name="remark"/>
                                 </group>
                             </page>
                             <page string="Summary">

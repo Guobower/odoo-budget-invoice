@@ -28,7 +28,6 @@ class Invoice(models.Model):
     state = fields.Selection(STATES, default='draft')
 
     invoice_no = fields.Char(string="Invoice No")
-    invoice_type = fields.Selection(INVOICE_TYPES)
 
     # TODO Make Validation for max 100%
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
@@ -44,9 +43,8 @@ class Invoice(models.Model):
     reject_date = fields.Date(string='Reject Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
     closed_date = fields.Date(string='Closed Date')
-    cost_center = fields.Char(string="Cost Center")
-    expense_code = fields.Char(string="Expense Code")
-    remarks = fields.Text(string='Remarks')
+
+    remark = fields.Text(string='Remarks')
     description = fields.Text(string='Description')
     proj_no = fields.Char(string="Project No")
 
@@ -174,24 +172,24 @@ class Invoice(models.Model):
 
     # CONSTRAINS
     # ----------------------------------------------------------
-    @api.one
-    @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
-    def _check_total_capex(self):
-        cear_amount = self.capex_amount + self.opex_amount
-        allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
-        if cear_amount != allocation_cear_amount:
-            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
-            raise ValidationError(msg)
-
-    @api.one
-    @api.constrains('opex_amount', 'oear_allocation_ids')
-    def _check_total_opex(self):
-        oear_amount = self.opex_amount
-        allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
-        if oear_amount != allocation_oear_amount:
-            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
-                                                                                   oear_amount)
-            raise ValidationError(msg)
+    # @api.one
+    # @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
+    # def _check_total_capex(self):
+    #     cear_amount = self.capex_amount + self.opex_amount
+    #     allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
+    #     if cear_amount != allocation_cear_amount:
+    #         msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
+    #         raise ValidationError(msg)
+    #
+    # @api.one
+    # @api.constrains('opex_amount', 'oear_allocation_ids')
+    # def _check_total_opex(self):
+    #     oear_amount = self.opex_amount
+    #     allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
+    #     if oear_amount != allocation_oear_amount:
+    #         msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
+    #                                                                                oear_amount)
+    #         raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------

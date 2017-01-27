@@ -22,7 +22,7 @@ class InvoiceAmount(models.Model):
                                    'access network', 'supply of materials', 'civil works', 'cable works',
                                    'damage case', 'development', 'fdh uplifting', 'fttm activities',
                                    'maintenance work', 'man power', 'mega project', 'migration',
-                                   'on demand activities', 'provisioning', 'recharge', 'recovery'])
+                                   'on demand activities', 'provisioning', 'recharge', 'recovery', 'others'])
 
     # BASIC FIELDS
     # ----------------------------------------------------------
