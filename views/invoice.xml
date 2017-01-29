@@ -154,8 +154,8 @@
             <field name="name">Invoice</field>
             <field name="model">budget.invoice.invoice</field>
             <field name="arch" type="xml">
-                <tree decoration-success="problem in ['ok', False]"
-                      decoration-danger="problem in ['duplicate', 'overrun']"
+                <tree decoration-success="problem in ['ok', '', False]"
+                      decoration-danger="problem not in ['ok', '', False]"
                       decoration-muted="state == 'closed'">
                     <field name="invoice_no"/>
                     <field name="contract_id"/>

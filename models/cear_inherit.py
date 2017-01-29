@@ -28,7 +28,8 @@ class TaskInherit(models.Model):
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Char(string='Problem',
-                          compute='_compute_problem')
+                          compute='_compute_problem',
+                          store=True)
     im_utilized_amount = fields.Monetary(currency_field='company_currency_id',
                                          string='Utilized Amount (IM)',
                                          compute='_compute_im_utilized_amount',
@@ -38,7 +39,7 @@ class TaskInherit(models.Model):
     @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')
     def _compute_im_utilized_amount(self):
         cear_allocations = self.env['budget.invoice.cear.allocation'].search([('cear_id', '=', self.id),
-                                                                              ('related_invoice_state', 'not in',
+                                                                              ('invoice_id.state', 'not in',
                                                                                ['draft', 'on hold', 'rejected'])
                                                                               ])
         self.im_utilized_amount = sum(cear_allocations.mapped('amount'))

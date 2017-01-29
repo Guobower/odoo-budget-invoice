@@ -157,7 +157,7 @@ class Invoice(models.Model):
         self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
 
     @api.one
-    @api.depends('cear_allocation_ids.cear_id.problem', 'invoice_no')
+    @api.depends('cear_allocation_ids.problem', 'invoice_no')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.env['budget.invoice.invoice'].search_count([('invoice_no', '=', self.invoice_no),
@@ -166,8 +166,8 @@ class Invoice(models.Model):
             self.problem = 'duplicate'
 
         else:
-            problems = self.cear_allocation_ids.mapped('related_cear_problem')
-            uniq_problems = set(problems) - set(['ok', False])
+            problems = self.cear_allocation_ids.mapped('problem')
+            uniq_problems = set(problems) - set([False])
             self.problem = '; '.join(uniq_problems)
 
     # CONSTRAINS

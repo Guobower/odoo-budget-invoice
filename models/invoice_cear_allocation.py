@@ -42,19 +42,34 @@ class CearAllocation(models.Model):
     related_cear_authorized_amount = fields.Monetary(currency_field='company_currency_id',
                                                      related='cear_id.authorized_amount')
     related_cear_problem = fields.Char(related='cear_id.problem')
+
+    # COMPUTE FIELDS
+    # ----------------------------------------------------------
     problem = fields.Char(string='Problem',
-                          compute='_compute_problem')
+                          compute='_compute_problem',
+                          store=True)
 
     @api.one
-    @api.depends('related_cear_problem', 'invoice_id.certified_invoice_amount')
+    @api.depends('invoice_id.state', 'invoice_id.certified_invoice_amount',
+                 'cear_id.problem')
     def _compute_problem(self):
-        if not self.related_cear_problem:
+        if self.invoice_id.state not in ['draft', False]:
+            self.problem = self.cear_id.problem
             return
-        elif self.related_cear_problem != "ok":
-            self.problem = self.related_cear_problem
-        elif self.related_cear_im_utilized_amount + self.related_invoice_certified_invoice_amount > self.related_cear_authorized_amount:
+
+        if self.cear_id.problem != "ok":
+            self.problem = self.cear_id.problem
+            return
+        cear_im_utilized = self.cear_id.im_utilized_amount
+        cear_fn_utilized = self.cear_id.fn_utilized_amount
+        cear_authorized =  self.cear_id.authorized_amount
+        invoice_certified_invoice = self.invoice_id.certified_invoice_amount
+
+        if cear_im_utilized + invoice_certified_invoice > cear_authorized:
             self.problem = "overrun"
-        elif self.related_cear_fn_utilized_amount + self.related_invoice_certified_invoice_amount > self.related_cear_authorized_amount:
+
+        elif cear_fn_utilized + invoice_certified_invoice > cear_authorized:
             self.problem = "overrun"
+
         else:
             self.problem = "ok"
