@@ -58,6 +58,11 @@ class Invoice(models.Model):
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     po_id = fields.Many2one('budget.invoice.purchase.order',
                             string='Purchase Order')
+
+    # TODO TO BE REMOVED ONCE FINALIZE
+    cost_center_id = fields.Char('budget.core.account.code', string='Cost Center')
+    account_code_id = fields.Char('budget.core.cost.center', string='Account Code')
+
     amount_ids = fields.One2many('budget.invoice.amount',
                                  'invoice_id',
                                  string="Amounts")
@@ -172,24 +177,29 @@ class Invoice(models.Model):
 
     # CONSTRAINS
     # ----------------------------------------------------------
-    # @api.one
-    # @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
-    # def _check_total_capex(self):
-    #     cear_amount = self.capex_amount + self.opex_amount
-    #     allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
-    #     if cear_amount != allocation_cear_amount:
-    #         msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
-    #         raise ValidationError(msg)
-    #
-    # @api.one
-    # @api.constrains('opex_amount', 'oear_allocation_ids')
-    # def _check_total_opex(self):
-    #     oear_amount = self.opex_amount
-    #     allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
-    #     if oear_amount != allocation_oear_amount:
-    #         msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
-    #                                                                                oear_amount)
-    #         raise ValidationError(msg)
+    _sql_constraints = [
+        ('on_hold_percentage_min_max', 'CHECK (on_hold_percentage BETWEEN 0 AND 100)', 'On Hold Percentage must be with in 0-100'),
+        ('penalty_percentage_min_max', 'CHECK (penalty_percentage BETWEEN 0 AND 100)', 'Penalty Percentage must be with in 0-100'),
+    ]
+
+    @api.one
+    @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
+    def _check_total_capex(self):
+        cear_amount = self.capex_amount + self.opex_amount
+        allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
+        if cear_amount != allocation_cear_amount:
+            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
+            raise ValidationError(msg)
+
+    @api.one
+    @api.constrains('opex_amount', 'oear_allocation_ids')
+    def _check_total_opex(self):
+        oear_amount = self.opex_amount
+        allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
+        if oear_amount != allocation_oear_amount:
+            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
+                                                                                   oear_amount)
+            raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
@@ -228,3 +238,12 @@ class Invoice(models.Model):
     @api.one
     def set2amount_hold(self):
         self.state = 'amount hold'
+
+    # # POLYMORPH FUNCTIONS
+    # @api.one
+    # @api.returns('self', lambda value: value.id)
+    # def copy(self, default=None):
+    #     default = dict(default or {})
+    #     dup_invoice = super(Invoice, self).copy(default)
+    #     for amount in self.amount_ids:
+    #         dup_invoice.amount_ids |= amount.copy({'invoice_id': False})

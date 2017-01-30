@@ -117,12 +117,13 @@
                             </field>
                         </group>
                         <group>
-                            <field name="cear_allocation_ids" context="{'default_invoice_id': id}">
+                            <field name="cear_allocation_ids" context="{'default_invoice_id': id,
+                                                                        'default_amount': capex_amount}">
                                 <tree editable="bottom" decoration-success="problem in ['ok', False]"
                                                         decoration-danger="problem in ['overrun']">
                                     <field name="invoice_id" groups="base.group_system"/>
                                     <field name="sequence" widget="handle"/>
-                                    <field name="cear_id"/>
+                                    <field name="cear_id"  required="1"/>
                                     <field name="problem"/>
                                     <field name="related_cear_authorized_amount" readonly="1" sum="1"/>
                                     <field name="related_cear_fn_utilized_amount" readonly="1" sum="1"/>
