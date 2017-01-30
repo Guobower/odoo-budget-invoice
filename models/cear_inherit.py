@@ -28,7 +28,7 @@ class TaskInherit(models.Model):
                               'budget_cear_po_rel',
                               'cear_id',
                               'po_id',
-                              string='CEARs')
+                              string='Purchase Orders')
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
