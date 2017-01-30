@@ -30,12 +30,17 @@ class PurchaseOrder(models.Model):
     contractor_id = fields.Many2one('res.partner',
                                     domain=[('is_budget_contractor', '=', True)],
                                     string='Invoice')
-    cear_ids = fields.One2many('budget.capex.cear',
-                               'po_id',
-                               string="CEARs")
+
+    cear_ids = fields.Many2many('budget.capex.cear',
+                                'budget_cear_po_rel',
+                                'po_id',
+                                'cear_id',
+                                string='CEARs')
+
     oear_ids = fields.One2many('budget.opex.oear',
                                'po_id',
                                string="OEARs")
+
     invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'po_id',
                                   string="Invoices")

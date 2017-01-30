@@ -23,8 +23,13 @@ class TaskInherit(models.Model):
     allocation_ids = fields.One2many('budget.invoice.cear.allocation',
                                      'cear_id',
                                      string="Allocations")
-    po_id = fields.Many2one('budget.invoice.purchase.order',
-                            string='Purchase Order')
+
+    po_ids = fields.Many2many('budget.invoice.purchase.order',
+                              'budget_cear_po_rel',
+                              'cear_id',
+                              'po_id',
+                              string='CEARs')
+
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Char(string='Problem',
@@ -62,5 +67,5 @@ class TaskInherit(models.Model):
         else:
             self.problem = 'ok'
 
-    # BUTTONS
-    # ----------------------------------------------------------
+            # BUTTONS
+            # ----------------------------------------------------------
