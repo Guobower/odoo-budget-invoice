@@ -12,8 +12,10 @@ class PurchaseOrder(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
+    STATES = choices_tuple(['draft', 'active', 'closed'], is_sorted=False)
     # BASIC FIELDS
     # ----------------------------------------------------------
+    state = fields.Selection(STATES, default='draft')
     no = fields.Char(string='Purchase Order')
     date = fields.Date(string='Date')
     amount = fields.Monetary(string='Amount', currency_field='company_currency_id')
