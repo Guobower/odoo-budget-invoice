@@ -231,3 +231,11 @@ class InvoiceSummary(models.Model):
         for invoice in self.invoice_ids:
             invoice.signal_workflow('cancel')
         self.state = 'cancelled'
+
+    # POLYMORPH FUNCTIONS
+    @api.one
+    def unlink(self):
+        self.invoice_ids.delete_workflow()
+        self.invoice_ids.create_workflow()
+        self.invoice_ids.signal_workflow('verify')
+        return super(InvoiceSummary, self).unlink()

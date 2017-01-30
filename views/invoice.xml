@@ -50,6 +50,8 @@
                                         <field name="po_id"/>
                                         <field name="section_id"/>
                                         <field name="sub_section_id"/>
+                                        <field name="cost_center_id"/>
+                                        <field name="account_code_id"/>
                                         <field name="proj_no"/>
                                     </group>
                                     <group>

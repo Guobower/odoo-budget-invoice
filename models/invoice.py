@@ -239,11 +239,26 @@ class Invoice(models.Model):
     def set2amount_hold(self):
         self.state = 'amount hold'
 
-    # # POLYMORPH FUNCTIONS
-    # @api.one
-    # @api.returns('self', lambda value: value.id)
-    # def copy(self, default=None):
-    #     default = dict(default or {})
-    #     dup_invoice = super(Invoice, self).copy(default)
-    #     for amount in self.amount_ids:
-    #         dup_invoice.amount_ids |= amount.copy({'invoice_id': False})
+    # POLYMORPH FUNCTIONS
+    @api.one
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        default = dict(default or {})
+        dup_invoice = super(Invoice, self).copy(default)
+
+        dup_amounts = []
+        for amount in self.amount_ids:
+            dup_amounts.append(amount.copy({'invoice_id': False}))
+
+        dup_cear_allocations = []
+        for cear_allocation in self.cear_allocation_ids:
+            dup_cear_allocations.append(cear_allocation.copy({'invoice_id': False}))
+
+        dup_invoice.write(
+            {
+                'amount_ids': [(6, 0, [i.id for i in dup_amounts])],
+                'cear_allocation_ids': [(6, 0, [i.id for i in dup_cear_allocations])]
+            }
+        )
+
+        return dup_invoice
