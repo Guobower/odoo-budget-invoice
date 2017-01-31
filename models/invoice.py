@@ -18,6 +18,7 @@ class Invoice(models.Model):
     STATES = choices_tuple(['draft', 'verified', 'summary generated',
                             'under certification', 'sent to finance', 'closed',
                             'on hold', 'rejected', 'amount hold'], is_sorted=False)
+    TEAMS = choices_tuple(['head office', 'regional'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works',
                                    'damage case', 'development', 'fdh uplifting', 'fttm activities',
                                    'maintenance work', 'man power', 'mega project', 'migration',
@@ -60,8 +61,8 @@ class Invoice(models.Model):
                             string='Purchase Order')
 
     # TODO TO BE REMOVED ONCE FINALIZE
-    cost_center_id = fields.Many2one('budget.core.account.code', string='Cost Center')
-    account_code_id = fields.Many2one('budget.core.cost.center', string='Account Code')
+    account_code_id = fields.Many2one('budget.core.account.code', string='Cost Center')
+    cost_center_id = fields.Many2one('budget.core.cost.center', string='Account Code')
 
     amount_ids = fields.One2many('budget.invoice.amount',
                                  'invoice_id',
@@ -88,6 +89,8 @@ class Invoice(models.Model):
                                             store=True)
     # COMPUTE FIELDS
     # ----------------------------------------------------------
+    team = fields.Selection(TEAMS, compute='_compute_team',
+                            store=True)
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
@@ -175,11 +178,29 @@ class Invoice(models.Model):
             uniq_problems = set(problems) - set([False])
             self.problem = '; '.join(uniq_problems)
 
+    @api.one
+    @api.depends('invoice_no')
+    def _compute_team(self):
+        self.team = ''
+        # if not self.team:
+        #     current_user = self.env.user
+        #     options = {
+        #         'head office': [''],
+        #         'regional': ['']
+        #     }
+        #     for team, groups in options.items():
+        #         for group in groups:
+        #             if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
+        #                 self.team = team
+        #                 break
+
     # CONSTRAINS
     # ----------------------------------------------------------
     _sql_constraints = [
-        ('on_hold_percentage_min_max', 'CHECK (on_hold_percentage BETWEEN 0 AND 100)', 'On Hold Percentage must be with in 0-100'),
-        ('penalty_percentage_min_max', 'CHECK (penalty_percentage BETWEEN 0 AND 100)', 'Penalty Percentage must be with in 0-100'),
+        ('on_hold_percentage_min_max', 'CHECK (on_hold_percentage BETWEEN 0 AND 100)',
+         'On Hold Percentage must be with in 0-100'),
+        ('penalty_percentage_min_max', 'CHECK (penalty_percentage BETWEEN 0 AND 100)',
+         'Penalty Percentage must be with in 0-100'),
     ]
 
     @api.one
@@ -239,7 +260,11 @@ class Invoice(models.Model):
     def set2amount_hold(self):
         self.state = 'amount hold'
 
+    # ADDITIONAL FUNCTIONS
+    # ----------------------------------------------------------
+
     # POLYMORPH FUNCTIONS
+    # ----------------------------------------------------------
     @api.one
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
