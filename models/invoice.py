@@ -215,9 +215,9 @@ class Invoice(models.Model):
     ]
 
     @api.one
-    @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
+    @api.constrains('capex_amount', 'cear_allocation_ids')
     def _check_total_capex(self):
-        cear_amount = self.capex_amount + self.revenue_amount
+        cear_amount = self.capex_amount
         allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
         if cear_amount != allocation_cear_amount:
             msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
