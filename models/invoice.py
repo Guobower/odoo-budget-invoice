@@ -181,8 +181,19 @@ class Invoice(models.Model):
     @api.one
     @api.depends('invoice_no')
     def _compute_team(self):
-        self.team = ''
-        # if not self.team:
+        if not self.write_date:
+            current_user = self.env.user
+            options = {
+                'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
+                'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
+            }
+            for team, groups in options.items():
+                for group in groups:
+                    if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
+                        self.team = team
+                        break
+
+            # if not self.team:
         #     current_user = self.env.user
         #     options = {
         #         'head office': [''],
@@ -206,21 +217,21 @@ class Invoice(models.Model):
     @api.one
     @api.constrains('capex_amount', 'revenue_amount', 'cear_allocation_ids')
     def _check_total_capex(self):
-        cear_amount = self.capex_amount + self.opex_amount
+        cear_amount = self.capex_amount + self.revenue_amount
         allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
         if cear_amount != allocation_cear_amount:
             msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
             raise ValidationError(msg)
 
-    @api.one
-    @api.constrains('opex_amount', 'oear_allocation_ids')
-    def _check_total_opex(self):
-        oear_amount = self.opex_amount
-        allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
-        if oear_amount != allocation_oear_amount:
-            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
-                                                                                   oear_amount)
-            raise ValidationError(msg)
+    # @api.one
+    # @api.constrains('opex_amount', 'oear_allocation_ids')
+    # def _check_total_opex(self):
+    #     oear_amount = self.opex_amount
+    #     allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
+    #     if oear_amount != allocation_oear_amount:
+    #         msg = 'TOTAL OEAR AMOUNT IS {} BUT OEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
+    #                                                                                oear_amount)
+    #         raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
