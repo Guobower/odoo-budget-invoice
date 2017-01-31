@@ -35,9 +35,9 @@
                         <div class="oe_title">
                             <h1>
                                 <!--<field name="team" groups="base.group_system"/>-->
-                                <field name="team"/>
                             </h1>
                             <h1>
+                                <field name="team"/>
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
                             </h1>
                             <h3>

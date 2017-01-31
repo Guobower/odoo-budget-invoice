@@ -61,8 +61,8 @@ class Invoice(models.Model):
                             string='Purchase Order')
 
     # TODO TO BE REMOVED ONCE FINALIZE
-    account_code_id = fields.Many2one('budget.core.account.code', string='Cost Center')
-    cost_center_id = fields.Many2one('budget.core.cost.center', string='Account Code')
+    account_code_id = fields.Many2one('budget.core.account.code', string='Account Code')
+    cost_center_id = fields.Many2one('budget.core.cost.center', string='Cost Center')
 
     amount_ids = fields.One2many('budget.invoice.amount',
                                  'invoice_id',
