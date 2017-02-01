@@ -186,14 +186,14 @@ class Invoice(models.Model):
          'Penalty Percentage must be with in 0-100'),
     ]
 
-    @api.one
-    @api.constrains('capex_amount', 'cear_allocation_ids')
-    def _check_total_capex(self):
-        cear_amount = self.capex_amount
-        allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
-        if cear_amount != allocation_cear_amount:
-            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
-            raise ValidationError(msg)
+    # @api.one
+    # @api.constrains('capex_amount', 'cear_allocation_ids')
+    # def _check_total_capex(self):
+    #     cear_amount = self.capex_amount
+    #     allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
+    #     if cear_amount != allocation_cear_amount:
+    #         msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
+    #         raise ValidationError(msg)
 
     # @api.one
     # @api.constrains('opex_amount', 'oear_allocation_ids')
