@@ -122,8 +122,10 @@
                             </field>
                         </group>
                         <group>
+                            <field name="cear_amount" invisible="1"/>
                             <field name="cear_allocation_ids" context="{'default_invoice_id': id,
-                                                                        'default_amount': capex_amount}">
+                                                                        'default_amount': cear_amount}">
+
                                 <tree editable="bottom" decoration-success="problem in ['ok', False]"
                                       decoration-danger="problem in ['overrun']">
                                     <field name="invoice_id" groups="base.group_system"/>
@@ -138,7 +140,9 @@
                             </field>
                         </group>
                         <group>
-                            <field name="oear_allocation_ids" context="{'default_invoice_id': id}">
+                            <field name="oear_amount" invisible="1"/>
+                            <field name="oear_allocation_ids" context="{'default_invoice_id': id,
+                                                                        'default_amount': oear_amount}">
                                 <tree editable="bottom">
                                     <field name="invoice_id" groups="base.group_system"/>
                                     <field name="sequence" widget="handle"/>

@@ -117,6 +117,12 @@ class Invoice(models.Model):
     balance_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_balance_amount',
                                      string='Balance Amount')
+    cear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_cear_amount',
+                                     string='Cear Amount')
+    oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_oear_amount',
+                                     string='Oear Amount')
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -164,6 +170,16 @@ class Invoice(models.Model):
         self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
 
     @api.one
+    @api.depends('capex_amount', 'revenue_amount')
+    def _compute_cear_amount(self):
+        self.cear_amount = self.capex_amount + self.revenue_amount
+
+    @api.one
+    @api.depends('opex_amount')
+    def _compute_oear_amount(self):
+        self.oear_amount = self.opex_amount
+
+    @api.one
     @api.depends('cear_allocation_ids.problem', 'invoice_no')
     def _compute_problem(self):
         # Checks Duplicate
@@ -186,14 +202,15 @@ class Invoice(models.Model):
          'Penalty Percentage must be with in 0-100'),
     ]
 
-    # @api.one
-    # @api.constrains('capex_amount', 'cear_allocation_ids')
-    # def _check_total_capex(self):
-    #     cear_amount = self.capex_amount
-    #     allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
-    #     if cear_amount != allocation_cear_amount:
-    #         msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, cear_amount)
-    #         raise ValidationError(msg)
+    @api.one
+    @api.constrains('cear_amount', 'cear_allocation_ids')
+    def _check_total_capex(self):
+        allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
+        # if the difference of cear_amount and allocation is less than 1 (threshold),
+        # it means that it is miss allocated
+        if abs(self.cear_amount - allocation_cear_amount) > 1:
+            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, self.cear_amount)
+            raise ValidationError(msg)
 
     # @api.one
     # @api.constrains('opex_amount', 'oear_allocation_ids')
