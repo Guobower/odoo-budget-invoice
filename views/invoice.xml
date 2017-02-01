@@ -33,11 +33,10 @@
                         <div class="oe_button_box" name="button_box">
                         </div>
                         <div class="oe_title">
+                            <group>
+                                <field name="team" groups="base.group_system"/>
+                            </group>
                             <h1>
-                                <!--<field name="team" groups="base.group_system"/>-->
-                            </h1>
-                            <h1>
-                                <field name="team"/>
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
                             </h1>
                             <h3>
@@ -192,9 +191,19 @@
                             string="My Activities"
                             domain="[('create_uid', '=', uid)]"/>
                     <filter
-                            name="filter_state"
+                            name="need_action"
                             string="Need Action"
                             domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                    <filter
+                            name="need_action_regional"
+                            string="Regional Need Action"
+                            domain="[('team', '=', 'regional'),
+                                     ('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                    <filter
+                            name="need_action_head_office"
+                            string="Head Office Need Action"
+                            domain="[('team', '=', 'head office'),
+                                     ('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
                 </search>
             </field>
         </record>
@@ -209,11 +218,37 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_filter_state': 1,
-                'search_default_my_activity': 1,
+                'search_default_need_action': 1,
                 }
             </field>
         </record>
+        <!--Invoice Regional Action-->
+        <record model="ir.actions.act_window" id="action_invoice_regional">
+            <field name="name">Invoice</field>
+            <field name="res_model">budget.invoice.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="search_view_id" ref="search_invoice"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
+                'search_default_need_action_regional': 1,
+                }
+            </field>
+        </record>
+        <!--Invoice Head Office Action-->
+        <record model="ir.actions.act_window" id="action_invoice_head_office">
+            <field name="name">Invoice</field>
+            <field name="res_model">budget.invoice.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="search_view_id" ref="search_invoice"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
+                'search_default_need_action_head_office': 1,
+                }
+            </field>
+        </record>
+
         <!--END ACTIONS-->
     </data>
 </openerp>

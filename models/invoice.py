@@ -27,6 +27,7 @@ class Invoice(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     state = fields.Selection(STATES, default='draft')
+    team = fields.Selection(TEAMS, string='Team')
 
     invoice_no = fields.Char(string="Invoice No")
 
@@ -89,8 +90,6 @@ class Invoice(models.Model):
                                             store=True)
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    team = fields.Selection(TEAMS, compute='_compute_team',
-                            store=True)
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
@@ -177,33 +176,6 @@ class Invoice(models.Model):
             problems = self.cear_allocation_ids.mapped('problem')
             uniq_problems = set(problems) - set([False])
             self.problem = '; '.join(uniq_problems)
-
-    @api.one
-    @api.depends('invoice_no')
-    def _compute_team(self):
-        if not self.write_date:
-            current_user = self.env.user
-            options = {
-                'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
-                'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
-            }
-            for team, groups in options.items():
-                for group in groups:
-                    if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
-                        self.team = team
-                        break
-
-            # if not self.team:
-        #     current_user = self.env.user
-        #     options = {
-        #         'head office': [''],
-        #         'regional': ['']
-        #     }
-        #     for team, groups in options.items():
-        #         for group in groups:
-        #             if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
-        #                 self.team = team
-        #                 break
 
     # CONSTRAINS
     # ----------------------------------------------------------
@@ -298,3 +270,20 @@ class Invoice(models.Model):
         )
 
         return dup_invoice
+
+    @api.model
+    @api.returns('self', lambda value: value.id)
+    def create(self, values):
+        # CHECK USER GROUP AND ASSIGN IF TEAM IS REGIONAL OR HEAD OFFICE
+        current_user = self.env.user
+        options = {
+            'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
+            'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
+        }
+        for team, groups in options.items():
+            for group in groups:
+                if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
+                    values.update(team=team)
+                    break
+
+        return super(Invoice,self).create(values)

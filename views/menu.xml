@@ -2,29 +2,47 @@
 
 <openerp>
     <data>
-    <!--MENU PARENT-->
-    <menuitem
-        id="menu_invoice_top"
-        name="Invoicing"
-        sequence="7"/>
+        <!--MENU PARENT-->
         <menuitem
-            id="menu_invoice_left"
-            name="Invoice"
-            sequence="1"
-            parent="menu_invoice_top"/>
-            <menuitem
+                id="menu_invoice_top"
+                name="Invoicing"
+                sequence="7"/>
+        <menuitem
+                id="menu_invoice_left"
+                name="Invoice"
+                sequence="1"
+                parent="menu_invoice_top"/>
+        <!-- INVOICE VIEW FOR DEPENDENT -->
+        <menuitem
                 id="menu_invoice_left_child"
                 name="Invoice"
                 sequence="1"
                 parent="menu_invoice_left"
-                action="action_invoice"/>
-            <menuitem
+                action="action_invoice"
+                groups="base.group_system,budget_invoice.group_invoice_dependent"/>
+        <!-- INVOICE VIEW FOR REGIONAL -->
+        <menuitem
+                id="menu_invoice_regional_left_child"
+                name="Invoice"
+                sequence="1"
+                parent="menu_invoice_left"
+                action="action_invoice_regional"
+                groups="base.group_system,budget_invoice.group_invoice_regional_user,budget_invoice.group_invoice_regional_manager"/>
+        <!-- INVOICE VIEW FOR HEAD OFFICE -->
+        <menuitem
+                id="menu_invoice_head_office_left_child"
+                name="Invoice"
+                sequence="1"
+                parent="menu_invoice_left"
+                action="action_invoice_head_office"
+                groups="base.group_system,budget_invoice.group_invoice_head_office_user,budget_invoice.group_invoice_head_office_manager"/>
+        <menuitem
                 id="menu_invoice_summary_left_child"
                 name="Invoice Summary"
                 sequence="2"
                 parent="menu_invoice_left"
                 action="action_invoice_summary"/>
-            <menuitem
+        <menuitem
                 id="menu_purchase_order_left_child"
                 name="Purchase Order"
                 sequence="3"
@@ -33,17 +51,17 @@
 
 
         <menuitem
-            id="menu_cear_left"
-            name="Task"
-            sequence="2"
-            parent="menu_invoice_top"/>
-            <menuitem
+                id="menu_cear_left"
+                name="Task"
+                sequence="2"
+                parent="menu_invoice_top"/>
+        <menuitem
                 id="menu_cear_commitment_left_left"
                 name="Commitment"
                 sequence="1"
                 parent="menu_cear_left"
                 action="budget_capex.action_cear_commitment"/>
-            <menuitem
+        <menuitem
                 id="menu_cear_expenditure_left_left"
                 name="Expenditure"
                 sequence="2"
@@ -51,11 +69,11 @@
                 action="budget_capex.action_cear_expenditure"/>
 
         <menuitem
-            id="menu_external_left"
-            name="Dependencies"
-            sequence="3"
-            parent="menu_invoice_top"/>
-                <menuitem
+                id="menu_external_left"
+                name="Dependencies"
+                sequence="3"
+                parent="menu_invoice_top"/>
+        <menuitem
                 id="menu_contractor_left_child"
                 name="Contractor"
                 sequence="1"
