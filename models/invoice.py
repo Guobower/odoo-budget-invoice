@@ -118,11 +118,11 @@ class Invoice(models.Model):
                                      compute='_compute_balance_amount',
                                      string='Balance Amount')
     cear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
-                                     compute='_compute_cear_amount',
-                                     string='Cear Amount')
+                                  compute='_compute_cear_amount',
+                                  string='Cear Amount')
     oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
-                                     compute='_compute_oear_amount',
-                                     string='Oear Amount')
+                                  compute='_compute_oear_amount',
+                                  string='Oear Amount')
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -180,11 +180,12 @@ class Invoice(models.Model):
         self.oear_amount = self.opex_amount
 
     @api.one
-    @api.depends('cear_allocation_ids.problem', 'invoice_no')
+    @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
     def _compute_problem(self):
         # Checks Duplicate
-        count = self.env['budget.invoice.invoice'].search_count([('invoice_no', '=', self.invoice_no),
-                                                                 ('state', '!=', 'rejected')])
+        count = self.search_count([('invoice_no', '=', self.invoice_no),
+                                   ('contract_id', '=', self.contract_id.id),
+                                   ('state', '!=', 'rejected')])
         if count > 1:
             self.problem = 'duplicate'
 
@@ -209,7 +210,8 @@ class Invoice(models.Model):
         # if the difference of cear_amount and allocation is less than 1 (threshold),
         # it means that it is miss allocated
         if abs(self.cear_amount - allocation_cear_amount) > 1:
-            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount, self.cear_amount)
+            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount,
+                                                                                   self.cear_amount)
             raise ValidationError(msg)
 
     # @api.one
@@ -303,4 +305,4 @@ class Invoice(models.Model):
                     values.update(team=team)
                     break
 
-        return super(Invoice,self).create(values)
+        return super(Invoice, self).create(values)
