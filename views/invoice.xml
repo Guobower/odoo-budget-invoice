@@ -80,7 +80,6 @@
                                         <field name="penalty_amount"/>
                                         <field name="certified_invoice_amount"/>
                                         <field name="on_hold_amount"/>
-                                        <field name="balance_amount"/>
                                     </group>
                                 </group>
                             </page>

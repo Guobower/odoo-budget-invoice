@@ -271,7 +271,6 @@ class Invoice(models.Model):
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {})
-        dup_invoice = super(Invoice, self).copy(default)
 
         dup_amounts = []
         for amount in self.amount_ids:
@@ -281,14 +280,12 @@ class Invoice(models.Model):
         for cear_allocation in self.cear_allocation_ids:
             dup_cear_allocations.append(cear_allocation.copy({'invoice_id': False}))
 
-        dup_invoice.write(
-            {
-                'amount_ids': [(6, 0, [i.id for i in dup_amounts])],
-                'cear_allocation_ids': [(6, 0, [i.id for i in dup_cear_allocations])]
-            }
+        default.update(
+            amount_ids=[(6, 0, [i.id for i in dup_amounts])],
+            cear_allocation_ids=[(6, 0, [i.id for i in dup_cear_allocations])]
         )
 
-        return dup_invoice
+        return super(Invoice, self).copy(default)
 
     @api.model
     @api.returns('self', lambda value: value.id)

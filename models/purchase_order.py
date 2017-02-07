@@ -3,7 +3,7 @@
 from odoo import models, fields, api
 from odoo.addons.budget_core.models.utilities import choices_tuple
 
-
+# TODO MAKE A PRINCIPAL PO AND REVISION
 class PurchaseOrder(models.Model):
     _name = 'budget.invoice.purchase.order'
     _rec_name = 'no'
