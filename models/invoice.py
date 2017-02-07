@@ -170,12 +170,12 @@ class Invoice(models.Model):
         self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
 
     @api.one
-    @api.depends('capex_amount', 'revenue_amount')
+    @api.depends('amount_ids', 'capex_amount', 'revenue_amount')
     def _compute_cear_amount(self):
         self.cear_amount = self.capex_amount + self.revenue_amount
 
     @api.one
-    @api.depends('opex_amount')
+    @api.depends('amount_ids', 'opex_amount')
     def _compute_oear_amount(self):
         self.oear_amount = self.opex_amount
 
@@ -210,8 +210,9 @@ class Invoice(models.Model):
         # if the difference of cear_amount and allocation is less than 1 (threshold),
         # it means that it is miss allocated
         if abs(self.cear_amount - allocation_cear_amount) > 1:
-            msg = 'TOTAL CEAR AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(allocation_cear_amount,
-                                                                                   self.cear_amount)
+            msg = 'TOTAL INVOICE (CEAR) AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(self.cear_amount,
+                                                                                   allocation_cear_amount
+                                                                                   )
             raise ValidationError(msg)
 
     # @api.one
