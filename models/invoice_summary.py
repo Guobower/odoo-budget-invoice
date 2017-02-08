@@ -116,7 +116,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
             ws.cell(row=row, column=column + 3).value = r.invoice_no or ''
-            ws.cell(row=row, column=column + 4).value = r.contract_id.contract_no or ''
+            ws.cell(row=row, column=column + 4).value = r.contract_id.no or ''
             ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
