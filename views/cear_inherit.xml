@@ -20,7 +20,7 @@
                 </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page string="Invoice">
-                        <!--<field name="invoice_ids"/>-->
+                        <field name="invoice_ids"/>
                     </page>
                     <page string="Purchase Order">
                         <field name="po_ids"/>

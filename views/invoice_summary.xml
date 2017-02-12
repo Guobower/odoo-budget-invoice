@@ -35,7 +35,8 @@
                                 name="cancel"
                                 type="workflow"
                                 states="draft,file generated,under certification,sent to finance"/>
-                        <field name="state" widget="statusbar"/>
+                        <field name="state" widget="statusbar"
+                        statusbar_visible="draft,file generated,under certification,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="box">
@@ -112,7 +113,7 @@
                     <filter
                             name="filter_state"
                             string="Need Action"
-                            domain="[('state', 'not in', ['closed', 'canceled'])]"/>
+                            domain="[('state', 'not in', ['closed', 'cancelled'])]"/>
                 </search>
             </field>
         </record>

@@ -29,25 +29,28 @@ class TaskInherit(models.Model):
                               'cear_id',
                               'po_id',
                               string='Purchase Orders')
+    # RELATED FIELDS
+    # ----------------------------------------------------------
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
+    invoice_ids = fields.One2many('budget.invoice.invoice',
+                                  compute='_compute_invoice_ids',
+                                  string='Invoices')
+
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
+
     im_utilized_amount = fields.Monetary(currency_field='company_currency_id',
                                          string='Utilized Amount (IM)',
                                          compute='_compute_im_utilized_amount',
                                          store=True)
 
     @api.one
-    @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')
-    def _compute_im_utilized_amount(self):
-        cear_allocations = self.env['budget.invoice.cear.allocation'].search([('cear_id', '=', self.id),
-                                                                              ('invoice_id.state', 'not in',
-                                                                               ['draft', 'on hold', 'rejected'])
-                                                                              ])
-        self.im_utilized_amount = sum(cear_allocations.mapped('amount'))
+    @api.depends('allocation_ids', 'allocation_ids.invoice_id')
+    def _compute_invoice_ids(self):
+        self.invoice_ids = self.mapped('allocation_ids.invoice_id')
 
     @api.one
     @api.depends('authorized_amount', 'fn_utilized_amount', 'im_utilized_amount', 'category', 'state')
@@ -66,6 +69,16 @@ class TaskInherit(models.Model):
 
         else:
             self.problem = 'ok'
+
+    @api.one
+    @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')
+    def _compute_im_utilized_amount(self):
+        cear_allocations = self.env['budget.invoice.cear.allocation'].search([('cear_id', '=', self.id),
+                                                                              ('invoice_id.state', 'not in',
+                                                                               ['draft', 'on hold', 'rejected'])
+                                                                              ])
+        self.im_utilized_amount = sum(cear_allocations.mapped('amount'))
+
 
             # BUTTONS
             # ----------------------------------------------------------
