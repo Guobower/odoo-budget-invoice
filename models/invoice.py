@@ -170,7 +170,7 @@ class Invoice(models.Model):
         self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
 
     @api.one
-    @api.depends('amount_ids', 'capex_amount', 'revenue_amount')
+    @api.depends('cear_allocation_ids', 'capex_amount', 'revenue_amount')
     def _compute_cear_amount(self):
         self.cear_amount = self.capex_amount + self.revenue_amount
 
