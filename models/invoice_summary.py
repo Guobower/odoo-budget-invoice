@@ -23,7 +23,7 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     summary_no = fields.Char(string='Summary No',
-                             default = lambda self: self._get_default_summary_no())
+                             default=lambda self: self._get_default_summary_no())
     state = fields.Selection(STATES, default='draft')
     objective = fields.Selection(OBJECTIVES, default='invoice certification')
 
@@ -36,9 +36,9 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     # TODO MUST NOT EDITABLE WHEN ON PROCESS, CHECK RULE ACCESS
     invoice_ids = fields.Many2many('budget.invoice.invoice',
-                                  'budget_invoice_summary_invoice',
-                                  'summary_id',
-                                  'invoice_id')
+                                   'budget_invoice_summary_invoice',
+                                   'summary_id',
+                                   'invoice_id')
     section_id = fields.Many2one('res.partner', string='Section',
                                  domain=[('is_budget_section', '=', True)])
 
@@ -49,7 +49,7 @@ class InvoiceSummary(models.Model):
             '_uniq_summary_no',
             'UNIQUE(summary_no)',
             'summary must be unqiue!',
-            )
+        )
     ]
 
     @api.model
@@ -100,30 +100,55 @@ class InvoiceSummary(models.Model):
         row = 13
         column = 1
         sr = 1
-        signature_coor = "B18" # B18
-        logo_coor = "J1"     # J1
+        signature_coor = "B18"  # B18
+        logo_coor = "M1"  # J1
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("C4").value = self.summary_no
         ws.cell("C5").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
 
         # Create Table
-        ws.insert_rows(row, len(self.invoice_ids) - 1)
-        #No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
-        #1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids.sorted(key=lambda r: r.sequence):
-            ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
-            ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
-            ws.cell(row=row, column=column + 3).value = r.invoice_no or ''
-            ws.cell(row=row, column=column + 4).value = r.contract_id.no or ''
-            ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
-            ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
-            ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
-            ws.cell(row=row, column=column + 8).value = r.on_hold_percentage / 100 or ''
-            ws.cell(row=row, column=column + 9).value = r.certified_invoice_amount or ''
-            ws.cell(row=row, column=column + 10).value = '; '.join(r.mapped('cear_allocation_ids.cear_id.no'))
+        cear_allocation_ids = self.invoice_ids.sorted(key=lambda r: r.sequence). \
+            mapped('cear_allocation_ids').filtered(lambda r: r.amount != 0)
+        oear_allocation_ids = self.invoice_ids.sorted(key=lambda r: r.sequence). \
+            mapped('oear_allocation_ids').filtered(lambda r: r.amount != 0)
+        ws.insert_rows(row, len(cear_allocation_ids) + len(oear_allocation_ids) - 1)
 
+        # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
+        # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
+        for r in cear_allocation_ids:
+            ws.cell(row=row, column=column).value = sr
+            ws.cell(row=row, column=column + 1).value = r.invoice_id.region_id.alias.upper() or ''
+            ws.cell(row=row, column=column + 2).value = r.invoice_id.contract_id.contractor_id.name or ''
+            ws.cell(row=row, column=column + 3).value = r.invoice_id.invoice_no or ''
+            ws.cell(row=row, column=column + 4).value = r.invoice_id.contract_id.no or ''
+            ws.cell(row=row, column=column + 5).value = r.invoice_id.revenue_amount or ''
+            ws.cell(row=row, column=column + 6).value = r.invoice_id.opex_amount or ''
+            ws.cell(row=row, column=column + 7).value = r.invoice_id.capex_amount or ''
+            ws.cell(row=row, column=column + 8).value = r.invoice_id.on_hold_percentage / 100 or ''
+            ws.cell(row=row, column=column + 9).value = r.invoice_id.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 10).value = r.amount
+            ws.cell(row=row, column=column + 11).value = r.cear_id.im_utilized_amount
+            ws.cell(row=row, column=column + 12).value = r.cear_id.no
+            row += 1
+            sr += 1
+
+        for r in oear_allocation_ids:
+            ws.cell(row=row, column=column).value = sr
+            ws.cell(row=row, column=column + 1).value = r.invoice_id.region_id.alias.upper() or ''
+            ws.cell(row=row, column=column + 2).value = r.invoice_id.contract_id.contractor_id.name or ''
+            ws.cell(row=row, column=column + 3).value = r.invoice_id.invoice_no or ''
+            ws.cell(row=row, column=column + 4).value = r.invoice_id.contract_id.no or ''
+            ws.cell(row=row, column=column + 5).value = r.invoice_id.revenue_amount or ''
+            ws.cell(row=row, column=column + 6).value = r.invoice_id.opex_amount or ''
+            ws.cell(row=row, column=column + 7).value = r.invoice_id.capex_amount or ''
+            ws.cell(row=row, column=column + 8).value = r.invoice_id.on_hold_percentage / 100 or ''
+            ws.cell(row=row, column=column + 9).value = r.invoice_id.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 10).value = r.amount
+            ws.cell(row=row, column=column + 11).value = ''
+            ws.cell(row=row, column=column + 12).value = ''
+            # ws.cell(row=row, column=column + 11).value = r.oear_id.im_utilized_amount
+            # ws.cell(row=row, column=column + 12).value = r.oear_id.no
             row += 1
             sr += 1
 
@@ -132,10 +157,10 @@ class InvoiceSummary(models.Model):
         signature = Image(signature_img)
 
         ws.add_image(logo, logo_coor)
-        ws.add_image(signature, "%s" % signature_coor[0] + str(int(signature_coor[1:])+sr))
+        ws.add_image(signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
         temp_dir = tempfile.mkdtemp()
-        temp_file = os.path.join(temp_dir,'%s.xlsx' % self.summary_no)
+        temp_file = os.path.join(temp_dir, '%s.xlsx' % self.summary_no)
         wb.save(temp_file)
 
         # Attach generated document to filestore
@@ -164,11 +189,11 @@ class InvoiceSummary(models.Model):
     def _check_objective(self):
         if self.objective == 'invoice certification':
             return {
-                'domain': {'invoice_ids': [('state','=','verified')]}
+                'domain': {'invoice_ids': [('state', '=', 'verified')]}
             }
         elif self.objective == 'on hold certification':
             return {
-                'domain': {'invoice_ids': [('state','=','amount hold')]}
+                'domain': {'invoice_ids': [('state', '=', 'amount hold')]}
             }
 
     # BUTTONS/TRANSITIONS
