@@ -33,8 +33,9 @@
                         <div class="oe_button_box" name="button_box">
                         </div>
                         <div class="oe_title">
-                            <group>
-                                <field name="team" groups="base.group_system"/>
+                            <group groups="base.group_system">
+                                <field name="write_date"/>
+                                <field name="team"/>
                             </group>
                             <h1>
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
@@ -50,6 +51,8 @@
                                         <field name="region_id"/>
                                         <field name="contract_id"
                                                context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>
+                                        <field name="contractor_id"
+                                               context="{'form_view_ref': 'budget_contractor.view_form_contractor'}"/>
                                         <field name="po_id"/>
                                         <field name="section_id"/>
                                         <field name="sub_section_id"/>
@@ -63,7 +66,9 @@
                                     </group>
                                 </group>
                                 <group>
-                                    <field name="summary_ids" widget="many2many_tags"/>
+
+                                    <field name="summary_ids" widget="many2many_tags"
+                                           attrs="{'invisible': [('write_date', '=', False)]}"/>
                                     <field name="description"/>
                                     <field name="remark"/>
                                 </group>
@@ -167,6 +172,7 @@
                       decoration-danger="problem not in ['ok', '', False]"
                       decoration-muted="state == 'closed'">
                     <field name="invoice_no"/>
+                    <field name="po_id"/>
                     <field name="contract_id"/>
                     <field name="certified_invoice_amount"/>
                     <field name="invoice_date"/>
@@ -189,6 +195,7 @@
                 <search>
                     <field name="invoice_no"/>
                     <field name="contract_id"/>
+                    <field name="po_id"/>
                     <filter
                             name="my_activity"
                             string="My Activities"

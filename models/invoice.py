@@ -31,7 +31,6 @@ class Invoice(models.Model):
 
     invoice_no = fields.Char(string="Invoice No")
 
-    # TODO Make Validation for max 100%
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
 
@@ -48,7 +47,7 @@ class Invoice(models.Model):
 
     remark = fields.Text(string='Remarks')
     description = fields.Text(string='Description')
-    proj_no = fields.Char(string="Project No")
+    proj_no = fields.Char(string="PEC No")
 
     # Used for Invoice Summary sequence
     sequence = fields.Integer('Display order')
@@ -85,11 +84,15 @@ class Invoice(models.Model):
 
     # RELATED FIELDS
     # ----------------------------------------------------------
-    related_contractor_id = fields.Many2one(string='Contractor',
-                                            related='contract_id.contractor_id',
-                                            store=True)
+
     # COMPUTE FIELDS
     # ----------------------------------------------------------
+    contractor_id = fields.Many2one('res.partner',
+                                    domain="[('is_budget_contractor','=',True)]",
+                                    string='Contractor',
+                                    compute='_compute_contractor_id',
+                                    inverse='_set_contractor_id',
+                                    store=True)
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
@@ -123,6 +126,30 @@ class Invoice(models.Model):
     oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
+
+    @api.one
+    @api.depends('contract_id')
+    def _compute_contractor_id(self):
+        self.contractor_id = self.contract_id.contractor_id
+
+    @api.one
+    def _set_contractor_id(self):
+        return
+
+    @api.one
+    @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
+    def _compute_problem(self):
+        # Checks Duplicate
+        count = self.search_count([('invoice_no', '=', self.invoice_no),
+                                   ('contract_id.contractor_id', '=', self.contractor_id.id),
+                                   ('state', '!=', 'rejected')])
+        if count > 1:
+            self.problem = 'duplicate'
+
+        else:
+            problems = self.cear_allocation_ids.mapped('problem')
+            uniq_problems = set(problems) - set([False])
+            self.problem = '; '.join(uniq_problems)
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -179,20 +206,6 @@ class Invoice(models.Model):
     def _compute_oear_amount(self):
         self.oear_amount = self.opex_amount
 
-    @api.one
-    @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
-    def _compute_problem(self):
-        # Checks Duplicate
-        count = self.search_count([('invoice_no', '=', self.invoice_no),
-                                   ('contract_id', '=', self.contract_id.id),
-                                   ('state', '!=', 'rejected')])
-        if count > 1:
-            self.problem = 'duplicate'
-
-        else:
-            problems = self.cear_allocation_ids.mapped('problem')
-            uniq_problems = set(problems) - set([False])
-            self.problem = '; '.join(uniq_problems)
 
     # CONSTRAINS
     # ----------------------------------------------------------
@@ -211,8 +224,8 @@ class Invoice(models.Model):
         # it means that it is miss allocated
         if abs(self.cear_amount - allocation_cear_amount) > 1:
             msg = 'TOTAL INVOICE (CEAR) AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(self.cear_amount,
-                                                                                   allocation_cear_amount
-                                                                                   )
+                                                                                             allocation_cear_amount
+                                                                                             )
             raise ValidationError(msg)
 
     # @api.one
