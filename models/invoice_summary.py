@@ -3,8 +3,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.budget_core.models.utilities import choices_tuple
-import os
 
+from ..xlsx_creator.creator import Creator
 
 class InvoiceSummary(models.Model):
     _name = 'budget.invoice.invoice.summary'
@@ -17,6 +17,8 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'file generated', 'under certification',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
+    SIGNATURES = choices_tuple(['cse.png', 'fan.png', '713h_1.png', '713h_2.png'])
+    FORMS = choices_tuple(['form_a0001ver01.xlsx', 'form_b0001ver01.xlsx'])
     OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])
 
     # BASIC FIELDS
@@ -24,7 +26,10 @@ class InvoiceSummary(models.Model):
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     summary_no = fields.Char(string='Summary No',
                              default=lambda self: self._get_default_summary_no())
-    state = fields.Selection(STATES, default='draft')
+    state = fields.Selection(STATES)
+    form = fields.Selection(FORMS)
+    signature = fields.Selection(SIGNATURES)
+
     objective = fields.Selection(OBJECTIVES, default='invoice certification')
 
     signed_date = fields.Date(string='Signed Date')
@@ -82,106 +87,111 @@ class InvoiceSummary(models.Model):
         return super(InvoiceSummary, self).copy(default)
 
     @api.one
-    def generate_file(self):
+    def form_a0001ver01(self, creator):
         """
-        generate/create a invoice summary
-        set STATE to GENERATED
+        GENERATE FORM ACCORDING TO form_a0001ver01
         """
-        from openpyxl.drawing.image import Image
-        from ..xlsx_creator.creator import Creator
-        import tempfile, shutil
-        # OPEN FORM TEMPLATE
 
-        creator = Creator(section=self.section_id.alias)
-        wb, logo_img, signature_img = creator.get_context()
+        wb = creator.get_wb()
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 13
+        row = 12
         column = 1
         sr = 1
-        signature_coor = "B18"  # B18
-        logo_coor = "M1"  # J1
+        signature_coor = "B17"  # B18
+        logo_coor = "K1"  # J1
         ws = wb.get_sheet_by_name('main')
 
-        ws.cell("C4").value = self.summary_no
-        ws.cell("C5").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        ws.cell("C5").value = self.summary_no
+        ws.cell("C6").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
 
         # Create Table
-        cear_allocation_ids = self.invoice_ids.sorted(key=lambda r: r.sequence). \
-            mapped('cear_allocation_ids').filtered(lambda r: r.amount != 0)
-        oear_allocation_ids = self.invoice_ids.sorted(key=lambda r: r.sequence). \
-            mapped('oear_allocation_ids').filtered(lambda r: r.amount != 0)
-        ws.insert_rows(row, len(cear_allocation_ids) + len(oear_allocation_ids) - 1)
+        ws.insert_rows(row, len(self.invoice_ids) - 1)
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in cear_allocation_ids:
+        for r in self.invoice_ids:
             ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = r.invoice_id.region_id.alias.upper() or ''
-            ws.cell(row=row, column=column + 2).value = r.invoice_id.contract_id.contractor_id.name or ''
-            ws.cell(row=row, column=column + 3).value = r.invoice_id.invoice_no or ''
-            ws.cell(row=row, column=column + 4).value = r.invoice_id.contract_id.no or ''
-            ws.cell(row=row, column=column + 5).value = r.invoice_id.revenue_amount or ''
-            ws.cell(row=row, column=column + 6).value = r.invoice_id.opex_amount or ''
-            ws.cell(row=row, column=column + 7).value = r.invoice_id.capex_amount or ''
-            ws.cell(row=row, column=column + 8).value = r.invoice_id.on_hold_percentage / 100 or ''
-            ws.cell(row=row, column=column + 9).value = r.invoice_id.certified_invoice_amount or ''
-            ws.cell(row=row, column=column + 10).value = r.amount
-            ws.cell(row=row, column=column + 11).value = r.cear_id.im_utilized_amount
-            ws.cell(row=row, column=column + 12).value = r.cear_id.no
-            row += 1
-            sr += 1
-
-        for r in oear_allocation_ids:
-            ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = r.invoice_id.region_id.alias.upper() or ''
-            ws.cell(row=row, column=column + 2).value = r.invoice_id.contract_id.contractor_id.name or ''
-            ws.cell(row=row, column=column + 3).value = r.invoice_id.invoice_no or ''
-            ws.cell(row=row, column=column + 4).value = r.invoice_id.contract_id.no or ''
-            ws.cell(row=row, column=column + 5).value = r.invoice_id.revenue_amount or ''
-            ws.cell(row=row, column=column + 6).value = r.invoice_id.opex_amount or ''
-            ws.cell(row=row, column=column + 7).value = r.invoice_id.capex_amount or ''
-            ws.cell(row=row, column=column + 8).value = r.invoice_id.on_hold_percentage / 100 or ''
-            ws.cell(row=row, column=column + 9).value = r.invoice_id.certified_invoice_amount or ''
-            ws.cell(row=row, column=column + 10).value = r.amount
-            ws.cell(row=row, column=column + 11).value = ''
-            ws.cell(row=row, column=column + 12).value = ''
-            # ws.cell(row=row, column=column + 11).value = r.oear_id.im_utilized_amount
-            # ws.cell(row=row, column=column + 12).value = r.oear_id.no
+            ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
+            ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
+            ws.cell(row=row, column=column + 3).value = r.invoice_no or ''
+            ws.cell(row=row, column=column + 4).value = r.contract_id.no or ''
+            ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
+            ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
+            ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
+            #            ws.cell(row=row, column=column + 8).value = r.invoice_id.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
+            ws.cell(row=row, column=column + 10).value = r.cear_allocation_ids.cear_id.no
             row += 1
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        logo = Image(logo_img)
-        signature = Image(signature_img)
+        ws.add_image(creator.logo, logo_coor)
+        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
-        ws.add_image(logo, logo_coor)
-        ws.add_image(signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
-        temp_dir = tempfile.mkdtemp()
-        temp_file = os.path.join(temp_dir, '%s.xlsx' % self.summary_no)
-        wb.save(temp_file)
+        # SAVE FINAL ATTACHMENT
+        creator.save()
+        creator.attach(self.env)
 
-        # Attach generated document to filestore
-        ir_attach = self.env['ir.attachment']
-        full_path = os.path.join(temp_file)
+    @api.one
+    def form_b0001ver01(self, creator):
+        """
+        GENERATE FORM ACCORDING TO form_a0001ver01
+        """
 
-        with open(full_path, 'r') as fp:
-            data = fp.read().encode('base64')
-        filename = os.path.split(full_path)[1]
-        values = dict(
-            name=filename,
-            datas_fname=filename,
-            res_id=self.id,
-            res_model='budget.invoice.invoice.summary',
-            type='binary',
-            datas=data,
-        )
-        ir_attach.create(values)
+        wb = creator.get_wb()
 
-        # Clear
-        shutil.rmtree(temp_dir)
+        # WORK SHEET MAIN
+        # ----------------------------------------------------------
+        row = 18
+        column = 2
+        sr = 1
+        signature_coor = "B28"  # B18
+        logo_coor = "L1"
+        ws = wb.get_sheet_by_name('main')
+
+        approval_refs = set([i if i else '' for i in self.mapped('invoice_ids.approval_ref')])
+        contractor_names = set([i if i else '' for i in self.mapped('invoice_ids.contractor_id.name')])
+        contract_nos = set([i if i else '' for i in self.mapped('invoice_ids.contract_id.no')])
+        section_aliases = set([i if i else '' for i in self.mapped('invoice_ids.section_id.alias')])
+        ws.cell("B11").value = self.summary_no
+        ws.cell("B15").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        ws.cell("E15").value = ', '.join(approval_refs)
+        ws.cell("I11").value = ', '.join(contractor_names)
+        ws.cell("I15").value = ', '.join(contract_nos)
+        ws.cell("L15").value = ', '.join(section_aliases)
+
+        # Create Table
+        ws.insert_rows(row, len(self.invoice_ids) - 1)
+
+        # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
+        # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
+        for r in self.invoice_ids:
+            ws.cell(row=row, column=column).value = sr
+            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime('%d-%b-%Y') or ''
+            ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
+            ws.cell(row=row, column=column + 3).value = r.description or ''
+            ws.cell(row=row, column=column + 4).value = r.revenue_amount or 0
+            ws.cell(row=row, column=column + 5).value = r.opex_amount or 0
+            ws.cell(row=row, column=column + 6).value = r.capex_amount or 0
+            ws.cell(row=row, column=column + 7).value = r.certified_invoice_amount or 0
+            ws.cell(row=row, column=column + 8).value = r.po_id.no or ''
+            ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.no
+            ws.cell(row=row, column=column + 10).value = '{} & {}'.format(r.cost_center_id.cost_center, r.account_code_id.account_code)
+            ws.cell(row=row, column=column + 11).value = 71101
+            row += 1
+            sr += 1
+
+        # INSERT HEADER LOGO AND SIGNATURE
+        ws.add_image(creator.logo, logo_coor)
+        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+
+        # SAVE FINAL ATTACHMENT
+        creator.save()
+        creator.attach(self.env)
 
     # ONCHANGE
     # ----------------------------------------------------------
@@ -206,13 +216,17 @@ class InvoiceSummary(models.Model):
 
     @api.one
     def set2file_generated(self):
-        if not self.section_id:
-            raise ValidationError('Section is required')
-
-        elif len(self.invoice_ids) == 0:
+        if len(self.invoice_ids) == 0:
             raise ValidationError('Empty Invoice List')
 
-        self.generate_file()
+        creator = Creator(summary_no=self.summary_no,
+                          summary_res_id=self.id,
+                          signature=self.signature,
+                          form_filename=self.form)
+
+        # get attribute from form name removing .xlsx
+        form = getattr(self, self.form.split('.')[0])
+        form(creator)
 
         # Set related invoices state to "summary generated"
         for invoice in self.invoice_ids:

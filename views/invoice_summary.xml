@@ -49,7 +49,8 @@
                         <group>
                             <group>
                                 <field name="objective"/>
-                                <field name="section_id"/>
+                                <field name="form"/>
+                                <field name="signature"/>
                                 <field name="signed_date"/>
                                 <field name="sent_finance_date"/>
                                 <field name="closed_date"/>

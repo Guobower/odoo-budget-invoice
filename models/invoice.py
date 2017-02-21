@@ -30,6 +30,7 @@ class Invoice(models.Model):
     team = fields.Selection(TEAMS, string='Team')
 
     invoice_no = fields.Char(string="Invoice No")
+    approval_ref = fields.Char(string="Approval Ref")
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))

@@ -24,6 +24,10 @@ class TaskInherit(models.Model):
                                      'cear_id',
                                      string="Allocations")
 
+    actual_ids = fields.One2many('budget.invoice.actual',
+                                'cear_id',
+                                string="Actuals")
+
     po_ids = fields.Many2many('budget.invoice.purchase.order',
                               'budget_cear_po_rel',
                               'cear_id',
@@ -80,5 +84,5 @@ class TaskInherit(models.Model):
         self.im_utilized_amount = sum(cear_allocations.mapped('amount'))
 
 
-            # BUTTONS
-            # ----------------------------------------------------------
+        # BUTTONS
+        # ----------------------------------------------------------

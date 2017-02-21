@@ -48,6 +48,7 @@
                             <page string="General">
                                 <group>
                                     <group>
+                                        <field name="approval_ref" attrs="{'invisible': [('team','!=','head office')]}"/>
                                         <field name="region_id"/>
                                         <field name="contract_id"
                                                context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>

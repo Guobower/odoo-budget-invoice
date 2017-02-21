@@ -17,6 +17,11 @@ class TaskInherit(models.Model):
     # ----------------------------------------------------------
     po_id = fields.Many2one('budget.invoice.purchase.order',
                             string='Purchase Order')
+
+    actual_ids = fields.One2many('budget.invoice.actual',
+                                'oear_id',
+                                string="Actuals")
+
     # COMPUTE FIELDS
     # ----------------------------------------------------------
 

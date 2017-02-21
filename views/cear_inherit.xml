@@ -25,6 +25,14 @@
                     <page string="Purchase Order">
                         <field name="po_ids"/>
                     </page>
+                    <page string="Actuals">
+                        <field name="actual_ids">
+                            <tree editable="bottom">
+                                <field name="amount" sum="1"/>
+                                <field name="date" sum="1"/>
+                            </tree>
+                        </field>
+                    </page>
                 </xpath>
             </field>
         </record>
