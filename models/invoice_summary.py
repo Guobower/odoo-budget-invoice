@@ -111,7 +111,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids:
+        for r in self.invoice_ids.sorted(lambda self: self.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
@@ -168,7 +168,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids:
+        for r in self.invoice_ids.sorted(lambda self: self.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime('%d-%b-%Y') or ''
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''

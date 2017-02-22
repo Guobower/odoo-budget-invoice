@@ -49,8 +49,8 @@
                         <group>
                             <group>
                                 <field name="objective"/>
-                                <field name="form"/>
-                                <field name="signature"/>
+                                <field name="form" attrs="{'required': True}"/>
+                                <field name="signature" attrs="{'required': True}"/>
                                 <field name="signed_date"/>
                                 <field name="sent_finance_date"/>
                                 <field name="closed_date"/>
