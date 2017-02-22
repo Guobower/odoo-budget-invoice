@@ -34,6 +34,7 @@ class Invoice(models.Model):
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
+    discount_percentage = fields.Float(string='Discount Percent (%)', digits=(5, 2))
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
@@ -112,8 +113,12 @@ class Invoice(models.Model):
     penalty_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_penalty_amount',
                                      string='Penalty Amount')
+    discount_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                     compute='_compute_discount_amount',
+                                     string='Discount Amount')
     on_hold_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_on_hold_amount',
+                                     inverse='_set_on_hold_amount',
                                      string='On Hold Amount')
     certified_invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
@@ -132,10 +137,6 @@ class Invoice(models.Model):
     @api.depends('contract_id')
     def _compute_contractor_id(self):
         self.contractor_id = self.contract_id.contractor_id
-
-    @api.one
-    def _set_contractor_id(self):
-        return
 
     @api.one
     @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
@@ -183,9 +184,9 @@ class Invoice(models.Model):
         self.penalty_amount = self.invoice_amount * self.penalty_percentage / 100
 
     @api.one
-    @api.depends('invoice_amount', 'penalty_amount')
-    def _compute_certified_invoice_amount(self):
-        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount
+    @api.depends('discount_percentage', 'invoice_amount')
+    def _compute_discount_amount(self):
+        self.discount_amount = self.invoice_amount * self.discount_percentage / 100
 
     @api.one
     @api.depends('on_hold_percentage', 'certified_invoice_amount')
@@ -193,9 +194,9 @@ class Invoice(models.Model):
         self.on_hold_amount = self.certified_invoice_amount * self.on_hold_percentage / 100
 
     @api.one
-    @api.depends('certified_invoice_amount', 'on_hold_amount')
-    def _compute_balance_amount(self):
-        self.balance_amount = self.certified_invoice_amount - self.on_hold_amount
+    @api.depends('invoice_amount', 'penalty_amount', 'discount_amount')
+    def _compute_certified_invoice_amount(self):
+        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount - self.discount_amount
 
     @api.one
     @api.depends('cear_allocation_ids', 'capex_amount', 'revenue_amount')
@@ -207,6 +208,23 @@ class Invoice(models.Model):
     def _compute_oear_amount(self):
         self.oear_amount = self.opex_amount
 
+    # INVERSE FIELDS
+    # ----------------------------------------------------------
+    @api.one
+    def _set_penalty_amount(self):
+        self.penalty_percentage = self.penalty_amount / self.certified_invoice_amount * 100
+
+    @api.one
+    def _set_discount_amount(self):
+        self.discount_percentage = self.discount_amount / self.certified_invoice_amount * 100
+
+    @api.one
+    def _set_on_hold_amount(self):
+        self.on_hold_percentage = self.on_hold_amount / self.certified_invoice_amount * 100
+
+    @api.one
+    def _set_contractor_id(self):
+        return
 
     # CONSTRAINS
     # ----------------------------------------------------------
