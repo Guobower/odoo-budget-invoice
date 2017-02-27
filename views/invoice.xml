@@ -78,10 +78,10 @@
                             <page string="Summary">
                                 <group>
                                     <group>
-                                        <field name="capex_amount"/>
-                                        <field name="opex_amount"/>
-                                        <field name="revenue_amount"/>
-                                        <field name="invoice_amount"/>
+                                        <field name="capex_amount" attrs="{'readonly': True}"/>
+                                        <field name="opex_amount" attrs="{'readonly': True}"/>
+                                        <field name="revenue_amount" attrs="{'readonly': True}"/>
+                                        <field name="invoice_amount" />
                                     </group>
                                     <group>
                                         <field name="penalty_amount"/>

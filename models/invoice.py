@@ -6,11 +6,29 @@ from odoo.addons.budget_core.models.utilities import choices_tuple
 from odoo.exceptions import ValidationError, UserError
 
 
+def amount_setter(invoice=None, budget_type=None):
+    if budget_type is None:
+        raise ValidationError('Budget Type In Amount Setter must not be None')
+
+    amount_id = invoice.amount_ids.search([('budget_type', '=', budget_type), ('invoice_id', '=', invoice.id)], limit=1)
+    if not amount_id:
+        amount_id = invoice.amount_ids.create({
+            'budget_type': budget_type,
+            'invoice_type': 'others',
+            'payment_type': 'others',
+        })
+
+    amount_id.write({
+        'amount': getattr(invoice,'%s_amount' % budget_type),
+        'invoice_id': invoice.id
+    })
+
+
 class Invoice(models.Model):
     _name = 'budget.invoice.invoice'
     _rec_name = 'invoice_no'
     _description = 'Invoice'
-    _order = 'id desc'
+    _order = 'sequence desc'
     _inherit = ['mail.thread']
 
     # CHOICES
@@ -100,12 +118,15 @@ class Invoice(models.Model):
                           store=True)
     opex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_opex_amount',
+                                  inverse='_set_opex_amount',
                                   string='OPEX Amount')
     capex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                    compute="_compute_capex_amount",
+                                   inverse='_set_capex_amount',
                                    string='CAPEX Amount')
     revenue_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_revenue_amount',
+                                     inverse='_set_revenue_amount',
                                      string='Revenue Amount')
     invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_invoice_amount',
@@ -126,9 +147,11 @@ class Invoice(models.Model):
     balance_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_balance_amount',
                                      string='Balance Amount')
+
     cear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_cear_amount',
                                   string='Cear Amount')
+
     oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
@@ -221,6 +244,18 @@ class Invoice(models.Model):
     @api.one
     def _set_on_hold_amount(self):
         self.on_hold_percentage = self.on_hold_amount / self.certified_invoice_amount * 100
+
+    @api.one
+    def _set_capex_amount(self):
+        amount_setter(invoice=self, budget_type='capex')
+
+    @api.one
+    def _set_revenue_amount(self):
+        amount_setter(invoice=self, budget_type='revenue')
+
+    @api.one
+    def _set_opex_amount(self):
+        amount_setter(invoice=self, budget_type='opex')
 
     @api.one
     def _set_contractor_id(self):

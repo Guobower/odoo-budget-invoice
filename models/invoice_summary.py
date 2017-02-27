@@ -111,7 +111,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids.sorted(lambda self: self.sequence):
+        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
@@ -120,9 +120,9 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
-            #            ws.cell(row=row, column=column + 8).value = r.invoice_id.certified_invoice_amount or ''
-            ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
-            ws.cell(row=row, column=column + 10).value = r.cear_allocation_ids.cear_id.no
+            ws.cell(row=row, column=column + 8).value = r.invoice_id.certified_invoice_amount or ''
+            #ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
+            ws.cell(row=row, column=column + 10).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
             row += 1
             sr += 1
 
@@ -168,7 +168,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids.sorted(lambda self: self.sequence):
+        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime('%d-%b-%Y') or ''
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
