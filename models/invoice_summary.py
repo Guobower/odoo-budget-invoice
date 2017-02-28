@@ -120,7 +120,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
-            ws.cell(row=row, column=column + 8).value = r.invoice_id.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount or ''
             #ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
             ws.cell(row=row, column=column + 10).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
             row += 1
