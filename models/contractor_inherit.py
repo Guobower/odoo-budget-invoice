@@ -7,6 +7,12 @@ class Contractor(models.Model):
 
     is_budget_invoice_contractor = fields.Boolean(string='Is Budget Invoice Contractor')
 
+    # RELATIONSHIPS
+    # ----------------------------------------------------------
+    volume_discount_ids = fields.One2many('budget.invoice.volume.discount',
+                                          'contractor_id',
+                                          string="Volume Discounts")
+
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     total_invoice = fields.Integer(compute='_compute_total_invoice', store=True)

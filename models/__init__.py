@@ -9,4 +9,4 @@ from . import budget_inherit, contract_inherit, contractor_inherit, \
 # ----------------------------------------------------------
 from . import invoice, invoice_summary, invoice_amount, \
     invoice_cear_allocation, invoice_oear_allocation, purchase_order, \
-    actual
+    actual, invoice_volume_discount

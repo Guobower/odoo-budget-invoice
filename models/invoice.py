@@ -19,7 +19,7 @@ def amount_setter(invoice=None, budget_type=None):
         })
 
     amount_id.write({
-        'amount': getattr(invoice,'%s_amount' % budget_type),
+        'amount': getattr(invoice, '%s_amount' % budget_type),
         'invoice_id': invoice.id
     })
 
@@ -52,7 +52,6 @@ class Invoice(models.Model):
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
-    discount_percentage = fields.Float(string='Discount Percent (%)', digits=(5, 2))
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
@@ -116,6 +115,11 @@ class Invoice(models.Model):
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
+    discount_percentage = fields.Float(string='Discount Percent (%)',
+                                       digits=(5, 2),
+                                       compute='_compute_discount_percentage',
+                                       inverse='_set_discount_percentage',
+                                       store=True)
     opex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_opex_amount',
                                   inverse='_set_opex_amount',
@@ -135,8 +139,8 @@ class Invoice(models.Model):
                                      compute='_compute_penalty_amount',
                                      string='Penalty Amount')
     discount_amount = fields.Monetary(currency_field='company_currency_id', store=True,
-                                     compute='_compute_discount_amount',
-                                     string='Discount Amount')
+                                      compute='_compute_discount_amount',
+                                      string='Discount Amount')
     on_hold_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_on_hold_amount',
                                      inverse='_set_on_hold_amount',
@@ -175,6 +179,26 @@ class Invoice(models.Model):
             problems = self.cear_allocation_ids.mapped('problem')
             uniq_problems = set(problems) - set([False])
             self.problem = '; '.join(uniq_problems)
+
+    @api.one
+    @api.depends('invoice_date', 'contractor_id')
+    def _compute_discount_percentage(self):
+        if self.invoice_date:
+            reference_date = self.invoice_date
+        elif self.contractor_id:
+            reference_date = fields.Date.today()
+        else:
+            self.discount_percentage = 0.00
+            return
+
+        volume_discount_id = self.contractor_id.volume_discount_ids. \
+            search([('start_date', '<=', reference_date),
+                    ('end_date', '>=', reference_date)], limit=1)
+
+        if len(volume_discount_id) == 0:
+            self.discount_percentage = 0.00
+        else:
+            self.discount_percentage = volume_discount_id.discount_percentage
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -261,6 +285,11 @@ class Invoice(models.Model):
     def _set_contractor_id(self):
         return
 
+    @api.one
+    def _set_discount_percentage(self):
+        return
+
+    _set_discount_percentage
     # CONSTRAINS
     # ----------------------------------------------------------
     _sql_constraints = [

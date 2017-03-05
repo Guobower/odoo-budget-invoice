@@ -18,7 +18,7 @@ class InvoiceSummary(models.Model):
     STATES = choices_tuple(['draft', 'file generated', 'under certification',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
     SIGNATURES = choices_tuple(['cse.png', 'fan.png', '713h_1.png', '713h_2.png'])
-    FORMS = choices_tuple(['form_a0001ver01.xlsx', 'form_b0001ver01.xlsx'])
+    FORMS = choices_tuple(['form_a0001ver01.xlsx', 'form_b0001ver01.xlsx', 'form_b0001ver02.xlsx'])
     OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])
 
     # BASIC FIELDS
@@ -181,6 +181,67 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.no
             ws.cell(row=row, column=column + 10).value = '{} & {}'.format(r.cost_center_id.cost_center, r.account_code_id.account_code)
             ws.cell(row=row, column=column + 11).value = 71101
+            row += 1
+            sr += 1
+
+        # INSERT HEADER LOGO AND SIGNATURE
+        ws.add_image(creator.logo, logo_coor)
+        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+
+        # SAVE FINAL ATTACHMENT
+        creator.save()
+        creator.attach(self.env)
+
+    @api.one
+    def form_b0001ver02(self, creator):
+        """
+        GENERATE FORM ACCORDING TO form_a0001ver01
+        """
+
+        wb = creator.get_wb()
+
+        # WORK SHEET MAIN
+        # ----------------------------------------------------------
+        row = 18
+        column = 2
+        sr = 1
+        signature_coor = "B28"  # B18
+        logo_coor = "M1"
+        ws = wb.get_sheet_by_name('main')
+
+        approval_refs = set([i if i else '' for i in self.mapped('invoice_ids.approval_ref')])
+        contractor_names = set([i if i else '' for i in self.mapped('invoice_ids.contractor_id.name')])
+        contract_nos = set([i if i else '' for i in self.mapped('invoice_ids.contract_id.no')])
+        section_aliases = set([i if i else '' for i in self.mapped('invoice_ids.section_id.alias')])
+        ws.cell("B11").value = self.summary_no
+        ws.cell("B15").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        ws.cell("E15").value = ', '.join(approval_refs)
+        ws.cell("J11").value = ', '.join(contractor_names)
+        ws.cell("J15").value = ', '.join(contract_nos)
+        ws.cell("M15").value = ', '.join(section_aliases)
+
+        # Create Table
+        ws.insert_rows(row, len(self.invoice_ids) - 1)
+
+        # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
+        # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
+        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
+            ws.cell(row=row, column=column).value = sr
+            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime('%d-%b-%Y') or ''
+            ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
+            ws.cell(row=row, column=column + 3).value = r.description or ''
+            ws.cell(row=row, column=column + 4).value = r.revenue_amount or 0
+            ws.cell(row=row, column=column + 5).value = r.opex_amount or 0
+            ws.cell(row=row, column=column + 6).value = r.capex_amount or 0
+            ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount or 0
+            ws.cell(row=row, column=column + 9).value = r.po_id.no or ''
+            ws.cell(row=row, column=column + 10).value = r.cear_allocation_ids.cear_id.no or ''
+            ws.cell(row=row, column=column + 11).value = '{} {}'.format(r.cost_center_id.cost_center or '', r.account_code_id.account_code or '')
+            ws.cell(row=row, column=column + 12).value = 71101
+            ws.cell(row=row, column=column + 14).value = r.discount_amount or 0
+            ws.cell(row=row, column=column + 15).value = r.discount_percentage or 0
+
             row += 1
             sr += 1
 

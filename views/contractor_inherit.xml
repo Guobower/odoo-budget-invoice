@@ -16,9 +16,18 @@
                     </button>
                 </xpath>
                 <xpath expr="//notebook" position="inside">
-
                     <page string="Invoice">
-                        <field name="contractor_invoice_ids" readonly="0"/>
+                        <field name="contractor_invoice_ids"/>
+                    </page>
+                    <page string="Volume Discount">
+                        <field name="volume_discount_ids">
+                            <tree editable="bottom">
+                                <field name="period"/>
+                                <field name="discount_percentage"/>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                            </tree>
+                        </field>
                     </page>
                 </xpath>
             </field>
