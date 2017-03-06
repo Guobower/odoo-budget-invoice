@@ -11,3 +11,6 @@ class Contract(models.Model):
     invoice_ids = fields.One2many('budget.invoice.invoice',
                                   'contract_id',
                                   string="Invoices")
+    volume_discount_ids = fields.One2many('budget.invoice.volume.discount',
+                                          'contract_id',
+                                          string="Volume Discounts")

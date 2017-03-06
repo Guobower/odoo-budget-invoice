@@ -4,12 +4,28 @@ from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
 from odoo.addons.budget_core.models.utilities import choices_tuple
 
+from datetime import datetime
+from collections import namedtuple
 
+def check_overlapping_dates(start_1, end_1, start_2, end_2, frmt='%Y-%m-%d'):
+    start_1 = datetime.strptime(start_1, frmt)
+    end_1 = datetime.strptime(end_1, frmt)
+    start_2 = datetime.strptime(start_2, frmt)
+    end_2 = datetime.strptime(end_2, frmt)
+    Range = namedtuple('Range', ['start', 'end'])
+    r1 = Range(start=start_1, end=end_1)
+    r2 = Range(start=start_2, end=end_2)
+    latest_start = max(r1.start, r2.start)
+    earliest_end = min(r1.end, r2.end)
+    return (earliest_end - latest_start).days + 1
+
+# TODO MAKE VALIDATION FOR OVERLAPPING DATES
+# TODO MAKE VALIDATION START DATE CANNOT BE GREATER THAN END DATE
 class InvoiceVolumeDiscount(models.Model):
     _name = 'budget.invoice.volume.discount'
     _rec_name = 'period'
     _description = 'Volume Discount'
-    _order = 'start_date'
+    _order = 'start_date desc'
 
     # CHOICES
     # ----------------------------------------------------------
@@ -27,6 +43,11 @@ class InvoiceVolumeDiscount(models.Model):
     contractor_id = fields.Many2one('res.partner',
                                     domain="[('is_budget_contractor','=',True)]",
                                     string='Contractor'
+                                    )
+
+    contract_id = fields.Many2one('budget.contractor.contract',
+                                    domain="[('contractor_id','=',contractor_id)]",
+                                    string='Contract'
                                     )
     # COMPUTE FIELDS
     # ----------------------------------------------------------

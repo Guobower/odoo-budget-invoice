@@ -181,19 +181,20 @@ class Invoice(models.Model):
             self.problem = '; '.join(uniq_problems)
 
     @api.one
-    @api.depends('invoice_date', 'contractor_id')
+    @api.depends('invoice_date', 'contract_id')
     def _compute_discount_percentage(self):
         if self.invoice_date:
             reference_date = self.invoice_date
-        elif self.contractor_id:
+        elif self.contract_id:
             reference_date = fields.Date.today()
         else:
             self.discount_percentage = 0.00
             return
 
-        volume_discount_id = self.contractor_id.volume_discount_ids. \
+        volume_discount_id = self.contract_id.volume_discount_ids. \
             search([('start_date', '<=', reference_date),
-                    ('end_date', '>=', reference_date)], limit=1)
+                    ('end_date', '>=', reference_date),
+                    ('contract_id', '=', self.contract_id.id)])
 
         if len(volume_discount_id) == 0:
             self.discount_percentage = 0.00
@@ -289,7 +290,6 @@ class Invoice(models.Model):
     def _set_discount_percentage(self):
         return
 
-    _set_discount_percentage
     # CONSTRAINS
     # ----------------------------------------------------------
     _sql_constraints = [
