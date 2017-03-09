@@ -50,13 +50,14 @@
                                     <group>
                                         <field name="approval_ref" attrs="{'invisible': [('team','!=','head office')]}"/>
                                         <field name="region_id"/>
-                                        <field name="contract_id"
-                                               context="{'form_view_ref': 'budget_contractor.view_form_contract'}"/>
-                                        <field name="contractor_id"
-                                               context="{'form_view_ref': 'budget_contractor.view_form_contractor'}"/>
+                                        <field name="contract_id"/>
+                                        <field name="contractor_id"/>
+                                        <field name="old_contractor_id" groups="base.group_system"/>
                                         <field name="po_id"/>
                                         <field name="section_id"/>
+                                        <field name="old_section_id" groups="base.group_system"/>
                                         <field name="sub_section_id"/>
+                                        <field name="old_sub_section_id" groups="base.group_system"/>
                                         <field name="cost_center_id"/>
                                         <field name="account_code_id"/>
                                         <field name="proj_no"/>

@@ -98,20 +98,20 @@ class Invoice(models.Model):
                                    'summary_id',
                                    string='Summaries')
     region_id = fields.Many2one('budget.enduser.region', string="Region")
+
     section_id = fields.Many2one('res.partner', string="Section", domain=[('is_budget_section', '=', True)])
+    old_section_id = fields.Many2one('res.partner', string="Section")
     sub_section_id = fields.Many2one('res.partner', string="Sub Section", domain=[('is_budget_sub_section', '=', True)])
+    old_sub_section_id = fields.Many2one('res.partner', string="Sub Section")
 
     # RELATED FIELDS
     # ----------------------------------------------------------
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    # contractor_id = fields.Many2one('res.partner',
-    #                                 domain="[('is_budget_contractor','=',True)]",
-    #                                 string='Contractor')
-
+    # TODO DEPRECATED
     old_contractor_id = fields.Many2one('res.partner',
-                                    string='Contractor')
+                                    string='Old Contractor')
 
     contractor_id = fields.Many2one('budget.contractor.contractor',
                                     string='Contractor',
