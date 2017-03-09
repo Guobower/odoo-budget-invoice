@@ -106,12 +106,15 @@ class Invoice(models.Model):
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    contractor_id = fields.Many2one('res.partner',
-                                    domain="[('is_budget_contractor','=',True)]",
+    old_contractor_id = fields.Many2one('res.partner',
+                                    string='Contractor')
+
+    contractor_id = fields.Many2one('budget.contractor.contractor',
                                     string='Contractor',
                                     compute='_compute_contractor_id',
                                     inverse='_set_contractor_id',
                                     store=True)
+
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
