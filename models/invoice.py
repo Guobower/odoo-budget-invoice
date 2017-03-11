@@ -23,6 +23,19 @@ def amount_setter(invoice=None, budget_type=None):
         'invoice_id': invoice.id
     })
 
+def _set_team(invoice=None):
+    # CHECK USER GROUP AND ASSIGN IF TEAM IS REGIONAL OR HEAD OFFICE
+    current_user = invoice.env.user
+    options = {
+        'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
+        'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
+    }
+    for team, groups in options.items():
+        for group in groups:
+            if invoice.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
+                return team
+            else:
+                return False
 
 class Invoice(models.Model):
     _name = 'budget.invoice.invoice'
@@ -45,13 +58,16 @@ class Invoice(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     state = fields.Selection(STATES, default='draft')
-    team = fields.Selection(TEAMS, string='Team')
+    team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
 
     invoice_no = fields.Char(string="Invoice No")
     approval_ref = fields.Char(string="Approval Ref")
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
+
+    period_start_date = fields.Date(string='Period Start Date')
+    period_end_date = fields.Date(string='Period End Date')
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
@@ -99,10 +115,10 @@ class Invoice(models.Model):
                                    string='Summaries')
     region_id = fields.Many2one('budget.enduser.region', string="Region")
 
-    section_id = fields.Many2one('res.partner', string="Section", domain=[('is_budget_section', '=', True)])
-    old_section_id = fields.Many2one('res.partner', string="Section")
-    sub_section_id = fields.Many2one('res.partner', string="Sub Section", domain=[('is_budget_sub_section', '=', True)])
-    old_sub_section_id = fields.Many2one('res.partner', string="Sub Section")
+    section_id = fields.Many2one('budget.enduser.section', string="Section")
+    old_section_id = fields.Many2one('res.partner', string="Old Section")
+    sub_section_id = fields.Many2one('budget.enduser.sub.section', string="Sub Section")
+    old_sub_section_id = fields.Many2one('res.partner', string="Old Sub Section")
 
     # RELATED FIELDS
     # ----------------------------------------------------------
@@ -386,24 +402,9 @@ class Invoice(models.Model):
 
         default.update(
             amount_ids=[(6, 0, [i.id for i in dup_amounts])],
-            cear_allocation_ids=[(6, 0, [i.id for i in dup_cear_allocations])]
+            cear_allocation_ids=[(6, 0, [i.id for i in dup_cear_allocations])],
+            summary_ids=False
         )
 
         return super(Invoice, self).copy(default)
 
-    @api.model
-    @api.returns('self', lambda value: value.id)
-    def create(self, values):
-        # CHECK USER GROUP AND ASSIGN IF TEAM IS REGIONAL OR HEAD OFFICE
-        current_user = self.env.user
-        options = {
-            'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
-            'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
-        }
-        for team, groups in options.items():
-            for group in groups:
-                if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
-                    values.update(team=team)
-                    break
-
-        return super(Invoice, self).create(values)
