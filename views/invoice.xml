@@ -48,7 +48,6 @@
                             <page string="General">
                                 <group>
                                     <group>
-                                        <field name="approval_ref" attrs="{'invisible': [('team','!=','head office')]}"/>
                                         <field name="region_id"/>
                                         <field name="contract_id"/>
                                         <field name="contractor_id"/>
@@ -58,41 +57,16 @@
                                         <field name="old_section_id" groups="base.group_system"/>
                                         <field name="sub_section_id"/>
                                         <field name="old_sub_section_id" groups="base.group_system"/>
+                                    </group>
+                                    <group>
+                                        <field name="approval_ref"
+                                               attrs="{'invisible': [('team','!=','head office')]}"/>
                                         <field name="cost_center_id"/>
                                         <field name="account_code_id"/>
                                         <field name="proj_no"/>
                                     </group>
-                                    <group>
-                                        <field name="penalty_percentage"/>
-                                        <field name="on_hold_percentage"/>
-                                        <field name="discount_percentage"/>
-                                    </group>
                                 </group>
-                                <group>
-
-                                    <field name="summary_ids" widget="many2many_tags"
-                                           attrs="{'invisible': [('write_date', '=', False)]}"/>
-                                    <field name="description"/>
-                                    <field name="remark"/>
-                                </group>
-                            </page>
-                            <page string="Summary">
-                                <group>
-                                    <group>
-                                        <field name="capex_amount" attrs="{'readonly': True}"/>
-                                        <field name="opex_amount" attrs="{'readonly': True}"/>
-                                        <field name="revenue_amount" attrs="{'readonly': True}"/>
-                                        <field name="invoice_amount" />
-                                    </group>
-                                    <group>
-                                        <field name="penalty_amount"/>
-                                        <field name="discount_amount"/>
-                                        <field name="on_hold_amount"/>
-                                        <field name="certified_invoice_amount"/>
-                                    </group>
-                                </group>
-                            </page>
-                            <page string="Date">
+                                <hr/>
                                 <group>
                                     <group>
                                         <field name="received_date"/>
@@ -105,8 +79,6 @@
                                         <field name="end_date"/>
                                         <field name="rfs_date"/>
                                     </group>
-                                </group>
-                                <group>
                                     <group>
                                         <field name="signed_date"/>
                                         <field name="sent_finance_date"/>
@@ -116,50 +88,81 @@
                                     <group>
                                     </group>
                                 </group>
+                                <hr/>
+                                <group>
+                                    <field name="summary_ids" widget="many2many_tags"
+                                           attrs="{'invisible': [('write_date', '=', False)]}"/>
+                                    <field name="description"/>
+                                    <field name="remark"/>
+                                </group>
+                            </page>
+                            <page string="Financials">
+                                <group>
+                                    <field name="penalty_percentage"/>
+                                    <field name="on_hold_percentage"/>
+                                    <field name="discount_percentage"/>
+                                </group>
+                                <group>
+                                    <field name="amount_ids" context="{'default_invoice_id': id}">
+                                        <tree editable="bottom">
+                                            <field name="invoice_id" groups="base.group_system"/>
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="budget_type" required="1"/>
+                                            <field name="invoice_type" required="1"/>
+                                            <field name="payment_type" required="1"/>
+                                            <field name="amount" required="1" sum="1"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group>
+                                    <field name="cear_amount" invisible="1"/>
+                                    <field name="cear_allocation_ids"
+                                           context="{'default_invoice_id': id, 'default_amount': cear_amount}"
+                                           attrs="{'invisible': [('cear_amount','=',0.0)]}">
+                                        <tree editable="bottom" decoration-success="problem in ['ok', False]"
+                                              decoration-danger="problem in ['overrun']">
+                                            <field name="invoice_id" groups="base.group_system"/>
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="cear_id" required="1" options="{'no_create': True}"/>
+                                            <field name="problem"/>
+                                            <field name="related_cear_authorized_amount" readonly="1" sum="1"/>
+                                            <field name="related_cear_fn_utilized_amount" readonly="1" sum="1"/>
+                                            <field name="related_cear_im_utilized_amount" readonly="1" sum="1"/>
+                                            <field name="amount" required="1" sum="1"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group>
+                                    <field name="oear_amount" invisible="1"/>
+                                    <field name="oear_allocation_ids"
+                                           context="{'default_invoice_id': id,'default_amount': oear_amount}"
+                                           attrs="{'invisible': [('oear_amount','=',0.0)]}">
+                                        <tree editable="bottom">
+                                            <field name="invoice_id" groups="base.group_system"/>
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="oear_id"/>
+                                            <field name="amount" required="1" sum="1"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Summary">
+                                <group>
+                                    <group>
+                                        <field name="capex_amount" attrs="{'readonly': True}"/>
+                                        <field name="opex_amount" attrs="{'readonly': True}"/>
+                                        <field name="revenue_amount" attrs="{'readonly': True}"/>
+                                        <field name="invoice_amount"/>
+                                    </group>
+                                    <group>
+                                        <field name="penalty_amount"/>
+                                        <field name="discount_amount"/>
+                                        <field name="on_hold_amount"/>
+                                        <field name="certified_invoice_amount"/>
+                                    </group>
+                                </group>
                             </page>
                         </notebook>
-                        <group>
-                            <field name="amount_ids" context="{'default_invoice_id': id}">
-                                <tree editable="bottom">
-                                    <field name="invoice_id" groups="base.group_system"/>
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="budget_type" required="1"/>
-                                    <field name="invoice_type" required="1"/>
-                                    <field name="payment_type" required="1"/>
-                                    <field name="amount" required="1" sum="1"/>
-                                </tree>
-                            </field>
-                        </group>
-                        <group>
-                            <field name="cear_amount" invisible="1"/>
-                            <field name="cear_allocation_ids" context="{'default_invoice_id': id,
-                                                                        'default_amount': cear_amount}">
-
-                                <tree editable="bottom" decoration-success="problem in ['ok', False]"
-                                      decoration-danger="problem in ['overrun']">
-                                    <field name="invoice_id" groups="base.group_system"/>
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="cear_id" required="1" options="{'no_create': True}"/>
-                                    <field name="problem"/>
-                                    <field name="related_cear_authorized_amount" readonly="1" sum="1"/>
-                                    <field name="related_cear_fn_utilized_amount" readonly="1" sum="1"/>
-                                    <field name="related_cear_im_utilized_amount" readonly="1" sum="1"/>
-                                    <field name="amount" required="1" sum="1"/>
-                                </tree>
-                            </field>
-                        </group>
-                        <group>
-                            <field name="oear_amount" invisible="1"/>
-                            <field name="oear_allocation_ids" context="{'default_invoice_id': id,
-                                                                        'default_amount': oear_amount}">
-                                <tree editable="bottom">
-                                    <field name="invoice_id" groups="base.group_system"/>
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="oear_id"/>
-                                    <field name="amount" required="1" sum="1"/>
-                                </tree>
-                            </field>
-                        </group>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>

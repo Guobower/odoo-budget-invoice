@@ -16,7 +16,7 @@ def create_allocation_sheet(summary=None, wb=None):
     column = 1
     sr = 1
     ws = wb.create_sheet("CEAR ALLOCATION")
-    cear_allocation_ids = summary.invoice_ids.cear_allocation_ids
+    cear_allocation_ids = summary.mapped('invoice_ids.cear_allocation_ids')
 
     # HEADING
     ws.cell(row=row - 1, column=column).value = 'SR'
