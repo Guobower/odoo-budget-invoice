@@ -6,6 +6,36 @@ from odoo.addons.budget_core.models.utilities import choices_tuple
 
 from ..xlsx_creator.creator import Creator
 
+
+def create_allocation_sheet(summary=None, wb=None):
+    if summary is None and wb is None:
+        raise NotImplementedError
+
+    # CEAR ALLOCATIONS
+    row = 2
+    column = 1
+    sr = 1
+    ws = wb.create_sheet("CEAR ALLOCATION")
+    cear_allocation_ids = summary.invoice_ids.cear_allocation_ids
+
+    # HEADING
+    ws.cell(row=row - 1, column=column).value = 'SR'
+    ws.cell(row=row - 1, column=column + 1).value = 'Invoice No'
+    ws.cell(row=row - 1, column=column + 2).value = 'Invoice Certified Amount'
+    ws.cell(row=row - 1, column=column + 3).value = 'Cear No'
+    ws.cell(row=row - 1, column=column + 4).value = 'Allocated Amount'
+
+    for allocation in cear_allocation_ids:
+        ws.cell(row=row, column=column).value = sr
+        ws.cell(row=row, column=column + 1).value = allocation.invoice_id.invoice_no
+        ws.cell(row=row, column=column + 2).value = allocation.invoice_id.certified_invoice_amount
+        ws.cell(row=row, column=column + 3).value = allocation.cear_id.no
+        ws.cell(row=row, column=column + 4).value = allocation.amount
+
+        row += 1
+        sr += 1
+
+
 class InvoiceSummary(models.Model):
     _name = 'budget.invoice.invoice.summary'
     _rec_name = 'summary_no'
@@ -18,7 +48,7 @@ class InvoiceSummary(models.Model):
     STATES = choices_tuple(['draft', 'file generated', 'under certification',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
     SIGNATURES = choices_tuple(['cse.png', 'fan.png', '713h_1.png', '713h_2.png'])
-    FORMS = choices_tuple(['form_a0001ver01.xlsx', 'form_b0001ver01.xlsx', 'form_b0001ver02.xlsx'])
+    FORMS = choices_tuple(['form_a0001ver01.xlsx', 'form_b0001ver02.xlsx'])
     OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])
 
     # BASIC FIELDS
@@ -94,6 +124,10 @@ class InvoiceSummary(models.Model):
 
         wb = creator.get_wb()
 
+        # CREATE ALLOCATION SHEET
+        # ----------------------------------------------------------
+        create_allocation_sheet(self, wb)
+
         # WORK SHEET MAIN
         # ----------------------------------------------------------
         row = 12
@@ -121,7 +155,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
             ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount or ''
-            #ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
+            # ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
             ws.cell(row=row, column=column + 10).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
             row += 1
             sr += 1
@@ -130,11 +164,11 @@ class InvoiceSummary(models.Model):
         ws.add_image(creator.logo, logo_coor)
         ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
-
         # SAVE FINAL ATTACHMENT
         creator.save()
         creator.attach(self.env)
 
+    # TODO DEPRECATED
     @api.one
     def form_b0001ver01(self, creator):
         """
@@ -170,7 +204,8 @@ class InvoiceSummary(models.Model):
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
         for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
             ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime('%d-%b-%Y') or ''
+            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime(
+                '%d-%b-%Y') or ''
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 3).value = r.description or ''
             ws.cell(row=row, column=column + 4).value = r.revenue_amount or 0
@@ -179,7 +214,8 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 7).value = r.certified_invoice_amount or 0
             ws.cell(row=row, column=column + 8).value = r.po_id.no or ''
             ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.no
-            ws.cell(row=row, column=column + 10).value = '{} & {}'.format(r.cost_center_id.cost_center, r.account_code_id.account_code)
+            ws.cell(row=row, column=column + 10).value = '{} & {}'.format(r.cost_center_id.cost_center,
+                                                                          r.account_code_id.account_code)
             ws.cell(row=row, column=column + 11).value = 71101
             row += 1
             sr += 1
@@ -187,7 +223,6 @@ class InvoiceSummary(models.Model):
         # INSERT HEADER LOGO AND SIGNATURE
         ws.add_image(creator.logo, logo_coor)
         ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
-
 
         # SAVE FINAL ATTACHMENT
         creator.save()
@@ -200,6 +235,10 @@ class InvoiceSummary(models.Model):
         """
 
         wb = creator.get_wb()
+
+        # CREATE ALLOCATION SHEET
+        # ----------------------------------------------------------
+        create_allocation_sheet(self, wb)
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
@@ -228,7 +267,8 @@ class InvoiceSummary(models.Model):
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
         for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
             ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime('%d-%b-%Y') or ''
+            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime(
+                '%d-%b-%Y') or ''
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 3).value = r.description or ''
             ws.cell(row=row, column=column + 4).value = r.revenue_amount or 0
@@ -236,8 +276,10 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 6).value = r.capex_amount or 0
             ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount or 0
             ws.cell(row=row, column=column + 9).value = r.po_id.no or ''
-            ws.cell(row=row, column=column + 10).value = r.cear_allocation_ids.cear_id.no or ''
-            ws.cell(row=row, column=column + 11).value = '{} {}'.format(r.cost_center_id.cost_center or '', r.account_code_id.account_code or '')
+            ws.cell(row=row, column=column + 10).value = ', '.join(
+                [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
+            ws.cell(row=row, column=column + 11).value = '{} {}'.format(r.cost_center_id.cost_center or '',
+                                                                        r.account_code_id.account_code or '')
             ws.cell(row=row, column=column + 12).value = 71101
             ws.cell(row=row, column=column + 14).value = r.discount_amount or 0
             ws.cell(row=row, column=column + 15).value = r.discount_percentage or 0
@@ -248,7 +290,6 @@ class InvoiceSummary(models.Model):
         # INSERT HEADER LOGO AND SIGNATURE
         ws.add_image(creator.logo, logo_coor)
         ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
-
 
         # SAVE FINAL ATTACHMENT
         creator.save()
