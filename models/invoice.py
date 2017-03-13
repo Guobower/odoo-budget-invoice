@@ -23,19 +23,20 @@ def amount_setter(invoice=None, budget_type=None):
         'invoice_id': invoice.id
     })
 
-def _set_team(invoice=None):
+
+def _set_team(self=None):
     # CHECK USER GROUP AND ASSIGN IF TEAM IS REGIONAL OR HEAD OFFICE
-    current_user = invoice.env.user
+    current_user = self.env.user
     options = {
         'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
         'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
     }
     for team, groups in options.items():
         for group in groups:
-            if invoice.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
+            if self.env.ref('budget_invoice.{}'.format(group)) in current_user.groups_id:
                 return team
-            else:
-                return False
+    return False
+
 
 class Invoice(models.Model):
     _name = 'budget.invoice.invoice'
@@ -60,6 +61,8 @@ class Invoice(models.Model):
     state = fields.Selection(STATES, default='draft')
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
 
+    #                            default=lambda self: _set_team(self))
+
     invoice_no = fields.Char(string="Invoice No")
     approval_ref = fields.Char(string="Approval Ref")
 
@@ -71,7 +74,7 @@ class Invoice(models.Model):
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
-    received_date = fields.Date(string='Received Date')
+    received_date = fields.Date(string='Received Date', default=fields.Date.today())
     signed_date = fields.Date(string='Signed Date')
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')
@@ -92,6 +95,10 @@ class Invoice(models.Model):
     company_currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
+    contractor_id = fields.Many2one('budget.contractor.contractor', string='Contractor')
+    # TODO DEPRECATED
+    old_contractor_id = fields.Many2one('res.partner', string='Old Contractor')
+
     po_id = fields.Many2one('budget.invoice.purchase.order',
                             string='Purchase Order')
 
@@ -123,18 +130,18 @@ class Invoice(models.Model):
     # RELATED FIELDS
     # ----------------------------------------------------------
 
+    # ONCHANGE FIELDS
+    # ----------------------------------------------------------
+    @api.onchange('contract_id')
+    def _onchange_contract_id(self):
+        self.contractor_id = self.contract_id.contractor_id
+
+    @api.onchange('sub_section_id')
+    def _onchange_sub_section_id(self):
+        self.section_id = self.sub_section_id.section_id
+
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    # TODO DEPRECATED
-    old_contractor_id = fields.Many2one('res.partner',
-                                    string='Old Contractor')
-
-    contractor_id = fields.Many2one('budget.contractor.contractor',
-                                    string='Contractor',
-                                    compute='_compute_contractor_id',
-                                    inverse='_set_contractor_id',
-                                    store=True)
-
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
@@ -182,11 +189,6 @@ class Invoice(models.Model):
     oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
-
-    @api.one
-    @api.depends('contract_id')
-    def _compute_contractor_id(self):
-        self.contractor_id = self.contract_id.contractor_id
 
     @api.one
     @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
@@ -306,10 +308,6 @@ class Invoice(models.Model):
         amount_setter(invoice=self, budget_type='opex')
 
     @api.one
-    def _set_contractor_id(self):
-        return
-
-    @api.one
     def _set_discount_percentage(self):
         return
 
@@ -407,4 +405,3 @@ class Invoice(models.Model):
         )
 
         return super(Invoice, self).copy(default)
-

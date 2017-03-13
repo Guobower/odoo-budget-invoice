@@ -48,21 +48,21 @@
                             <page string="General">
                                 <group>
                                     <group>
-                                        <field name="region_id"/>
-                                        <field name="contract_id"/>
-                                        <field name="contractor_id"/>
+                                        <field name="region_id" options="{'no_create': True}"/>
+                                        <field name="contract_id" options="{'no_create': True}"/>
+                                        <field name="contractor_id" options="{'no_create': True}"/>
                                         <field name="old_contractor_id" groups="base.group_system"/>
-                                        <field name="po_id"/>
-                                        <field name="section_id"/>
-                                        <field name="old_section_id" groups="base.group_system"/>
-                                        <field name="sub_section_id"/>
+                                        <field name="po_id" options="{'no_create': True}"/>
+                                        <field name="sub_section_id" options="{'no_create': True}"/>
                                         <field name="old_sub_section_id" groups="base.group_system"/>
+                                        <field name="section_id" options="{'no_create': True}"/>
+                                        <field name="old_section_id" groups="base.group_system"/>
                                     </group>
                                     <group>
                                         <field name="approval_ref"
                                                attrs="{'invisible': [('team','!=','head office')]}"/>
-                                        <field name="cost_center_id"/>
-                                        <field name="account_code_id"/>
+                                        <field name="cost_center_id" options="{'no_create': True}"/>
+                                        <field name="account_code_id" options="{'no_create': True}"/>
                                         <field name="proj_no"/>
                                     </group>
                                 </group>
@@ -91,7 +91,8 @@
                                 <hr/>
                                 <group>
                                     <field name="summary_ids" widget="many2many_tags"
-                                           attrs="{'invisible': [('write_date', '=', False)]}"/>
+                                           attrs="{'invisible': [('write_date', '=', False)]}"
+                                           options="{'no_create': True}"/>
                                     <field name="description"/>
                                     <field name="remark"/>
                                 </group>
