@@ -82,7 +82,7 @@ class InvoiceSummary(models.Model):
     invoice_state_filter = fields.Char(string='State Filter',
                                        compute='_compute_invoice_state_filter',
                                        store=True)
-
+    @api.one
     @api.depends('objective')
     def _compute_invoice_state_filter(self):
         if self.objective == 'invoice certification':
