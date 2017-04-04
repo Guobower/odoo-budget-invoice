@@ -4,7 +4,7 @@ from odoo import models, fields, api
 from odoo.addons.budget_core.models.utilities import choices_tuple
 
 
-class TaskInherit(models.Model):
+class OearInherit(models.Model):
     _inherit = 'budget.opex.oear'
 
     # CHOICES

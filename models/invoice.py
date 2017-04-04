@@ -5,7 +5,8 @@ from odoo.addons.budget_core.models.utilities import choices_tuple
 
 from odoo.exceptions import ValidationError, UserError
 
-
+# TODO ONCHANGE CONTRACT AND SECTION SHOULD BE CHANGE TO COMPUTE
+# DUE TO REFLECT ALL CHANGES IN ALL SIDES
 def amount_setter(invoice=None, budget_type=None):
     if budget_type is None:
         raise ValidationError('Budget Type In Amount Setter must not be None')
@@ -27,6 +28,12 @@ def amount_setter(invoice=None, budget_type=None):
 def _set_team(self=None):
     # CHECK USER GROUP AND ASSIGN IF TEAM IS REGIONAL OR HEAD OFFICE
     current_user = self.env.user
+    # user = self.env['res.users'].browse(self.env.uid)
+    #
+    # if user.has_group('base.group_sale_salesman'):
+    #     print 'This user is a salesman'
+    # else:
+    #     print 'This user is not a salesman'
     options = {
         'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
         'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
@@ -58,11 +65,8 @@ class Invoice(models.Model):
 
     # BASIC FIELDS
     # ----------------------------------------------------------
-    state = fields.Selection(STATES, default='draft')
+    state = fields.Selection(STATES, default='draft', track_visibility='onchange')
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
-
-    #                            default=lambda self: _set_team(self))
-
     invoice_no = fields.Char(string="Invoice No")
     approval_ref = fields.Char(string="Approval Ref")
 
@@ -74,7 +78,7 @@ class Invoice(models.Model):
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
-    received_date = fields.Date(string='Received Date', default=fields.Date.today())
+    received_date = fields.Date(string='Received Date', default=lambda self: fields.Date.today())
     signed_date = fields.Date(string='Signed Date')
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')

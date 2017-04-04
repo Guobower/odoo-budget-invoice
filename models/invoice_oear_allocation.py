@@ -30,3 +30,11 @@ class OearAllocation(models.Model):
                               string='OEAR',
                               domain="[('state','=','authorized')]")
 
+    cost_center_id = fields.Many2one('budget.core.cost.center', string='Cost Center')
+    account_code_id = fields.Many2one('budget.core.account.code', string='Account Code')
+
+    # RELATED FIELDS
+    # ----------------------------------------------------------
+    related_accrued_amount = fields.Monetary(string='Accrued Amount',
+                                             related='oear_id.operation_id.accrued_amount',
+                                             currency_field='company_currency_id')

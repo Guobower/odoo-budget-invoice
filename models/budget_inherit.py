@@ -16,13 +16,15 @@ class BudgetInherit(models.Model):
     # RELATIONSHIPS
     # ----------------------------------------------------------
     # cear_ids exist in the Budget Inherit in Capex Module
+    # oear_ids exist in the Budget Inherit in Opex Module
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-#     invoice_ids = fields.One2many('budget.invoice.invoice',
-# #                                  compute='_compute_invoice_ids',
-#                                   string="Invoices")
+    invoice_ids = fields.One2many('budget.invoice.invoice',
+                                  compute='_compute_invoice_ids',
+                                  string="Invoices")
 
-    # @api.one
-    # def _compute_invoice_ids(self):
-    #     self.invoice_ids = self.cear_ids.mapped('invoice_ids')
+    @api.one
+    def _compute_invoice_ids(self):
+        # TODO ADD INVOICE_IDS TO OEAR THEN ADD TO BELOW
+        self.invoice_ids = self.cear_ids.mapped('invoice_ids')

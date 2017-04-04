@@ -42,6 +42,10 @@
                         <div class="oe_button_box" name="box">
                         </div>
                         <div class="oe_title">
+                            <group groups="base.group_system">
+                                <field name="invoice_state_filter"/>
+                            </group>
+
                             <h1>
                                 <field name="summary_no" readonly="1"/>
                             </h1>
@@ -61,7 +65,8 @@
                         </group>
                         <notebook>
                             <page string="Invoices">
-                                <field name="invoice_ids">
+                                <field name="invoice_ids"
+                                       domain="[('state', '=', invoice_state_filter)]">
                                     <tree default_order="sequence"
                                           decoration-success="problem in ['ok', False]"
                                           decoration-danger="problem in ['duplicate', 'overrun']">

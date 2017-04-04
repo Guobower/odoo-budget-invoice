@@ -141,7 +141,10 @@
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_system"/>
                                             <field name="sequence" widget="handle"/>
+                                            <field name="cost_center_id"/>
+                                            <field name="account_code_id"/>
                                             <field name="oear_id"/>
+                                            <field name="related_accrued_amount" readonly="1"/>
                                             <field name="amount" required="1" sum="1"/>
                                         </tree>
                                     </field>

@@ -77,6 +77,21 @@ class InvoiceSummary(models.Model):
     section_id = fields.Many2one('res.partner', string='Section',
                                  domain=[('is_budget_section', '=', True)])
 
+    # COMPUTE FIELDS
+    # ----------------------------------------------------------
+    invoice_state_filter = fields.Char(string='State Filter',
+                                       compute='_compute_invoice_state_filter',
+                                       store=True)
+
+    @api.depends('objective')
+    def _compute_invoice_state_filter(self):
+        if self.objective == 'invoice certification':
+            self.invoice_state_filter = 'verified'
+        elif self.objective == 'on hold certification':
+            self.invoice_state_filter = 'on hold'
+        else:
+            self.invoice_state_filter = False
+
     # CONSTRAINTS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -297,16 +312,6 @@ class InvoiceSummary(models.Model):
 
     # ONCHANGE
     # ----------------------------------------------------------
-    @api.onchange('objective')
-    def _check_objective(self):
-        if self.objective == 'invoice certification':
-            return {
-                'domain': {'invoice_ids': [('state', '=', 'verified')]}
-            }
-        elif self.objective == 'on hold certification':
-            return {
-                'domain': {'invoice_ids': [('state', '=', 'amount hold')]}
-            }
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------

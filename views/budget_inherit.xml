@@ -11,13 +11,11 @@
             <field name="arch" type="xml">
 
                 <xpath expr="//field[@name='end_date']" position="after">
-                    <!--<field name="total_certified_invoice_amount"-->
-                           <!--attrs="{'invisible': [('is_project', '!=', True)]}"/>-->
+                    <!--<field name="total_certified_invoice_amount"/>-->
                 </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page string="Invoice">
-                        <!--<field name="invoice_ids"-->
-                               <!--attrs="{'invisible': [('is_project', '!=', True)]}"/>-->
+                        <field name="invoice_ids"/>
                     </page>
                 </xpath>
             </field>
