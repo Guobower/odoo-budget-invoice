@@ -409,3 +409,12 @@ class Invoice(models.Model):
         )
 
         return super(Invoice, self).copy(default)
+
+    @api.multi
+    def unlink(self):
+        invoice_no = self.invoice_no
+        res = super(Invoice, self).unlink()
+        self.env.add_todo(self._fields['problem'], self.search([('invoice_no','=',invoice_no)]))
+        self.recompute()
+        self.env.cr.commit()
+        return res

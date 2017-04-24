@@ -82,6 +82,7 @@ class InvoiceSummary(models.Model):
     invoice_state_filter = fields.Char(string='State Filter',
                                        compute='_compute_invoice_state_filter',
                                        store=True)
+
     @api.one
     @api.depends('objective')
     def _compute_invoice_state_filter(self):
@@ -325,7 +326,7 @@ class InvoiceSummary(models.Model):
     def set2file_generated(self):
         if len(self.invoice_ids) == 0:
             raise ValidationError('Empty Invoice List')
-
+        
         creator = Creator(summary_no=self.summary_no,
                           summary_res_id=self.id,
                           signature=self.signature,
