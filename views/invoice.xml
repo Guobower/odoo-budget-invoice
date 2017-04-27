@@ -214,6 +214,10 @@
                             string="My Activities"
                             domain="[('create_uid', '=', uid)]"/>
                     <filter
+                            name="volume_discount"
+                            string="Volume Discount"
+                            domain="[('state', 'in', ['verified', 'summary generated', 'under certification', 'sent to finance', 'closed'])]"/>
+                    <filter
                             name="need_action"
                             string="Need Action"
                             domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
@@ -240,9 +244,7 @@
             <field name="view_mode">tree,form,pivot,graph</field>
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_need_action': 1,
-                }
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice'}
             </field>
         </record>
         <!--Invoice Regional Action-->
