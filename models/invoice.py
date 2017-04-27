@@ -212,23 +212,24 @@ class Invoice(models.Model):
     @api.one
     @api.depends('invoice_date', 'contract_id')
     def _compute_discount_percentage(self):
-        if self.invoice_date:
-            reference_date = self.invoice_date
-        elif self.contract_id:
-            reference_date = fields.Date.today()
-        else:
-            self.discount_percentage = 0.00
-            return
-
-        volume_discount_id = self.contract_id.volume_discount_ids. \
-            search([('start_date', '<=', reference_date),
-                    ('end_date', '>=', reference_date),
-                    ('contract_id', '=', self.contract_id.id)])
-
-        if len(volume_discount_id) == 0:
-            self.discount_percentage = 0.00
-        else:
-            self.discount_percentage = volume_discount_id.discount_percentage
+        return
+        # if self.invoice_date:
+        #     reference_date = self.invoice_date
+        # elif self.contract_id:
+        #     reference_date = fields.Date.today()
+        # else:
+        #     self.discount_percentage = 0.00
+        #     return
+        #
+        # volume_discount_id = self.contract_id.volume_discount_ids. \
+        #     search([('start_date', '<=', reference_date),
+        #             ('end_date', '>=', reference_date),
+        #             ('contract_id', '=', self.contract_id.id)])
+        #
+        # if len(volume_discount_id) == 0:
+        #     self.discount_percentage = 0.00
+        # else:
+        #     self.discount_percentage = volume_discount_id.discount_percentage
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
