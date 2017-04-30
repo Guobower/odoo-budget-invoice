@@ -153,7 +153,7 @@
                             <page string="Summary">
                                 <group>
                                     <group>
-                                        <field name="year"/>
+                                        <field name="year_rfs"/>
                                     </group>
                                     <group></group>
                                 </group>
