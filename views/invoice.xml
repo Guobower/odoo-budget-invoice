@@ -153,6 +153,12 @@
                             <page string="Summary">
                                 <group>
                                     <group>
+                                        <field name="year"/>
+                                    </group>
+                                    <group></group>
+                                </group>
+                                <group>
+                                    <group>
                                         <field name="capex_amount" attrs="{'readonly': True}"/>
                                         <field name="opex_amount" attrs="{'readonly': True}"/>
                                         <field name="revenue_amount" attrs="{'readonly': True}"/>

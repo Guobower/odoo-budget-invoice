@@ -5,6 +5,9 @@ from odoo.addons.budget_core.models.utilities import choices_tuple
 
 from odoo.exceptions import ValidationError, UserError
 
+from dateutil.relativedelta import relativedelta
+
+
 # TODO ONCHANGE CONTRACT AND SECTION SHOULD BE CHANGE TO COMPUTE
 # DUE TO REFLECT ALL CHANGES IN ALL SIDES
 def amount_setter(invoice=None, budget_type=None):
@@ -149,6 +152,11 @@ class Invoice(models.Model):
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
+    year_rfs = fields.Char(string='Year',
+                       compute='_compute_year_rfs',
+                       inverse='_set_year_rfs',
+                       store=True,
+                       help='Year is the rfs year_rfs against contract period (eg. contract start is 08/08/2017, year_rfs 1 will be between 08/08/2017 - 08/08/2018)')
     discount_percentage = fields.Float(string='Discount Percent (%)',
                                        digits=(5, 2),
                                        compute='_compute_discount_percentage',
@@ -193,6 +201,31 @@ class Invoice(models.Model):
     oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
+
+    @api.one
+    @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
+    def _compute_year_rfs(self):
+        # TODO MAKE TEST
+        contract_start = fields.Date.from_string(self.contract_id.commencement_date)
+        contract_end = fields.Date.from_string(self.contract_id.end_date)
+        rfs_date = fields.Date.from_string(self.rfs_date)
+
+        if not contract_start or not rfs_date or not contract_end:
+            return
+
+        # the total number of years inclusive in the contract
+        number_of_years = contract_end.year - contract_start.year
+
+        # year starts at 1 and ends at number_of_years + 1
+        for year in range(1, number_of_years + 1):
+            start = contract_start + relativedelta(years=year - 1)
+            end = contract_start + relativedelta(years=year)
+
+            if start <= rfs_date < end:
+                self.year_rfs = 'Year %s' % year
+                continue
+
+    # count = self.search_count([('invoice_no', '=', self.invoice_no),
 
     @api.one
     @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
@@ -316,6 +349,10 @@ class Invoice(models.Model):
     def _set_discount_percentage(self):
         return
 
+    @api.one
+    def _set_year_rfs(self):
+        return
+
     # CONSTRAINS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -415,7 +452,7 @@ class Invoice(models.Model):
     def unlink(self):
         invoice_no = self.invoice_no
         res = super(Invoice, self).unlink()
-        self.env.add_todo(self._fields['problem'], self.search([('invoice_no','=',invoice_no)]))
+        self.env.add_todo(self._fields['problem'], self.search([('invoice_no', '=', invoice_no)]))
         self.recompute()
         self.env.cr.commit()
         return res
