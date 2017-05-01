@@ -153,11 +153,19 @@ class Invoice(models.Model):
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
-    year_rfs = fields.Char(string='Year',
-                       compute='_compute_year_rfs',
-                       inverse='_set_year_rfs',
-                       store=True,
-                       help='Year is the rfs year_rfs against contract period (eg. contract start is 08/08/2017, year_rfs 1 will be between 08/08/2017 - 08/08/2018)')
+    discount_applicable = fields.Char(string='Discount Applicable',
+                                      compute='_compute_discount_applicable',
+                                      store=True)
+    year_rfs = fields.Char(string='Year RFS',
+                           compute='_compute_year_rfs',
+                           inverse='_set_year_rfs',
+                           store=True,
+                           help='Year is the rfs year against contract period (eg. contract start is 08/08/2017, year_rfs 1 will be between 08/08/2017 - 08/08/2018)')
+    year_invoice = fields.Char(string='Year Invoice',
+                               compute='_compute_year_invoice',
+                               inverse='_set_year_invoice',
+                               store=True,
+                               help='Year is the invoice year against contract period (eg. contract start is 08/08/2017, year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
     discount_percentage = fields.Float(string='Discount Percent (%)',
                                        digits=(5, 2),
                                        compute='_compute_discount_percentage',
@@ -205,6 +213,11 @@ class Invoice(models.Model):
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
+    def _compute_discount_applicable(self):
+        pass
+
+    @api.one
+    @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
     def _compute_year_rfs(self):
         # TODO MAKE TEST
         contract_start = fields.Date.from_string(self.contract_id.commencement_date)
@@ -226,7 +239,28 @@ class Invoice(models.Model):
                 self.year_rfs = 'Year %s' % year
                 continue
 
-    # count = self.search_count([('invoice_no', '=', self.invoice_no),
+    @api.one
+    @api.depends('contract_id', 'contract_id.commencement_date', 'invoice_date')
+    def _compute_year_invoice(self):
+        # TODO MAKE TEST
+        contract_start = fields.Date.from_string(self.contract_id.commencement_date)
+        contract_end = fields.Date.from_string(self.contract_id.end_date)
+        invoice_date = fields.Date.from_string(self.invoice_date)
+
+        if not contract_start or not invoice_date or not contract_end:
+            return
+
+        # the total number of years inclusive in the contract
+        number_of_years = contract_end.year - contract_start.year
+
+        # year starts at 1 and ends at number_of_years + 1
+        for year in range(1, number_of_years + 1):
+            start = contract_start + relativedelta(years=year - 1)
+            end = contract_start + relativedelta(years=year)
+
+            if start <= invoice_date < end:
+                self.year_rfs = 'Year %s' % year
+                continue
 
     @api.one
     @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
@@ -352,6 +386,10 @@ class Invoice(models.Model):
 
     @api.one
     def _set_year_rfs(self):
+        return
+
+    @api.one
+    def _set_year_invoice(self):
         return
 
     # CONSTRAINS

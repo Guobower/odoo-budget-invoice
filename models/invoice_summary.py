@@ -434,9 +434,9 @@ class InvoiceSummary(models.Model):
 
     @api.one
     def set2cancelled(self):
-        attachments = self.env['ir.attachment'].search([('res_model', '=', self._name), ('res_id', '=', 212)])
-        for attachment in attachments:
-            attachment.unlink()
+        # attachments = self.env['ir.attachment'].search([('res_model', '=', self._name), ('res_id', '=', 212)])
+        # for attachment in attachments:
+        #     attachment.unlink()
 
         for invoice in self.invoice_ids:
             invoice.signal_workflow('cancel')
