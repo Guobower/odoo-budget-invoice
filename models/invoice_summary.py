@@ -48,7 +48,11 @@ class InvoiceSummary(models.Model):
     STATES = choices_tuple(['draft', 'file generated', 'under certification',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
     SIGNATURES = choices_tuple(['cse.png', 'fan.png', '713h_1.png', '713h_2.png'])
-    FORMS = choices_tuple(['form_a0001ver01.xlsx', 'form_b0001ver02.xlsx'])
+    FORMS = choices_tuple([
+        'form_a0001ver01.xlsx',
+        'form_a0002ver01.xlsx',
+        'form_b0001ver02.xlsx'
+    ])
     OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])
 
     # BASIC FIELDS
@@ -173,6 +177,61 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount or ''
             # ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
             ws.cell(row=row, column=column + 10).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
+            row += 1
+            sr += 1
+
+        # INSERT HEADER LOGO AND SIGNATURE
+        ws.add_image(creator.logo, logo_coor)
+        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+        # SAVE FINAL ATTACHMENT
+        creator.save()
+        creator.attach(self.env)
+
+    @api.one
+    def form_a0002ver01(self, creator):
+        """
+        GENERATE FORM ACCORDING TO form_a0002ver01
+        """
+
+        wb = creator.get_wb()
+
+        # CREATE ALLOCATION SHEET
+        # ----------------------------------------------------------
+        create_allocation_sheet(self, wb)
+
+        # WORK SHEET MAIN
+        # ----------------------------------------------------------
+        row = 12
+        column = 1
+        sr = 1
+        signature_coor = "B17"  # B18
+        logo_coor = "L1"  # J1
+        ws = wb.get_sheet_by_name('main')
+
+        ws.cell("C5").value = self.summary_no
+        ws.cell("C6").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+
+        # Create Table
+        ws.insert_rows(row, len(self.invoice_ids) - 1)
+
+        # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
+        # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
+        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
+            ws.cell(row=row, column=column).value = sr
+            ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
+            ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
+            ws.cell(row=row, column=column + 3).value = r.invoice_no or ''
+            ws.cell(row=row, column=column + 4).value = r.contract_id.no or ''
+            ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
+            ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
+            ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
+            ws.cell(row=row, column=column + 8).value = r.invoice_amount or ''
+            # ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
+            ws.cell(row=row, column=column + 10).value = r.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 11).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
+            ws.cell(row=row, column=column + 12).value = r.discount_amount or ''
+            ws.cell(row=row, column=column + 13).value = r.discount_percentage or ''
             row += 1
             sr += 1
 

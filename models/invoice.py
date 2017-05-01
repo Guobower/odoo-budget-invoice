@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+# TODO CHECK MECHANISM HOW TO APPLY DISCOUNT IN  CEAR
+# TODO MODIFY CONSTRAIN TO ALLOW DISCOUNT
 from odoo import models, fields, api, _
 from odoo.addons.budget_core.models.utilities import choices_tuple
 
