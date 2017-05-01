@@ -154,6 +154,7 @@
                                 <group>
                                     <group>
                                         <field name="year_rfs"/>
+                                        <field name="year_invoice"/>
                                     </group>
                                     <group></group>
                                 </group>
