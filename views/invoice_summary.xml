@@ -11,6 +11,11 @@
                 <form string="Invoice Summary">
                     <header>
                         <button
+                                string="Reset"
+                                name="reset_summary"
+                                type="object"
+                                groups="base.group_system"/>
+                        <button
                                 string="Generate"
                                 name="generate"
                                 type="workflow"

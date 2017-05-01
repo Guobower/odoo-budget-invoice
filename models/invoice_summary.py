@@ -206,7 +206,7 @@ class InvoiceSummary(models.Model):
         column = 1
         sr = 1
         signature_coor = "B17"  # B18
-        logo_coor = "L1"  # J1
+        logo_coor = "M1"  # J1
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("C5").value = self.summary_no
@@ -228,10 +228,10 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
             ws.cell(row=row, column=column + 8).value = r.invoice_amount or ''
             # ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
-            ws.cell(row=row, column=column + 10).value = r.certified_invoice_amount or ''
-            ws.cell(row=row, column=column + 11).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
-            ws.cell(row=row, column=column + 12).value = r.discount_amount or ''
-            ws.cell(row=row, column=column + 13).value = r.discount_percentage or ''
+            ws.cell(row=row, column=column + 9).value = '' if not r.discount_percentage else r.discount_percentage / 100
+            ws.cell(row=row, column=column + 10).value = r.discount_amount or ''
+            ws.cell(row=row, column=column + 11).value = r.certified_invoice_amount or ''
+            ws.cell(row=row, column=column + 12).value = ', '.join(r.mapped('cear_allocation_ids.cear_id.no'))
             row += 1
             sr += 1
 
@@ -434,9 +434,19 @@ class InvoiceSummary(models.Model):
 
     @api.one
     def set2cancelled(self):
+        attachments = self.env['ir.attachment'].search([('res_model', '=', self._name), ('res_id', '=', 212)])
+        for attachment in attachments:
+            attachment.unlink()
+
         for invoice in self.invoice_ids:
             invoice.signal_workflow('cancel')
         self.state = 'cancelled'
+
+    @api.one
+    def reset_summary(self):
+        self.set2cancelled()
+        self.delete_workflow()
+        self.create_workflow()
 
     # POLYMORPH FUNCTIONS
     @api.one
