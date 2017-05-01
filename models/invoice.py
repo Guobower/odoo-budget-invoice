@@ -259,7 +259,7 @@ class Invoice(models.Model):
             end = contract_start + relativedelta(years=year)
 
             if start <= invoice_date < end:
-                self.year_invoice_date = 'Year %s' % year
+                self.year_invoice = 'Year %s' % year
                 continue
 
     @api.one
