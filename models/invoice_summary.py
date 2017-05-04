@@ -85,6 +85,7 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     invoice_state_filter = fields.Char(string='State Filter',
                                        compute='_compute_invoice_state_filter',
+                                       inverse='_set_invoice_state_filter',
                                        store=True)
 
     @api.one
@@ -96,6 +97,10 @@ class InvoiceSummary(models.Model):
             self.invoice_state_filter = 'on hold'
         else:
             self.invoice_state_filter = False
+
+    @api.one
+    def _set_invoice_state_filter(self):
+        return
 
     # CONSTRAINTS
     # ----------------------------------------------------------

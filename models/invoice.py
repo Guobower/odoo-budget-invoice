@@ -404,6 +404,9 @@ class Invoice(models.Model):
     @api.one
     @api.constrains('cear_amount', 'cear_allocation_ids')
     def _check_total_capex(self):
+        current_user = self.env.user
+        if current_user.has_group('base.group_system'):
+            return
         allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
         # if the difference of cear_amount and allocation is less than 1 (threshold),
         # it means that it is miss allocated
