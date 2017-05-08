@@ -18,7 +18,7 @@
                 <xpath expr="//field[@name='fn_utilized_amount']" position="before">
                     <field name="im_utilized_amount"/>
                 </xpath>
-                <xpath expr="//notebook" position="inside">
+                <xpath expr="//notebook/page[@name='financial']/notebook" position="inside">
                     <page string="Invoice">
                         <field name="invoice_ids"/>
                     </page>
