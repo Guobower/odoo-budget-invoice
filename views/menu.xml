@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<openerp>
+<odoo>
     <data>
         <!--MENU PARENT-->
         <menuitem
@@ -47,7 +47,7 @@
                 name="Purchase Order"
                 sequence="3"
                 parent="menu_invoice_left"
-                action="action_purchase_order"/>
+                action="budget_purchase_order.action_purchase_order"/>
 
 
         <menuitem
@@ -81,4 +81,4 @@
                 action="budget_contractor.action_contractor"/>
 
     </data>
-</openerp>
+</odoo>

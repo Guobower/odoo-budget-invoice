@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<openerp>
+<odoo>
   <data>
     <record model="workflow" id="wkf_budget_invoice_summary">
         <field name="name">Budget Invoice Summary Workflow</field>
@@ -93,4 +93,4 @@
     </record>
     <!--END BUTTON CANCEL-->
   </data>
-</openerp>
+</odoo>

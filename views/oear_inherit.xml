@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<openerp>
+<odoo>
     <data>
     <!--START CONTRACTOR VIEWS-->
         <!--CONTRACTOR FORM VIEW-->
@@ -22,4 +22,4 @@
             </field>
         </record>
     </data>
-</openerp>
+</odoo>

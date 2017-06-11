@@ -8,5 +8,5 @@ from . import budget_inherit, contract_inherit, contractor_inherit, \
 # BASIC MODELS
 # ----------------------------------------------------------
 from . import invoice, invoice_summary, invoice_amount, \
-    invoice_cear_allocation, invoice_oear_allocation, purchase_order, \
+    invoice_cear_allocation, invoice_oear_allocation, \
     actual, invoice_volume_discount

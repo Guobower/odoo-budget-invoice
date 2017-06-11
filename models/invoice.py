@@ -107,7 +107,7 @@ class Invoice(models.Model):
     # TODO DEPRECATED
     old_contractor_id = fields.Many2one('res.partner', string='Old Contractor')
 
-    po_id = fields.Many2one('budget.invoice.purchase.order',
+    po_id = fields.Many2one('budget.purchase.order',
                             string='Purchase Order')
 
     # TODO TO BE REMOVED ONCE FINALIZE
@@ -159,11 +159,13 @@ class Invoice(models.Model):
     year_rfs = fields.Char(string='Year RFS',
                            compute='_compute_year_rfs',
                            inverse='_set_year_rfs',
+                           index=True,
                            store=True,
                            help='Year is the rfs year against contract period (eg. contract start is 08/08/2017, year_rfs 1 will be between 08/08/2017 - 08/08/2018)')
     year_invoice = fields.Char(string='Year Invoice',
                                compute='_compute_year_invoice',
                                inverse='_set_year_invoice',
+                               index=True,
                                store=True,
                                help='Year is the invoice year against contract period (eg. contract start is 08/08/2017, year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
     discount_percentage = fields.Float(string='Discount Percent (%)',
@@ -280,6 +282,7 @@ class Invoice(models.Model):
     @api.one
     @api.depends('invoice_date', 'contract_id')
     def _compute_discount_percentage(self):
+        # TODO TO BE REMOVE
         return
         # if self.invoice_date:
         #     reference_date = self.invoice_date

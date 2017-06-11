@@ -20,6 +20,7 @@ Invoice Management
     'category': 'TBPC Budget',
     'depends': ['document',
                 'budget_contractor',
+                'budget_purchase_order',
                 'budget_capex',
                 'budget_opex'],
     'external_dependencies': {
@@ -34,7 +35,6 @@ Invoice Management
 
         'views/invoice.xml',
         'views/invoice_summary.xml',
-        'views/purchase_order.xml',
         'views/contract_inherit.xml',
         #        'views/contractor_inherit.xml',
         'views/cear_inherit.xml',

@@ -10,72 +10,131 @@ class TestInvoice(TransactionCase):
 
     def setUp(self):
         super(TestInvoice, self).setUp()
-        self.contractor_id = self.env['res.partner'].create(
-            {
-                'is_budget_contractor': True,
-                'name': 'Test Contractor 1',
-                'alias': 'TC{}'.format(random.randint(0, 1000))
+        # DUMMY CONTRACTOR
+        contractor_vals01 = {
+            'name': 'Test Contractor 1',
+            'alias': 'TC{}'.format(random.randint(0, 1000)),
+            # DUMMY CONTRACT
+            # with capex and opex part
+            'contract_ids': [(0, 0, {'no': '99H/9999',
+                                     'change_type': 'principal',
+                                     'is_capex': True,
+                                     'is_opex': True
+                                     }),
+                             ]
             }
-        )
-
-        self.contract_id = self.env['budget.contractor.contract'].create(
-            {
-                'no': '35H/2003',
-                'change_type': 'principal',
-                'contractor_id': self.contractor_id.id
+        contractor_vals02 = {
+            'name': 'Test Contractor 2',
+            'alias': 'TC{}'.format(random.randint(0, 1000)),
+            # DUMMY CONTRACT
+            # with capex and opex part
+            'contract_ids': [(0, 0, {'no': '100H/9999',
+                                     'change_type': 'principal',
+                                     'is_capex': True,
+                                     'is_opex': True
+                                     }),
+                             ]
             }
-        )
-        invoice_vals = {
-            'invoice_no': 'inv1',
-            'contract_id': self.contract_id.id
-        }
-        # self.invoice = self.env['budget.invoice.invoice'].new(invoice_vals)
-        # self.invoice._onchange_contract_id()
-        # invoice_vals.update(contractor_id=self.invoice.contractor_id.id)
-        self.invoice = self.env['budget.invoice.invoice'].create(invoice_vals)
 
-    def test_duplicate(self):
+        self.contractor_id = self.env['budget.contractor.contractor'].create(contractor_vals01)
+        self.contractor_id = self.env['budget.contractor.contractor'].create(contractor_vals02)
+        self.env.cr.commit()
+
+    def test_duplicate_different_vendor_same_invoice_no(self):
         """
-
             Check DUPLICATE
-            respect to invoice_no and contractor_id
+            Must not be True
+            Invoices with same invoice_no but different in contractor is not duplicate
         """
-        # TODO VERIFY TEST
-        self.invoice.signal_workflow('verify')
 
-        contractor_id = self.env['res.partner'].create(
-            {
-                'is_budget_contractor': True,
-                'name': 'Test Contractor 1',
-                'alias': 'TC{}'.format(random.randint(0, 1000))
-            }
-        )
-
-        invoice0 = self.invoice
-
-        invoice_vals = {
-            'invoice_no': 'inv1',
-            'contractor_id': self.contractor_id.id
+        invoice_vals01 = {
+            'invoice_no': 'diff_vendor_same_invoice_no',
+            'contract_id': self.env['budget.contractor.contract'].search([])[0].id,
+            'contractor_id': self.env['budget.contractor.contract'].search([])[0].contractor_id.id
+        }
+        invoice_vals02 = {
+            'invoice_no': 'diff_vendor_same_invoice_no',
+            'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
+            'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
         }
 
-        invoice1 = self.env['budget.invoice.invoice'].create(invoice_vals)
-        self.assertTrue(invoice1.problem == 'duplicate', 'problem must be duplicate, but given {}'.
-                        format(invoice1.problem))
+        invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
+        invoice01.signal_workflow('verify')
+        self.env.cr.commit()
 
-        invoice_vals = {
-            'invoice_no': 'inv2',
-            'contractor_id': self.contractor_id.id
+        invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
+        self.env.cr.commit()
+
+        self.assertTrue(invoice01.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
+                        format(invoice01.problem))
+
+        self.assertTrue(invoice02.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
+                        format(invoice02.problem))
+
+    def test_duplicate_same_vendor_same_invoice_no(self):
+        """
+            Check DUPLICATE
+            Must be True
+            Invoices with same invoice_no and same contractor is duplicate
+        """
+
+        invoice_vals01 = {
+            'invoice_no': 'same_vendor_same_invoice_no',
+            'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
+            'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
         }
-        invoice2 = self.env['budget.invoice.invoice'].create(invoice_vals)
-        self.assertTrue(invoice2.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
-                        format(invoice2.problem))
+        invoice_vals02 = {
+            'invoice_no': 'same_vendor_same_invoice_no',
+            'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
+            'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
+        }
 
-        # Must not be Duplicate
-        invoice1.write({
-            'invoice_no': 'inv3'
-        })
-        self.assertTrue(invoice1.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
-                        format(invoice2.problem))
+        invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
+        invoice01.signal_workflow('verify')
+        self.env.cr.commit()
+
+        invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
+        self.env.cr.commit()
+
+        self.assertTrue(invoice01.problem == 'duplicate', 'problem must be duplicate, but given {}'.
+                        format(invoice01.problem))
+
+        self.assertTrue(invoice02.problem == 'duplicate', 'problem must be duplicate, but given {}'.
+                        format(invoice02.problem))
+
+    # def test_duplicate_updating(self):
+    #     """
+    #         Check DUPLICATE
+    #         Must be True
+    #         Invoices with same invoice_no and same contractor is duplicate
+    #     """
+    #
+    #     invoice_vals01 = {
+    #         'invoice_no': 'updating',
+    #         'contract_id': self.env['budget.contractor.contract'].search([])[0].id
+    #     }
+    #     invoice_vals02 = {
+    #         'invoice_no': 'updating',
+    #         'contract_id': self.env['budget.contractor.contract'].search([])[0].id
+    #     }
+    #
+    #     invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
+    #     invoice01.signal_workflow('verify')
+    #     self.env.cr.commit()
+    #
+    #     invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
+    #     self.env.cr.commit()
+    #
+    #     invoice01.write({
+    #         'invoice_no': 'updated'
+    #     })
+    #     self.env.cr.commit()
+    #
+    #     self.assertTrue(invoice01.problem != 'duplicate', 'problem must be duplicate, but given {}'.
+    #                     format(invoice01.problem))
+    #
+    #     self.assertTrue(invoice02.problem != 'duplicate', 'problem must be duplicate, but given {}'.
+    #                     format(invoice02.problem))
 
     def test_computations(self):
         invoice = self.env['budget.invoice.invoice'].create(
@@ -104,41 +163,41 @@ class TestInvoice(TransactionCase):
         )
 
         # CAPEX AMOUNT
-        self.assertTrue(invoice.capex_amount == 3000.00, "Capex Amount must be {}, Given {}".\
-                        format(14000.00,invoice.capex_amount))
+        self.assertTrue(invoice.capex_amount == 3000.00, "Capex Amount must be {}, Given {}". \
+                        format(14000.00, invoice.capex_amount))
 
         # OPEX AMOUNT
-        self.assertTrue(invoice.opex_amount == 4000.00, "Opex Amount must be {}, Given {}".\
-                        format(4000.00,invoice.opex_amount))
+        self.assertTrue(invoice.opex_amount == 4000.00, "Opex Amount must be {}, Given {}". \
+                        format(4000.00, invoice.opex_amount))
 
         # REVENUE AMOUNT
-        self.assertTrue(invoice.revenue_amount == 7000.00, "Revenue Amount must be {}, Given {}".\
-                        format(7000.00,invoice.revenue_amount))
+        self.assertTrue(invoice.revenue_amount == 7000.00, "Revenue Amount must be {}, Given {}". \
+                        format(7000.00, invoice.revenue_amount))
 
         # CEAR AMOUNT
-        self.assertTrue(invoice.cear_amount == 10000.00, "CEAR Amount must be {}, Given {}".\
-                        format(10000.00,invoice.cear_amount))
+        self.assertTrue(invoice.cear_amount == 10000.00, "CEAR Amount must be {}, Given {}". \
+                        format(10000.00, invoice.cear_amount))
         # OEAR AMOUNT
-        self.assertTrue(invoice.oear_amount == 4000.00, "OEAR Amount must be {}, Given {}".\
-                        format(4000.00,invoice.oear_amount))
+        self.assertTrue(invoice.oear_amount == 4000.00, "OEAR Amount must be {}, Given {}". \
+                        format(4000.00, invoice.oear_amount))
 
         # INVOICE AMOUNT
-        self.assertTrue(invoice.invoice_amount == 14000.00, "Invoice Amount must be {}, Given {}".\
-                        format(14000.00,invoice.invoice_amount))
+        self.assertTrue(invoice.invoice_amount == 14000.00, "Invoice Amount must be {}, Given {}". \
+                        format(14000.00, invoice.invoice_amount))
 
         # PENALTY AMOUNT
-        self.assertTrue(invoice.penalty_amount == 1960.00, "Penalty Amount must be {}, Given {}".\
-                        format(1960.00,invoice.penalty_amount))
+        self.assertTrue(invoice.penalty_amount == 1960.00, "Penalty Amount must be {}, Given {}". \
+                        format(1960.00, invoice.penalty_amount))
 
         # DISCOUNT AMOUNT
-        self.assertTrue(invoice.discount_amount == 1680.00, "Discount Amount must be {}, Given {}".\
-                        format(1680.00,invoice.discount_amount))
+        self.assertTrue(invoice.discount_amount == 1680.00, "Discount Amount must be {}, Given {}". \
+                        format(1680.00, invoice.discount_amount))
 
         # ON HOLD AMOUNT
         # HOLD AMOUNT is against certified amount
-        self.assertTrue(invoice.on_hold_amount == 1346.80, "On Hold Amount must be {}, Given {}".\
-                        format(1346.80,invoice.on_hold_amount))
+        self.assertTrue(invoice.on_hold_amount == 1346.80, "On Hold Amount must be {}, Given {}". \
+                        format(1346.80, invoice.on_hold_amount))
 
         # CERTIFIED INVOICE AMOUNT
-        self.assertTrue(invoice.certified_invoice_amount == 10360.00, "Certified Invoice Amount must be {}, Given {}".\
-                        format(10360.00,invoice.certified_invoice_amount))
+        self.assertTrue(invoice.certified_invoice_amount == 10360.00, "Certified Invoice Amount must be {}, Given {}". \
+                        format(10360.00, invoice.certified_invoice_amount))

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<openerp>
+<odoo>
     <data>
         <!--START INVOICE SUMMARY VIEWS-->
         <!--INVOICE SUMMARY FORM VIEW-->
@@ -145,4 +145,4 @@
         <!--END ACTIONS-->
 
     </data>
-</openerp>
+</odoo>
