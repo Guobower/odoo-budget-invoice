@@ -57,10 +57,11 @@ class InvoiceSummary(models.Model):
 
     # BASIC FIELDS
     # ----------------------------------------------------------
+    active = fields.Boolean(default=True, help="Set active to false to hide the tax without removing it.")
+    state = fields.Selection(STATES)
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     summary_no = fields.Char(string='Summary No',
                              default=lambda self: self._get_default_summary_no())
-    state = fields.Selection(STATES)
     form = fields.Selection(FORMS)
     signature = fields.Selection(SIGNATURES)
 
