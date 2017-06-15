@@ -217,15 +217,6 @@
                     <field name="contract_id"/>
                     <field name="po_id"/>
                     <filter
-                            name="my_activity"
-                            string="My Activities"
-                            domain="[('create_uid', '=', uid)]"/>
-                    <filter
-                            name="need_action"
-                            string="Need Action"
-                            domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
-                    <seperator/>
-                    <filter
                             name="regional"
                             string="Regional"
                             domain="[('team', '=', 'regional')]"/>
@@ -233,6 +224,15 @@
                             name="head_office"
                             string="Head Office"
                             domain="[('team', '=', 'head office')]"/>
+                    <seperator/>
+                    <filter
+                            name="my_activity"
+                            string="My Activities"
+                            domain="[('create_uid', '=', uid)]"/>
+                    <filter
+                            name="need_action"
+                            string="Need Action"
+                            domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
                     <seperator/>
                     <filter
                             name="volume_discount"
@@ -264,8 +264,8 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_need_action': 1,
                 'search_default_regional': 1,
+                'search_default_need_action': 1,
                 }
             </field>
         </record>
@@ -278,8 +278,8 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_need_action': 1,
                 'search_default_head_office': 1,
+                'search_default_need_action': 1,
                 }
             </field>
         </record>
