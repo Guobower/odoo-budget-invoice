@@ -221,23 +221,24 @@
                             string="My Activities"
                             domain="[('create_uid', '=', uid)]"/>
                     <filter
-                            name="volume_discount"
-                            string="Volume Discount"
-                            domain="[('state', 'in', ['verified', 'summary generated', 'under certification', 'sent to finance', 'closed'])]"/>
-                    <filter
                             name="need_action"
                             string="Need Action"
                             domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                    <seperator/>
                     <filter
-                            name="need_action_regional"
-                            string="Regional Need Action"
-                            domain="[('team', '=', 'regional'),
-                                     ('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                            name="regional"
+                            string="Regional"
+                            domain="[('team', '=', 'regional')]"/>
                     <filter
-                            name="need_action_head_office"
-                            string="Head Office Need Action"
-                            domain="[('team', '=', 'head office'),
-                                     ('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                            name="head_office"
+                            string="Head Office"
+                            domain="[('team', '=', 'head office')]"/>
+                    <seperator/>
+                    <filter
+                            name="volume_discount"
+                            string="Volume Discount"
+                            domain="[('state', 'in', ['verified', 'summary generated', 'under certification', 'sent to finance', 'closed'])]"/>
+
                 </search>
             </field>
         </record>
@@ -263,7 +264,8 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_need_action_regional': 1,
+                'search_default_need_action': 1,
+                'search_default_regional': 1,
                 }
             </field>
         </record>
@@ -276,7 +278,8 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_need_action_head_office': 1,
+                'search_default_need_action': 1,
+                'search_default_head_office': 1,
                 }
             </field>
         </record>
