@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
-from odoo.addons.budget_core.models.utilities import choices_tuple
+from odoo.addons.budget_utilities.models.utilities import choices_tuple
 
 from ..xlsx_creator.creator import Creator
 
@@ -79,8 +79,8 @@ class InvoiceSummary(models.Model):
                                    'budget_invoice_summary_invoice',
                                    'summary_id',
                                    'invoice_id')
-    section_id = fields.Many2one('res.partner', string='Section',
-                                 domain=[('is_budget_section', '=', True)])
+    # TODO REMOVE
+    section_id = fields.Many2one('res.partner', string='Section')
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------

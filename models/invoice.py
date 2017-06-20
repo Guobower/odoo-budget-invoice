@@ -2,7 +2,7 @@
 # TODO CHECK MECHANISM HOW TO APPLY DISCOUNT IN  CEAR
 # TODO MODIFY CONSTRAIN TO ALLOW DISCOUNT
 from odoo import models, fields, api, _
-from odoo.addons.budget_core.models.utilities import choices_tuple
+from odoo.addons.budget_utilities.models.utilities import choices_tuple
 
 from odoo.exceptions import ValidationError, UserError
 
@@ -129,11 +129,14 @@ class Invoice(models.Model):
                                    'summary_id',
                                    string='Summaries')
     region_id = fields.Many2one('budget.enduser.region', string="Region")
-
+    # TODO TRASFERING SECTION TO DIVISION
+    division_id = fields.Many2one('budget.enduser.section', string="Division")
     section_id = fields.Many2one('budget.enduser.section', string="Section")
-    old_section_id = fields.Many2one('res.partner', string="Old Section")
     sub_section_id = fields.Many2one('budget.enduser.sub.section', string="Sub Section")
+
+    # TODO DEPRECATE
     old_sub_section_id = fields.Many2one('res.partner', string="Old Sub Section")
+    old_section_id = fields.Many2one('res.partner', string="Old Section")
 
     # RELATED FIELDS
     # ----------------------------------------------------------
@@ -144,6 +147,7 @@ class Invoice(models.Model):
     def _onchange_contract_id(self):
         self.contractor_id = self.contract_id.contractor_id
 
+    # TODO ENHANCE AS MIXIN
     @api.onchange('sub_section_id')
     def _onchange_sub_section_id(self):
         self.section_id = self.sub_section_id.section_id

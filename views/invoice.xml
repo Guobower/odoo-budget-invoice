@@ -53,10 +53,11 @@
                                         <field name="contractor_id" options="{'no_create': True}"/>
                                         <field name="old_contractor_id" groups="base.group_system"/>
                                         <field name="po_id" options="{'no_create': True}"/>
-                                        <field name="sub_section_id" options="{'no_create': True}"/>
-                                        <field name="old_sub_section_id" groups="base.group_system"/>
+                                        <field name="division_id" options="{'no_create': True}"/>
                                         <field name="section_id" options="{'no_create': True}"/>
                                         <field name="old_section_id" groups="base.group_system"/>
+                                        <field name="sub_section_id" options="{'no_create': True}"/>
+                                        <field name="old_sub_section_id" groups="base.group_system"/>
                                     </group>
                                     <group>
                                         <field name="approval_ref"

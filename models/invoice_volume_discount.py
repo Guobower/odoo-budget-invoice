@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
-from odoo.addons.budget_core.models.utilities import choices_tuple
+from odoo.addons.budget_utilities.models.utilities import choices_tuple
 
 from datetime import datetime
 from collections import namedtuple
@@ -40,8 +40,7 @@ class InvoiceVolumeDiscount(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    contractor_id = fields.Many2one('res.partner',
-                                    domain="[('is_budget_contractor','=',True)]",
+    contractor_id = fields.Many2one('budget.contractor.contractor',
                                     string='Contractor'
                                     )
 

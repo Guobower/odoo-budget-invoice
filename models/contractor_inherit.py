@@ -2,9 +2,11 @@
 
 from odoo import models, fields, api
 
-class Contractor(models.Model):
-    _inherit = 'res.partner'
 
+class Contractor(models.Model):
+    _inherit = 'budget.contractor.contractor'
+
+    # TODO TO BE REMOVE
     is_budget_invoice_contractor = fields.Boolean(string='Is Budget Invoice Contractor')
 
     # RELATIONSHIPS
@@ -16,17 +18,18 @@ class Contractor(models.Model):
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     total_invoice = fields.Integer(compute='_compute_total_invoice', store=True)
+    # TODO RENAME TO INVOICE
     contractor_invoice_ids = fields.One2many('budget.invoice.invoice',
                                              compute='_compute_invoice_ids',
                                              string="Invoices"
                                              )
 
     @api.one
-    @api.depends('contractor_contract_ids.invoice_ids')
+    @api.depends('contract_ids.invoice_ids')
     def _compute_total_invoice(self):
-        self.total_invoice = len(self.mapped('contractor_contract_ids.invoice_ids'))
+        self.total_invoice = len(self.mapped('contract_ids.invoice_ids'))
 
     @api.one
-    @api.depends('contractor_contract_ids.invoice_ids')
+    @api.depends('contract_ids.invoice_ids')
     def _compute_invoice_ids(self):
-        self.contractor_invoice_ids = self.mapped('contractor_contract_ids.invoice_ids')
+        self.contractor_invoice_ids = self.mapped('contract_ids.invoice_ids')
