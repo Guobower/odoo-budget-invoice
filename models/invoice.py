@@ -54,7 +54,7 @@ class Invoice(models.Model):
     _rec_name = 'invoice_no'
     _description = 'Invoice'
     _order = 'sequence desc'
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread', 'budget.enduser.mixin']
 
     # CHOICES
     # ----------------------------------------------------------
@@ -69,6 +69,7 @@ class Invoice(models.Model):
 
     # BASIC FIELDS
     # ----------------------------------------------------------
+    # division_id, section_id, sub_section_id exist in enduser.mixin
     state = fields.Selection(STATES, default='draft', track_visibility='onchange')
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
     invoice_no = fields.Char(string="Invoice No")
@@ -129,10 +130,6 @@ class Invoice(models.Model):
                                    'summary_id',
                                    string='Summaries')
     region_id = fields.Many2one('budget.enduser.region', string="Region")
-    # TODO TRASFERING SECTION TO DIVISION
-    division_id = fields.Many2one('budget.enduser.section', string="Division")
-    section_id = fields.Many2one('budget.enduser.section', string="Section")
-    sub_section_id = fields.Many2one('budget.enduser.sub.section', string="Sub Section")
 
     # TODO DEPRECATE
     old_sub_section_id = fields.Many2one('res.partner', string="Old Sub Section")
@@ -146,11 +143,6 @@ class Invoice(models.Model):
     @api.onchange('contract_id')
     def _onchange_contract_id(self):
         self.contractor_id = self.contract_id.contractor_id
-
-    # TODO ENHANCE AS MIXIN
-    @api.onchange('sub_section_id')
-    def _onchange_sub_section_id(self):
-        self.section_id = self.sub_section_id.section_id
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
