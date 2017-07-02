@@ -93,6 +93,7 @@ class Invoice(models.Model):
     closed_date = fields.Date(string='Closed Date')
 
     remark = fields.Text(string='Remarks')
+    system_remark = fields.Text(string='System Remarks')
     description = fields.Text(string='Description')
     proj_no = fields.Char(string="PEC No")
 

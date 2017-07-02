@@ -36,6 +36,7 @@
                             <group groups="base.group_system">
                                 <field name="write_date"/>
                                 <field name="team"/>
+                                <field name="system_remark"/>
                             </group>
                             <h1>
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
