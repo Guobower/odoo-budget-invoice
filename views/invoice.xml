@@ -101,9 +101,30 @@
                             </page>
                             <page string="Financials">
                                 <group>
-                                    <field name="penalty_percentage"/>
-                                    <field name="on_hold_percentage"/>
-                                    <field name="discount_percentage"/>
+                                    <group>
+                                        <field name="is_penalty_percentage"/>
+                                        <field name="is_on_hold_percentage"/>
+                                        <field name="is_discount_percentage"/>
+                                    </group>
+                                    <group>
+                                        <field name="penalty_percentage"
+                                               attrs="{'invisible': [('is_penalty_percentage','=',False)]}"/>
+                                        <field name="input_penalty_amount"
+                                               attrs="{'invisible': [('is_penalty_percentage','=',True)]}"/>
+                                        <field name="on_hold_percentage"
+                                               attrs="{'invisible': [('is_on_hold_percentage','=',False)]}"/>
+                                        <field name="input_on_hold_amount"
+                                               attrs="{'invisible': [('is_on_hold_percentage','=',True)]}"/>
+                                        <field name="discount_percentage"
+                                               attrs="{'invisible': [('is_discount_percentage','=',False)]}"/>
+                                        <field name="input_discount_amount"
+                                               attrs="{'invisible': [('is_discount_percentage','=',True)]}"/>
+                                        <field name="other_deduction_percentage"
+                                               attrs="{'invisible': [('is_other_deduction_percentage','=',False)]}"/>
+                                        <field name="input_other_deduction_amount"
+                                               attrs="{'invisible': [('is_other_deduction_percentage','=',True)]}"/>
+                                    </group>
+
                                 </group>
                                 <group>
                                     <field name="amount_ids" context="{'default_invoice_id': id}">
@@ -168,9 +189,9 @@
                                         <field name="invoice_amount"/>
                                     </group>
                                     <group>
-                                        <field name="penalty_amount"/>
-                                        <field name="discount_amount"/>
-                                        <field name="on_hold_amount"/>
+                                        <field name="penalty_amount" attrs="{'readonly': True}"/>
+                                        <field name="discount_amount" attrs="{'readonly': True}"/>
+                                        <field name="on_hold_amount" attrs="{'readonly': True}"/>
                                         <field name="certified_invoice_amount"/>
                                     </group>
                                 </group>

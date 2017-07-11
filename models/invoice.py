@@ -9,7 +9,7 @@ from odoo.exceptions import ValidationError, UserError
 from dateutil.relativedelta import relativedelta
 
 
-# TODO ONCHANGE CONTRACT AND SECTION SHOULD BE CHANGE TO COMPUTE
+# TODO REVENUE OF HEAD OFFICE GOES TO OPEX ( CC-AC )
 # DUE TO REFLECT ALL CHANGES IN ALL SIDES
 def amount_setter(invoice=None, budget_type=None):
     if budget_type is None:
@@ -77,6 +77,19 @@ class Invoice(models.Model):
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
+    discount_percentage = fields.Float(string='Discount Percent (%)', digits=(5, 2))
+    other_deduction_percentage = fields.Float(string='Other Deduction Amount(%)', digits=(5, 2))
+
+    is_on_hold_percentage = fields.Boolean(string='Is On Hold (%)', default=True)
+    is_penalty_percentage = fields.Boolean(string='Is Penalty (%)', default=True)
+    is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
+    is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
+
+    input_on_hold_amount = fields.Monetary(currency_field='company_currency_id', string='On Hold Amount')
+    input_penalty_amount = fields.Monetary(currency_field='company_currency_id', string='Penalty Amount')
+    input_discount_amount = fields.Monetary(currency_field='company_currency_id', string='Discount Amount')
+    input_other_deduction_amount = fields.Monetary(currency_field='company_currency_id',
+                                                   string='Other Deduction Amount')
 
     period_start_date = fields.Date(string='Period Start Date')
     period_end_date = fields.Date(string='Period End Date')
@@ -165,11 +178,6 @@ class Invoice(models.Model):
                                index=True,
                                store=True,
                                help='Year is the invoice year against contract period (eg. contract start is 08/08/2017, year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
-    discount_percentage = fields.Float(string='Discount Percent (%)',
-                                       digits=(5, 2),
-                                       compute='_compute_discount_percentage',
-                                       inverse='_set_discount_percentage',
-                                       store=True)
     opex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                   compute='_compute_opex_amount',
                                   inverse='_set_opex_amount',
@@ -193,8 +201,10 @@ class Invoice(models.Model):
                                       string='Discount Amount')
     on_hold_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                      compute='_compute_on_hold_amount',
-                                     inverse='_set_on_hold_amount',
                                      string='On Hold Amount')
+    other_deduction_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                             compute='_compute_other_deduction_amount',
+                                             string='Other Deduction Amount')
     certified_invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
                                                string='Certified Amount')
@@ -277,29 +287,6 @@ class Invoice(models.Model):
             self.problem = '; '.join(uniq_problems)
 
     @api.one
-    @api.depends('invoice_date', 'contract_id')
-    def _compute_discount_percentage(self):
-        # TODO TO BE REMOVE
-        return
-        # if self.invoice_date:
-        #     reference_date = self.invoice_date
-        # elif self.contract_id:
-        #     reference_date = fields.Date.today()
-        # else:
-        #     self.discount_percentage = 0.00
-        #     return
-        #
-        # volume_discount_id = self.contract_id.volume_discount_ids. \
-        #     search([('start_date', '<=', reference_date),
-        #             ('end_date', '>=', reference_date),
-        #             ('contract_id', '=', self.contract_id.id)])
-        #
-        # if len(volume_discount_id) == 0:
-        #     self.discount_percentage = 0.00
-        # else:
-        #     self.discount_percentage = volume_discount_id.discount_percentage
-
-    @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_opex_amount(self):
         self.opex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type == 'opex'). \
@@ -325,24 +312,55 @@ class Invoice(models.Model):
                               self.revenue_amount
 
     @api.one
-    @api.depends('penalty_percentage', 'invoice_amount')
+    @api.depends('is_penalty_percentage', 'penalty_percentage',
+                 'input_penalty_amount', 'invoice_amount')
     def _compute_penalty_amount(self):
-        self.penalty_amount = self.invoice_amount * self.penalty_percentage / 100
+        if self.is_penalty_percentage:
+            self.penalty_amount = self.invoice_amount * self.penalty_percentage / 100
+            self.input_penalty_amount = 0
+            return
+        self.penalty_amount = self.input_penalty_amount
+        self.penalty_percentage = 0
 
     @api.one
-    @api.depends('discount_percentage', 'invoice_amount')
+    @api.depends('is_discount_percentage', 'discount_percentage',
+                 'input_discount_amount', 'invoice_amount')
     def _compute_discount_amount(self):
-        self.discount_amount = self.invoice_amount * self.discount_percentage / 100
+        if self.is_discount_percentage:
+            self.discount_amount = self.invoice_amount * self.discount_percentage / 100
+            self.input_discount_amount = 0
+            return
+        self.discount_amount = self.input_discount_amount
+        self.discount_percentage = 0
 
     @api.one
-    @api.depends('on_hold_percentage', 'certified_invoice_amount')
+    @api.depends('is_on_hold_percentage', 'on_hold_percentage',
+                 'input_on_hold_amount', 'invoice_amount')
     def _compute_on_hold_amount(self):
-        self.on_hold_amount = self.certified_invoice_amount * self.on_hold_percentage / 100
+        if self.is_on_hold_percentage:
+            self.on_hold_amount = self.invoice_amount * self.on_hold_percentage / 100
+            self.input_on_hold_amount = 0
+            return
+        self.on_hold_amount = self.input_on_hold_amount
+        self.on_hold_percentage = 0
 
     @api.one
-    @api.depends('invoice_amount', 'penalty_amount', 'discount_amount')
+    @api.depends('is_other_deduction_percentage', 'other_deduction_percentage',
+                 'input_other_deduction_amount', 'invoice_amount')
+    def _compute_other_deduction_amount(self):
+        if self.is_other_deduction_percentage:
+            self.other_deduction_amount = self.invoice_amount * self.other_deduction_percentage / 100
+            self.input_other_deduction_amount = 0
+            return
+        self.other_deduction_amount = self.input_other_deduction_amount
+        self.other_deduction_percentage = 0
+
+    @api.one
+    @api.depends('invoice_amount', 'penalty_amount', 'discount_amount',
+                 'on_hold_amount', 'other_deduction_amount')
     def _compute_certified_invoice_amount(self):
-        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount - self.discount_amount
+        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount - self.discount_amount - \
+                                        self.on_hold_amount - self.other_deduction_amount
 
     @api.one
     @api.depends('cear_allocation_ids', 'capex_amount', 'revenue_amount')
@@ -358,15 +376,15 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     @api.one
     def _set_penalty_amount(self):
-        self.penalty_percentage = self.penalty_amount / self.certified_invoice_amount * 100
+        return
 
     @api.one
     def _set_discount_amount(self):
-        self.discount_percentage = self.discount_amount / self.certified_invoice_amount * 100
+        return
 
     @api.one
     def _set_on_hold_amount(self):
-        self.on_hold_percentage = self.on_hold_amount / self.certified_invoice_amount * 100
+        return
 
     @api.one
     def _set_capex_amount(self):
@@ -379,10 +397,6 @@ class Invoice(models.Model):
     @api.one
     def _set_opex_amount(self):
         amount_setter(invoice=self, budget_type='opex')
-
-    @api.one
-    def _set_discount_percentage(self):
-        return
 
     @api.one
     def _set_year_rfs(self):
@@ -400,6 +414,7 @@ class Invoice(models.Model):
         ('penalty_percentage_min_max', 'CHECK (penalty_percentage BETWEEN 0 AND 100)',
          'Penalty Percentage must be with in 0-100'),
     ]
+
 
     @api.one
     @api.constrains('cear_amount', 'cear_allocation_ids')

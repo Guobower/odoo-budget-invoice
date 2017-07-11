@@ -7,6 +7,7 @@ from odoo.addons.budget_utilities.models.utilities import choices_tuple
 from datetime import datetime
 from collections import namedtuple
 
+
 def check_overlapping_dates(start_1, end_1, start_2, end_2, frmt='%Y-%m-%d'):
     start_1 = datetime.strptime(start_1, frmt)
     end_1 = datetime.strptime(end_1, frmt)
@@ -18,6 +19,7 @@ def check_overlapping_dates(start_1, end_1, start_2, end_2, frmt='%Y-%m-%d'):
     latest_start = max(r1.start, r2.start)
     earliest_end = min(r1.end, r2.end)
     return (earliest_end - latest_start).days + 1
+
 
 # TODO MAKE VALIDATION FOR OVERLAPPING DATES
 # TODO MAKE VALIDATION START DATE CANNOT BE GREATER THAN END DATE
@@ -45,9 +47,9 @@ class InvoiceVolumeDiscount(models.Model):
                                     )
 
     contract_id = fields.Many2one('budget.contractor.contract',
-                                    domain="[('contractor_id','=',contractor_id)]",
-                                    string='Contract'
-                                    )
+                                  domain="[('contractor_id','=',contractor_id)]",
+                                  string='Contract'
+                                  )
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     end_date = fields.Date(string='End Date',

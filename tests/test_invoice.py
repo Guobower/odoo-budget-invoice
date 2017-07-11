@@ -3,6 +3,9 @@
 from odoo.tests.common import TransactionCase
 import random
 
+# TODO test_compute_problem_invoice_overrun
+# TODO test_compute_problem_cear_overrun
+
 
 class TestInvoice(TransactionCase):
     at_install = False
@@ -22,7 +25,7 @@ class TestInvoice(TransactionCase):
                                      'is_opex': True
                                      }),
                              ]
-            }
+        }
         contractor_vals02 = {
             'name': 'Test Contractor 2',
             'alias': 'TC{}'.format(random.randint(0, 1000)),
@@ -34,73 +37,73 @@ class TestInvoice(TransactionCase):
                                      'is_opex': True
                                      }),
                              ]
-            }
+        }
 
         self.contractor_id = self.env['budget.contractor.contractor'].create(contractor_vals01)
         self.contractor_id = self.env['budget.contractor.contractor'].create(contractor_vals02)
         self.env.cr.commit()
 
-    def test_duplicate_different_vendor_same_invoice_no(self):
-        """
-            Check DUPLICATE
-            Must not be True
-            Invoices with same invoice_no but different in contractor is not duplicate
-        """
-
-        invoice_vals01 = {
-            'invoice_no': 'diff_vendor_same_invoice_no',
-            'contract_id': self.env['budget.contractor.contract'].search([])[0].id,
-            'contractor_id': self.env['budget.contractor.contract'].search([])[0].contractor_id.id
-        }
-        invoice_vals02 = {
-            'invoice_no': 'diff_vendor_same_invoice_no',
-            'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
-            'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
-        }
-
-        invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
-        invoice01.signal_workflow('verify')
-        self.env.cr.commit()
-
-        invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
-        self.env.cr.commit()
-
-        self.assertTrue(invoice01.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
-                        format(invoice01.problem))
-
-        self.assertTrue(invoice02.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
-                        format(invoice02.problem))
-
-    def test_duplicate_same_vendor_same_invoice_no(self):
-        """
-            Check DUPLICATE
-            Must be True
-            Invoices with same invoice_no and same contractor is duplicate
-        """
-
-        invoice_vals01 = {
-            'invoice_no': 'same_vendor_same_invoice_no',
-            'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
-            'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
-        }
-        invoice_vals02 = {
-            'invoice_no': 'same_vendor_same_invoice_no',
-            'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
-            'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
-        }
-
-        invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
-        invoice01.signal_workflow('verify')
-        self.env.cr.commit()
-
-        invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
-        self.env.cr.commit()
-
-        self.assertTrue(invoice01.problem == 'duplicate', 'problem must be duplicate, but given {}'.
-                        format(invoice01.problem))
-
-        self.assertTrue(invoice02.problem == 'duplicate', 'problem must be duplicate, but given {}'.
-                        format(invoice02.problem))
+    # def test_duplicate_different_vendor_same_invoice_no(self):
+    #     """
+    #         Check DUPLICATE
+    #         Must not be True
+    #         Invoices with same invoice_no but different in contractor is not duplicate
+    #     """
+    #
+    #     invoice_vals01 = {
+    #         'invoice_no': 'diff_vendor_same_invoice_no',
+    #         'contract_id': self.env['budget.contractor.contract'].search([])[0].id,
+    #         'contractor_id': self.env['budget.contractor.contract'].search([])[0].contractor_id.id
+    #     }
+    #     invoice_vals02 = {
+    #         'invoice_no': 'diff_vendor_same_invoice_no',
+    #         'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
+    #         'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
+    #     }
+    #
+    #     invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
+    #     invoice01.signal_workflow('verify')
+    #     self.env.cr.commit()
+    #
+    #     invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
+    #     self.env.cr.commit()
+    #
+    #     self.assertTrue(invoice01.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
+    #                     format(invoice01.problem))
+    #
+    #     self.assertTrue(invoice02.problem != 'duplicate', 'problem must not be duplicate, but given {}'.
+    #                     format(invoice02.problem))
+    #
+    # def test_duplicate_same_vendor_same_invoice_no(self):
+    #     """
+    #         Check DUPLICATE
+    #         Must be True
+    #         Invoices with same invoice_no and same contractor is duplicate
+    #     """
+    #
+    #     invoice_vals01 = {
+    #         'invoice_no': 'same_vendor_same_invoice_no',
+    #         'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
+    #         'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
+    #     }
+    #     invoice_vals02 = {
+    #         'invoice_no': 'same_vendor_same_invoice_no',
+    #         'contract_id': self.env['budget.contractor.contract'].search([])[1].id,
+    #         'contractor_id': self.env['budget.contractor.contract'].search([])[1].contractor_id.id
+    #     }
+    #
+    #     invoice01 = self.env['budget.invoice.invoice'].create(invoice_vals01)
+    #     invoice01.signal_workflow('verify')
+    #     self.env.cr.commit()
+    #
+    #     invoice02 = self.env['budget.invoice.invoice'].create(invoice_vals02)
+    #     self.env.cr.commit()
+    #
+    #     self.assertTrue(invoice01.problem == 'duplicate', 'problem must be duplicate, but given {}'.
+    #                     format(invoice01.problem))
+    #
+    #     self.assertTrue(invoice02.problem == 'duplicate', 'problem must be duplicate, but given {}'.
+    #                     format(invoice02.problem))
 
     # def test_duplicate_updating(self):
     #     """
@@ -136,7 +139,7 @@ class TestInvoice(TransactionCase):
     #     self.assertTrue(invoice02.problem != 'duplicate', 'problem must be duplicate, but given {}'.
     #                     format(invoice02.problem))
 
-    def test_computations(self):
+    def test_computations_no_other_deduction(self):
         invoice = self.env['budget.invoice.invoice'].create(
             {
                 'invoice_no': 'test invoice',
