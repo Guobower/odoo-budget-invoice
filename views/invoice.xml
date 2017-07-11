@@ -105,6 +105,7 @@
                                         <field name="is_penalty_percentage"/>
                                         <field name="is_on_hold_percentage"/>
                                         <field name="is_discount_percentage"/>
+                                        <field name="is_other_deduction_percentage"/>
                                     </group>
                                     <group>
                                         <field name="penalty_percentage"
@@ -176,8 +177,8 @@
                             <page string="Summary">
                                 <group>
                                     <group>
-                                        <field name="year_rfs"/>
-                                        <field name="year_invoice"/>
+                                        <field name="year_rfs" attrs="{'readonly': True}"/>
+                                        <field name="year_invoice" attrs="{'readonly': True}"/>
                                     </group>
                                     <group></group>
                                 </group>
