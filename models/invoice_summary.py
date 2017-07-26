@@ -45,7 +45,7 @@ class InvoiceSummary(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['draft', 'file generated', 'under certification',
+    STATES = choices_tuple(['draft', 'file generated', 'sd signed',  'svp signed', 'cto signed',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
     SIGNATURES = choices_tuple(['cse.png', 'fan.png', '713h_1.png', '713h_2.png'])
     FORMS = choices_tuple([
@@ -67,7 +67,14 @@ class InvoiceSummary(models.Model):
 
     objective = fields.Selection(OBJECTIVES, default='invoice certification')
 
+    # TODO DEPRECATE
     signed_date = fields.Date(string='Signed Date')
+    # --------------
+
+    sd_signed_date = fields.Date(string='SD Signed Date')
+    svp_signed_date = fields.Date(string='SVP Signed Date')
+    cto_signed_date = fields.Date(string='CTO Signed Date')
+
     closed_date = fields.Date(string='Closed Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
     sequence = fields.Integer(string='Sequence')
@@ -408,16 +415,32 @@ class InvoiceSummary(models.Model):
         self.state = 'file generated'
 
     @api.one
-    def set2under_certification(self):
+    def set2sd_signed(self):
+        if self.sd_signed_date is False:
+            raise ValidationError('SD Signed Date is Required')
         for invoice in self.invoice_ids:
-            invoice.signal_workflow('certify')
-        self.state = 'under certification'
+            invoice.signal_workflow('sd_sign')
+        self.state = 'sd signed'
+
+    @api.one
+    def set2svp_signed(self):
+        if self.svp_signed_date is False:
+            raise ValidationError('SVP Signed Date is Required')
+        for invoice in self.invoice_ids:
+            invoice.signal_workflow('svp_sign')
+        self.state = 'svp signed'
+
+    @api.one
+    def set2cto_signed(self):
+        if self.cto_signed_date is False:
+            raise ValidationError('CTO Signed Date is Required')
+        for invoice in self.invoice_ids:
+            invoice.signal_workflow('cto_sign')
+        self.state = 'cto signed'
 
     @api.one
     def set2sent_to_finance(self):
-        if self.signed_date is False:
-            raise ValidationError('Signed Date is Required')
-        elif self.sent_finance_date is False:
+        if self.sent_finance_date is False:
             raise ValidationError('Sent to Finance Date is Required')
 
         for invoice in self.invoice_ids:

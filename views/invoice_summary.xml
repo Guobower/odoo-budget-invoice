@@ -20,16 +20,28 @@
                                 name="generate"
                                 type="workflow"
                                 states="draft"/>
+
                         <button
-                                string="Certify"
-                                name="under_certification"
+                                string="SD Sign"
+                                name="sd_sign"
                                 type="workflow"
                                 states="file generated"/>
+                        <button
+                                string="SVP Sign"
+                                name="svp_sign"
+                                type="workflow"
+                                states="sd signed"/>
+                        <button
+                                string="CTO Sign"
+                                name="cto_sign"
+                                type="workflow"
+                                states="svp signed"/>
+
                         <button
                                 string="Send to Finance"
                                 name="sent_to_finance"
                                 type="workflow"
-                                states="under certification"/>
+                                states="cto signed"/>
                         <button
                                 string="Close"
                                 name="closed"
@@ -39,9 +51,9 @@
                                 string="Cancel"
                                 name="cancel"
                                 type="workflow"
-                                states="draft,file generated,under certification,sent to finance"/>
+                                states="draft,file generated,sd signed,svp signed,cto signed,sent to finance"/>
                         <field name="state" widget="statusbar"
-                        statusbar_visible="draft,file generated,under certification,sent to finance,closed"/>
+                        statusbar_visible="draft,file generated,sd signed,svp signed,cto signed,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="box">
@@ -54,6 +66,9 @@
                         <div class="oe_title">
                             <group groups="base.group_system">
                                 <field name="invoice_state_filter"/>
+                                <!-- TODO DEPRECATE -->
+                                <field name="signed_date"/>
+                                <!-- ############## -->
                             </group>
 
                             <h1>
@@ -65,7 +80,9 @@
                                 <field name="objective"/>
                                 <field name="form" attrs="{'required': True}"/>
                                 <field name="signature" attrs="{'required': True}"/>
-                                <field name="signed_date"/>
+                                <field name="sd_signed_date"/>
+                                <field name="svp_signed_date"/>
+                                <field name="cto_signed_date"/>
                                 <field name="sent_finance_date"/>
                                 <field name="closed_date"/>
                             </group>

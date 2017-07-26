@@ -62,7 +62,7 @@ class CearAllocation(models.Model):
             return
         cear_im_utilized = self.cear_id.im_utilized_amount
         cear_fn_utilized = self.cear_id.fn_utilized_amount
-        cear_authorized =  self.cear_id.authorized_amount
+        cear_authorized = self.cear_id.authorized_amount
         invoice_certified_invoice = self.invoice_id.certified_invoice_amount
 
         if cear_im_utilized + invoice_certified_invoice > cear_authorized:

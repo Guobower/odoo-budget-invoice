@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# TODO CHECK MECHANISM HOW TO APPLY DISCOUNT IN  CEAR
-# TODO MODIFY CONSTRAIN TO ALLOW DISCOUNT
 from odoo import models, fields, api, _
 from odoo.addons.budget_utilities.models.utilities import choices_tuple
 
@@ -58,8 +56,8 @@ class Invoice(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['draft', 'verified', 'summary generated',
-                            'under certification', 'sent to finance', 'closed',
+    STATES = choices_tuple(['draft', 'verified', 'summary generated', 'sd signed',  'svp signed',
+                            'cto signed', 'sent to finance', 'closed',
                             'on hold', 'rejected', 'amount hold'], is_sorted=False)
     TEAMS = choices_tuple(['head office', 'regional'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works',
@@ -91,13 +89,20 @@ class Invoice(models.Model):
     input_other_deduction_amount = fields.Monetary(currency_field='company_currency_id',
                                                    string='Other Deduction Amount')
 
+    # TODO DEPRECATE
     period_start_date = fields.Date(string='Period Start Date')
     period_end_date = fields.Date(string='Period End Date')
+    # ---------------
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
     received_date = fields.Date(string='Received Date', default=lambda self: fields.Date.today())
+    # TODO DEPRECATE
     signed_date = fields.Date(string='Signed Date')
+    # ---------------
+    sd_signed_date = fields.Date(string='SD Signed Date')
+    svp_signed_date = fields.Date(string='SVP Signed Date')
+    cto_signed_date = fields.Date(string='CTO Signed Date')
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')
     rfs_date = fields.Date(string='RFS Date')
@@ -456,8 +461,16 @@ class Invoice(models.Model):
         self.state = 'summary generated'
 
     @api.one
-    def set2under_certification(self):
-        self.state = 'under certification'
+    def set2sd_signed(self):
+        self.state = 'sd signed'
+
+    @api.one
+    def set2svp_signed(self):
+        self.state = 'svp signed'
+
+    @api.one
+    def set2cto_signed(self):
+        self.state = 'cto signed'
 
     @api.one
     def set2sent_to_finance(self):

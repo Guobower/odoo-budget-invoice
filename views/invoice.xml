@@ -27,7 +27,7 @@
                                 states="draft,verified,on hold"/>
 
                         <field name="state" widget="statusbar"
-                               statusbar_visible="draft,verified,summary generated,under certification,sent to finance,closed"/>
+                               statusbar_visible="draft,verified,summary generated,sd signed,svp signed,cto signed,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -37,6 +37,9 @@
                                 <field name="write_date"/>
                                 <field name="team"/>
                                 <field name="system_remark"/>
+                                <!-- TODO DEPRECATE -->
+                                <field name="signed_date"/>
+                                <!-- ############## -->
                             </group>
                             <h1>
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
@@ -74,7 +77,7 @@
                                         <field name="received_date"/>
                                         <field name="invoice_date"/>
                                         <field name="invoice_cert_date"/>
-                                        <field name="period_start_date"/>
+
                                     </group>
                                     <group>
                                         <field name="start_date"/>
@@ -82,7 +85,9 @@
                                         <field name="rfs_date"/>
                                     </group>
                                     <group>
-                                        <field name="signed_date"/>
+                                        <field name="sd_signed_date"/>
+                                        <field name="svp_signed_date"/>
+                                        <field name="cto_signed_date"/>
                                         <field name="sent_finance_date"/>
                                         <field name="closed_date"/>
                                         <field name="reject_date"/>

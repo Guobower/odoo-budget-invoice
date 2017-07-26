@@ -22,11 +22,23 @@
         <field name="kind">function</field>
         <field name="action">set2file_generated()</field>
     </record>
-    <record model="workflow.activity" id="act_invoice_summary_under_certification">
-        <field name="name">Under Certification</field>
+    <record model="workflow.activity" id="act_invoice_summary_sd_signed">
+        <field name="name">sd signed</field>
         <field name="wkf_id" ref="wkf_budget_invoice_summary"/>
         <field name="kind">function</field>
-        <field name="action">set2under_certification()</field>
+        <field name="action">set2sd_signed()</field>
+    </record>
+    <record model="workflow.activity" id="act_invoice_summary_svp_signed">
+        <field name="name">svp signed</field>
+        <field name="wkf_id" ref="wkf_budget_invoice_summary"/>
+        <field name="kind">function</field>
+        <field name="action">set2svp_signed()</field>
+    </record>
+    <record model="workflow.activity" id="act_invoice_summary_cto_signed">
+        <field name="name">cto signed</field>
+        <field name="wkf_id" ref="wkf_budget_invoice_summary"/>
+        <field name="kind">function</field>
+        <field name="action">set2cto_signed()</field>
     </record>
     <record model="workflow.activity" id="act_invoice_summary_sent_to_finance">
         <field name="name">Sent to Finance</field>
@@ -55,13 +67,23 @@
         <field name="act_to" ref="act_invoice_summary_file_generated"/>
         <field name="signal">generate</field>
     </record>
-    <record model="workflow.transition" id="invoice_summary_file_generated_to_under_certification">
+    <record model="workflow.transition" id="invoice_summary_file_generated_to_sd_signed">
         <field name="act_from" ref="act_invoice_summary_file_generated"/>
-        <field name="act_to" ref="act_invoice_summary_under_certification"/>
-        <field name="signal">under_certification</field>
+        <field name="act_to" ref="act_invoice_summary_sd_signed"/>
+        <field name="signal">sd_sign</field>
     </record>
-    <record model="workflow.transition" id="invoice_summary_under_certification_to_sent_to_finance">
-        <field name="act_from" ref="act_invoice_summary_under_certification"/>
+    <record model="workflow.transition" id="invoice_summary_sd_signed_to_svp_signed">
+        <field name="act_from" ref="act_invoice_summary_sd_signed"/>
+        <field name="act_to" ref="act_invoice_summary_svp_signed"/>
+        <field name="signal">svp_sign</field>
+    </record>
+    <record model="workflow.transition" id="invoice_summary_svp_signed_to_cto_signed">
+        <field name="act_from" ref="act_invoice_summary_svp_signed"/>
+        <field name="act_to" ref="act_invoice_summary_cto_signed"/>
+        <field name="signal">cto_sign</field>
+    </record>
+    <record model="workflow.transition" id="invoice_summary_cto_signed_to_sent_to_finance">
+        <field name="act_from" ref="act_invoice_summary_cto_signed"/>
         <field name="act_to" ref="act_invoice_summary_sent_to_finance"/>
         <field name="signal">sent_to_finance</field>
     </record>
@@ -81,8 +103,18 @@
         <field name="act_to" ref="act_invoice_summary_canceled"/>
         <field name="signal">cancel</field>
     </record>
-    <record model="workflow.transition" id="invoice_summary_under_certification_to_canceled">
-        <field name="act_from" ref="act_invoice_summary_under_certification"/>
+    <record model="workflow.transition" id="invoice_summary_sd_signed_to_canceled">
+        <field name="act_from" ref="act_invoice_summary_sd_signed"/>
+        <field name="act_to" ref="act_invoice_summary_canceled"/>
+        <field name="signal">cancel</field>
+    </record>
+    <record model="workflow.transition" id="invoice_summary_svp_signed_to_canceled">
+        <field name="act_from" ref="act_invoice_summary_svp_signed"/>
+        <field name="act_to" ref="act_invoice_summary_canceled"/>
+        <field name="signal">cancel</field>
+    </record>
+    <record model="workflow.transition" id="invoice_summary_cto_signed_to_canceled">
+        <field name="act_from" ref="act_invoice_summary_cto_signed"/>
         <field name="act_to" ref="act_invoice_summary_canceled"/>
         <field name="signal">cancel</field>
     </record>
