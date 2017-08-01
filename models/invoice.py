@@ -106,9 +106,11 @@ class Invoice(models.Model):
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')
     rfs_date = fields.Date(string='RFS Date')
-    reject_date = fields.Date(string='Reject Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
     closed_date = fields.Date(string='Closed Date')
+
+    on_hold_date = fields.Date(string='On Hold Date')
+    reject_date = fields.Date(string='Reject Date')
 
     remark = fields.Text(string='Remarks')
     system_remark = fields.Text(string='System Remarks')
@@ -130,7 +132,7 @@ class Invoice(models.Model):
     po_id = fields.Many2one('budget.purchase.order',
                             string='Purchase Order')
 
-    # TODO TO BE REMOVED ONCE FINALIZE
+    # TODO DEPRECATED ONCE ALDREADY TRANSFERED TO OEARS
     account_code_id = fields.Many2one('budget.core.account.code', string='Account Code')
     cost_center_id = fields.Many2one('budget.core.cost.center', string='Cost Center')
 
@@ -491,6 +493,13 @@ class Invoice(models.Model):
     @api.one
     def set2amount_hold(self):
         self.state = 'amount hold'
+
+    @api.one
+    def reset(self):
+        if self.summary_ids:
+            raise ValidationError("Must not be part of a Summary, Please Remove")
+        self.delete_workflow()
+        self.create_workflow()
 
     # ADDITIONAL FUNCTIONS
     # ----------------------------------------------------------

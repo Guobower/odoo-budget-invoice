@@ -11,6 +11,11 @@
                 <form string="Invoice">
                     <header>
                         <button
+                                string="Reset"
+                                name="reset"
+                                type="object"
+                                states="verified,on hold"/>
+                        <button
                                 string="Verify"
                                 name="verify"
                                 type="workflow"
@@ -30,17 +35,25 @@
                                statusbar_visible="draft,verified,summary generated,sd signed,svp signed,cto signed,sent to finance,closed"/>
                     </header>
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                        </div>
-                        <div class="oe_title">
-                            <group groups="base.group_system">
+                        <group groups="base.group_system">
+                            <group>
                                 <field name="write_date"/>
                                 <field name="team"/>
                                 <field name="system_remark"/>
+                            </group>
+                            <group string="DEPRECATED">
                                 <!-- TODO DEPRECATE -->
                                 <field name="signed_date"/>
-                                <!-- ############## -->
+                                <field name="old_section_id"/>
+                                <field name="old_sub_section_id"/>
+                                <field name="old_contractor_id"/>
+                                <field name="cost_center_id" options="{'no_create': True}"/>
+                                <field name="account_code_id" options="{'no_create': True}"/>
                             </group>
+                        </group>
+                        <div class="oe_button_box" name="button_box">
+                        </div>
+                        <div class="oe_title">
                             <h1>
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
                             </h1>
@@ -55,19 +68,14 @@
                                         <field name="region_id" options="{'no_create': True}"/>
                                         <field name="contract_id" options="{'no_create': True}"/>
                                         <field name="contractor_id" options="{'no_create': True}"/>
-                                        <field name="old_contractor_id" groups="base.group_system"/>
                                         <field name="po_id" options="{'no_create': True}"/>
                                         <field name="division_id" options="{'no_create': True}"/>
                                         <field name="section_id" options="{'no_create': True}"/>
-                                        <field name="old_section_id" groups="base.group_system"/>
                                         <field name="sub_section_id" options="{'no_create': True}"/>
-                                        <field name="old_sub_section_id" groups="base.group_system"/>
                                     </group>
                                     <group>
                                         <field name="approval_ref"
                                                attrs="{'invisible': [('team','!=','head office')]}"/>
-                                        <field name="cost_center_id" options="{'no_create': True}"/>
-                                        <field name="account_code_id" options="{'no_create': True}"/>
                                         <field name="proj_no"/>
                                     </group>
                                 </group>
@@ -84,7 +92,7 @@
                                         <field name="end_date"/>
                                         <field name="rfs_date"/>
                                     </group>
-                                    <group>
+                                    <group attrs="{'invisible': [('write_date','=',False)]}">
                                         <field name="sd_signed_date"/>
                                         <field name="svp_signed_date"/>
                                         <field name="cto_signed_date"/>
@@ -170,8 +178,8 @@
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_system"/>
                                             <field name="sequence" widget="handle"/>
-                                            <field name="cost_center_id"/>
-                                            <field name="account_code_id"/>
+                                            <field name="cost_center_id" required="1" options="{'no_create': True}"/>
+                                            <field name="account_code_id" required="1" options="{'no_create': True}"/>
                                             <field name="oear_id"/>
                                             <field name="related_accrued_amount" readonly="1"/>
                                             <field name="amount" required="1" sum="1"/>
@@ -185,7 +193,9 @@
                                         <field name="year_rfs" attrs="{'readonly': True}"/>
                                         <field name="year_invoice" attrs="{'readonly': True}"/>
                                     </group>
-                                    <group></group>
+                                    <group>
+                                        <field name="certified_invoice_amount"/>
+                                    </group>
                                 </group>
                                 <group>
                                     <group>
@@ -198,7 +208,7 @@
                                         <field name="penalty_amount" attrs="{'readonly': True}"/>
                                         <field name="discount_amount" attrs="{'readonly': True}"/>
                                         <field name="on_hold_amount" attrs="{'readonly': True}"/>
-                                        <field name="certified_invoice_amount"/>
+                                        <field name="other_deduction_amount" attrs="{'readonly': True}"/>
                                     </group>
                                 </group>
                             </page>

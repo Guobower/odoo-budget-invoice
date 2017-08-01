@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.addons.budget_utilities.models.utilities import choices_tuple
 
 from ..xlsx_creator.creator import Creator
+from openpyxl.styles import Font
 
 
 def create_allocation_sheet(summary=None, wb=None):
@@ -45,7 +46,7 @@ class InvoiceSummary(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['draft', 'file generated', 'sd signed',  'svp signed', 'cto signed',
+    STATES = choices_tuple(['draft', 'file generated', 'sd signed', 'svp signed', 'cto signed',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
     SIGNATURES = choices_tuple(['cse.png', 'fan.png', '713h_1.png', '713h_2.png'])
     FORMS = choices_tuple([
@@ -196,6 +197,12 @@ class InvoiceSummary(models.Model):
         # INSERT HEADER LOGO AND SIGNATURE
         ws.add_image(creator.logo, logo_coor)
         ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+        # FORMAT FOOTER
+        footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
+
+        footter_cell.font = Font(size=11, bold=True)
+        ws.row_dimensions[footter_cell.row].height = 60
 
         # SAVE FINAL ATTACHMENT
         creator.save()
@@ -398,7 +405,7 @@ class InvoiceSummary(models.Model):
     def set2file_generated(self):
         if len(self.invoice_ids) == 0:
             raise ValidationError('Empty Invoice List')
-        
+
         creator = Creator(summary_no=self.summary_no,
                           summary_res_id=self.id,
                           signature=self.signature,
