@@ -56,7 +56,7 @@ class Invoice(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = choices_tuple(['draft', 'verified', 'summary generated', 'sd signed',  'svp signed',
+    STATES = choices_tuple(['draft', 'verified', 'summary generated', 'sd signed', 'svp signed',
                             'cto signed', 'sent to finance', 'closed',
                             'on hold', 'rejected', 'amount hold'], is_sorted=False)
     TEAMS = choices_tuple(['head office', 'regional'], is_sorted=False)
@@ -64,6 +64,9 @@ class Invoice(models.Model):
                                    'damage case', 'development', 'fdh uplifting', 'fttm activities',
                                    'maintenance work', 'man power', 'mega project', 'migration',
                                    'on demand activities', 'provisioning', 'recharge', 'recovery'], is_sorted=False)
+    MMS_MONTH = choices_tuple(['jan', 'feb', 'mar', 'apr', 'may', 'jun',
+                               'jul', 'aug', 'sep', 'oct', 'nov', 'dec'], is_sorted=False)
+    MMS_YEAR = choices_tuple([str(i) for i in range(2005, 2025)], is_sorted=False)
 
     # BASIC FIELDS
     # ----------------------------------------------------------
@@ -72,6 +75,9 @@ class Invoice(models.Model):
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
     invoice_no = fields.Char(string="Invoice No")
     approval_ref = fields.Char(string="Approval Ref")
+    mms_no = fields.Char(string="MMS No")
+    mms_month = fields.Selection(MMS_MONTH, string="MMS Month")
+    mms_year = fields.Selection(MMS_YEAR, string="MMS Year")
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
@@ -421,7 +427,6 @@ class Invoice(models.Model):
         ('penalty_percentage_min_max', 'CHECK (penalty_percentage BETWEEN 0 AND 100)',
          'Penalty Percentage must be with in 0-100'),
     ]
-
 
     @api.one
     @api.constrains('cear_amount', 'cear_allocation_ids')

@@ -74,9 +74,15 @@
                                         <field name="sub_section_id" options="{'no_create': True}"/>
                                     </group>
                                     <group>
+                                        <field name="proj_no"/>
                                         <field name="approval_ref"
                                                attrs="{'invisible': [('team','!=','head office')]}"/>
-                                        <field name="proj_no"/>
+                                        <field name="mms_no"
+                                               attrs="{'invisible': [('team','!=','head office')]}"/>
+                                        <field name="mms_month"
+                                               attrs="{'invisible': [('team','!=','head office')]}"/>
+                                        <field name="mms_year"
+                                               attrs="{'invisible': [('team','!=','head office')]}"/>
                                     </group>
                                 </group>
                                 <hr/>
