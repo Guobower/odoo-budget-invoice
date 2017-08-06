@@ -200,7 +200,6 @@ class InvoiceSummary(models.Model):
 
         # FORMAT FOOTER
         footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
-
         footter_cell.font = Font(size=11, bold=True)
         ws.row_dimensions[footter_cell.row].height = 60
 
@@ -258,6 +257,11 @@ class InvoiceSummary(models.Model):
         # INSERT HEADER LOGO AND SIGNATURE
         ws.add_image(creator.logo, logo_coor)
         ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+        # FORMAT FOOTER
+        footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
+        footter_cell.font = Font(size=11, bold=True)
+        ws.row_dimensions[footter_cell.row].height = 60
 
         # SAVE FINAL ATTACHMENT
         creator.save()
