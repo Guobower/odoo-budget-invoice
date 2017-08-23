@@ -59,7 +59,7 @@ class Invoice(models.Model):
     STATES = choices_tuple(['draft', 'verified', 'summary generated', 'sd signed', 'svp signed',
                             'cto signed', 'sent to finance', 'closed',
                             'on hold', 'rejected', 'amount hold'], is_sorted=False)
-    TEAMS = choices_tuple(['head office', 'regional'], is_sorted=False)
+    TEAMS = choices_tuple(['head office', 'regional', 'resource'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works',
                                    'damage case', 'development', 'fdh uplifting', 'fttm activities',
                                    'maintenance work', 'man power', 'mega project', 'migration',
@@ -83,17 +83,21 @@ class Invoice(models.Model):
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
     discount_percentage = fields.Float(string='Discount Percent (%)', digits=(5, 2))
     other_deduction_percentage = fields.Float(string='Other Deduction Amount(%)', digits=(5, 2))
+    due_percentage = fields.Float(string='Due Amount (%)', digits=(5, 2), default=100)
 
     is_on_hold_percentage = fields.Boolean(string='Is On Hold (%)', default=True)
     is_penalty_percentage = fields.Boolean(string='Is Penalty (%)', default=True)
     is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
+    is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
     input_on_hold_amount = fields.Monetary(currency_field='company_currency_id', string='On Hold Amount')
     input_penalty_amount = fields.Monetary(currency_field='company_currency_id', string='Penalty Amount')
     input_discount_amount = fields.Monetary(currency_field='company_currency_id', string='Discount Amount')
     input_other_deduction_amount = fields.Monetary(currency_field='company_currency_id',
                                                    string='Other Deduction Amount')
+    input_due_amount = fields.Monetary(currency_field='company_currency_id',
+                                                  string='Due Amount')
 
     # TODO DEPRECATE
     period_start_date = fields.Date(string='Period Start Date')
@@ -111,7 +115,8 @@ class Invoice(models.Model):
     cto_signed_date = fields.Date(string='CTO Signed Date')
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')
-    rfs_date = fields.Date(string='RFS Date')
+    rfs_date = fields.Date(string='RFS Date') # TODO MAKE THIS CONTRACTUAL RFS
+    actual_rfs_date = fields.Date(string='Actual RFS Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
     closed_date = fields.Date(string='Closed Date')
 
@@ -171,6 +176,11 @@ class Invoice(models.Model):
     def _onchange_contract_id(self):
         self.contractor_id = self.contract_id.contractor_id
 
+    @api.onchange('rfs_date')
+    def _onchange_actual_rfs_date(self):
+        if not self.actual_rfs_date:
+            self.actual_rfs_date = self.rfs_date
+
     # COMPUTE FIELDS
     # ----------------------------------------------------------
     problem = fields.Char(string='Problem',
@@ -218,6 +228,9 @@ class Invoice(models.Model):
     other_deduction_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                              compute='_compute_other_deduction_amount',
                                              string='Other Deduction Amount')
+    due_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+                                             compute='_compute_due_amount',
+                                             string='Due Amount')
     certified_invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
                                                string='Certified Amount')
@@ -367,6 +380,17 @@ class Invoice(models.Model):
             return
         self.other_deduction_amount = self.input_other_deduction_amount
         self.other_deduction_percentage = 0
+
+    @api.one
+    @api.depends('is_due_percentage', 'due_percentage',
+                 'input_due_amount')
+    def _compute_due_amount(self):
+        if self.is_due_percentage:
+            self.due_amount = self.invoice_amount
+            self.input_due_amount = 0
+            return
+        self.due_amount = self.input_due_amount
+        self.due_percentage = 0
 
     @api.one
     @api.depends('invoice_amount', 'penalty_amount', 'discount_amount',

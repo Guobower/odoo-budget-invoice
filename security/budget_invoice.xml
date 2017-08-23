@@ -24,7 +24,12 @@
             <field name="category_id" ref="category_invoice"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
-        
+        <record model="res.groups" id="group_invoice_summary_user">
+            <field name="name">Summary Updater</field>
+            <field name="category_id" ref="category_invoice"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
         <!-- REGIONAL -->
         <record model="res.groups" id="group_invoice_regional_dependent">
             <field name="name">Regional Dependent</field>

@@ -32,7 +32,7 @@
                                 states="draft,verified,on hold"/>
 
                         <field name="state" widget="statusbar"
-                               statusbar_visible="draft,verified,summary generated,sd signed,svp signed,cto signed,sent to finance,closed"/>
+                               statusbar_visible="draft,verified,summary generated,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <group groups="base.group_system">
@@ -97,6 +97,7 @@
                                         <field name="start_date"/>
                                         <field name="end_date"/>
                                         <field name="rfs_date"/>
+                                        <field name="actual_rfs_date"/>
                                     </group>
                                     <group attrs="{'invisible': [('write_date','=',False)]}">
                                         <field name="sd_signed_date"/>
@@ -125,6 +126,7 @@
                                         <field name="is_on_hold_percentage"/>
                                         <field name="is_discount_percentage"/>
                                         <field name="is_other_deduction_percentage"/>
+                                        <field name="is_due_percentage"/>
                                     </group>
                                     <group>
                                         <field name="penalty_percentage"
@@ -143,8 +145,11 @@
                                                attrs="{'invisible': [('is_other_deduction_percentage','=',False)]}"/>
                                         <field name="input_other_deduction_amount"
                                                attrs="{'invisible': [('is_other_deduction_percentage','=',True)]}"/>
+                                        <field name="due_percentage"
+                                               attrs="{'invisible': [('is_due_percentage','=',False)]}"/>
+                                        <field name="input_due_amount"
+                                               attrs="{'invisible': [('is_due_percentage','=',True)]}"/>
                                     </group>
-
                                 </group>
                                 <group>
                                     <field name="amount_ids" context="{'default_invoice_id': id}">
@@ -297,7 +302,8 @@
             <field name="view_mode">tree,form,pivot,graph</field>
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice'}
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
+                                   'search_default_need_action': 1}
             </field>
         </record>
         <!--Invoice Regional Action-->

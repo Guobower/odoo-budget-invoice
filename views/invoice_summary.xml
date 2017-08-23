@@ -53,7 +53,7 @@
                                 type="workflow"
                                 states="draft,file generated,sd signed,svp signed,cto signed,sent to finance"/>
                         <field name="state" widget="statusbar"
-                        statusbar_visible="draft,file generated,sd signed,svp signed,cto signed,sent to finance,closed"/>
+                        statusbar_visible="draft,file generated,sent to finance,closed"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="box">
@@ -66,6 +66,7 @@
                         <div class="oe_title">
                             <group groups="base.group_system">
                                 <field name="invoice_state_filter"/>
+                                <field name="team_filter"/>
                                 <!-- TODO DEPRECATE -->
                                 <field name="signed_date"/>
                                 <!-- ############## -->
@@ -93,7 +94,10 @@
                         <notebook>
                             <page string="Invoices">
                                 <field name="invoice_ids"
-                                       domain="[('state', '=', invoice_state_filter)]">
+                                       domain="[('state', '=', invoice_state_filter),
+                                                ('team', '=', team_filter)]">
+                                       <!--context="{'search_view_ref': 'budget_invoice.search_invoice',-->
+                                                 <!--'search_default_need_action': }"-->
                                     <tree default_order="sequence"
                                           decoration-success="problem in ['ok', False]"
                                           decoration-danger="problem in ['duplicate', 'overrun']">
@@ -161,7 +165,7 @@
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary',
-                'search_default_filter_state': 1}
+                                   'search_default_filter_state': 1}
             </field>
         </record>
         <!--END ACTIONS-->
