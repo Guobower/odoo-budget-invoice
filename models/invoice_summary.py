@@ -396,8 +396,8 @@ class InvoiceSummary(models.Model):
         column = 1
         sr = 1
         # Table 2
-        row2 = 28
-        column2 = 1
+#        row2 = 28
+#        column2 = 1
 
         row_count = len(self.invoice_ids) - 1
 
@@ -432,7 +432,7 @@ class InvoiceSummary(models.Model):
 
         # Prepare Tables
         ws.insert_rows(row, row_count)  # Table 1
-        ws.insert_rows(row2 + row_count, row_count)  # Table 2
+        #ws.insert_rows(row2 + row_count, row_count)  # Table 2
 
         # Populate Data
         invoices = self.invoice_ids.sorted(key=lambda self: self.sequence)
@@ -452,28 +452,30 @@ class InvoiceSummary(models.Model):
             row += 1
             sr += 1
         # Table 2
-        sr = 1
-        row2 += row_count
-        for r in invoices:
-            rfs_date = fields.Datetime.from_string(r.rfs_date)
-            actual_rfs_date = fields.Datetime.from_string(r.actual_rfs_date)
-            ws.cell(row=row2, column=column2).value = rfs_date.strftime('%d-%b-%Y')
-            ws.cell(row=row2, column=column2 + 2).value = actual_rfs_date.strftime('%d-%b-%Y')
-            ws.cell(row=row2, column=column2 + 3).value = '{} days'.format((actual_rfs_date - rfs_date).days)
-            ws.cell(row=row2, column=column2 + 4).value = ''
-            ws.cell(row=row2, column=column2 + 6).value = ''
-            ws.merge_cells(start_row=row2, start_column=column2, end_row=row2, end_column=column2 + 1)
-
-            row2 += 1
-            sr += 1
+        # sr = 1
+        # row2 += row_count
+        # for r in invoices:
+        #     rfs_date = fields.Datetime.from_string(r.rfs_date)
+        #     actual_rfs_date = fields.Datetime.from_string(r.actual_rfs_date)
+        #     ws.cell(row=row2, column=column2).value = rfs_date.strftime('%d-%b-%Y')
+        #     ws.cell(row=row2, column=column2 + 2).value = actual_rfs_date.strftime('%d-%b-%Y')
+        #     ws.cell(row=row2, column=column2 + 3).value = '{} days'.format((actual_rfs_date - rfs_date).days)
+        #     ws.cell(row=row2, column=column2 + 4).value = ''
+        #     ws.cell(row=row2, column=column2 + 6).value = ''
+        #     ws.merge_cells(start_row=row2, start_column=column2, end_row=row2, end_column=column2 + 1)
+        #
+        #     row2 += 1
+        #     sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
         ws = inject_form_header(ws, self.team_filter, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
-        footer_cell = ws.cell(row=30 + row_count * 2, column=1)  # A28 + row_count*2 - 2 row
-        footer_cell.font = Font(size=11, bold=True)
-        ws.row_dimensions[footer_cell.row].height = 60
+        for r in [28, 30]: # A28, A30
+            footer_cell = ws.cell(row=r + row_count, column=1)  # A28 + row_count - 2 row
+            footer_cell.font = Font(size=11, bold=True)
+            ws.row_dimensions[footer_cell.row].height = 60
+
         # SIGNATURE
         ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
