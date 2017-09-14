@@ -34,6 +34,7 @@ Invoice Management
         'workflow/invoice_summary.xml',
 
         'views/invoice.xml',
+        'views/invoice_amount.xml',
         'views/invoice_summary.xml',
         'views/contract_inherit.xml',
         #        'views/contractor_inherit.xml',

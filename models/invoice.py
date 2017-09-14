@@ -229,8 +229,8 @@ class Invoice(models.Model):
                                              compute='_compute_other_deduction_amount',
                                              string='Other Deduction Amount')
     due_amount = fields.Monetary(currency_field='company_currency_id', store=True,
-                                             compute='_compute_due_amount',
-                                             string='Due Amount')
+                                 compute='_compute_due_amount',
+                                 string='Due Amount')
     certified_invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
                                                string='Certified Amount')

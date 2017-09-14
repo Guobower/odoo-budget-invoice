@@ -37,15 +37,22 @@
                 action="action_invoice_head_office"
                 groups="base.group_system,budget_invoice.group_invoice_head_office_user,budget_invoice.group_invoice_head_office_manager"/>
         <menuitem
+                id="menu_invoice_amount_left_child"
+                name="Invoice Amount"
+                sequence="2"
+                parent="menu_invoice_left"
+                groups="base.groups_system"
+                action="action_invoice_amount"/>
+        <menuitem
                 id="menu_invoice_summary_left_child"
                 name="Invoice Summary"
-                sequence="2"
+                sequence="3"
                 parent="menu_invoice_left"
                 action="action_invoice_summary"/>
         <menuitem
                 id="menu_purchase_order_left_child"
                 name="Purchase Order"
-                sequence="3"
+                sequence="4"
                 parent="menu_invoice_left"
                 action="budget_purchase_order.action_purchase_order"/>
 
