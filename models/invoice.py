@@ -558,9 +558,11 @@ class Invoice(models.Model):
 
     @api.multi
     def unlink(self):
-        invoice_no = self.invoice_no
+        ids = []
+        for res in self:
+            ids.append(res.id)
         res = super(Invoice, self).unlink()
-        self.env.add_todo(self._fields['problem'], self.search([('invoice_no', '=', invoice_no)]))
+        self.env.add_todo(self._fields['problem'], self.search([('invoice_no', 'in', ids)]))
         self.recompute()
         self.env.cr.commit()
         return res
