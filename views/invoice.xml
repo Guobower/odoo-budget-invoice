@@ -40,6 +40,7 @@
                                 <field name="write_date"/>
                                 <field name="team"/>
                                 <field name="system_remark"/>
+                                <field name="currency_id"/>
                             </group>
                             <group string="DEPRECATED">
                                 <!-- TODO DEPRECATE -->
@@ -159,6 +160,8 @@
                                             <field name="budget_type" required="1"/>
                                             <field name="invoice_type" required="1"/>
                                             <field name="payment_type" required="1"/>
+                                            <field name="currency_id" string="Currency"
+                                                   options="{'no_open': True, 'no_create': True}"/>
                                             <field name="amount" required="1" sum="1"/>
                                         </tree>
                                     </field>
@@ -171,6 +174,7 @@
                                         <tree editable="bottom" decoration-success="problem in ['ok', False]"
                                               decoration-danger="problem in ['overrun']">
                                             <field name="invoice_id" groups="base.group_system"/>
+                                            <field name="currency_id" groups="base.group_system"/>
                                             <field name="sequence" widget="handle"/>
                                             <field name="cear_id" required="1" options="{'no_create': True}"/>
                                             <field name="problem"/>
@@ -188,6 +192,7 @@
                                            attrs="{'invisible': [('oear_amount','=',0.0)]}">
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_system"/>
+                                            <field name="currency_id" groups="base.group_system"/>
                                             <field name="sequence" widget="handle"/>
                                             <field name="cost_center_id" required="1" options="{'no_create': True}"/>
                                             <field name="account_code_id" required="1" options="{'no_create': True}"/>

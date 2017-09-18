@@ -101,6 +101,7 @@
                                     <tree default_order="sequence"
                                           decoration-success="problem in ['ok', False]"
                                           decoration-danger="problem in ['duplicate', 'overrun']">
+                                        <field name="currency_id" groups="base.group_system"/>
                                         <field name="problem"/>
                                         <field name="state"/>
                                         <field name="sequence" widget="handle"/>

@@ -12,6 +12,12 @@
                 name="Invoice"
                 sequence="1"
                 parent="menu_invoice_top"/>
+        <menuitem
+                id="menu_currency_rate_left"
+                name="Currency Rate"
+                sequence="99"
+                parent="menu_invoice_top"
+                action="action_currency_rate"/>
         <!-- INVOICE VIEW FOR DEPENDENT -->
         <menuitem
                 id="menu_invoice_left_child"

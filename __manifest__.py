@@ -33,6 +33,8 @@ Invoice Management
         'workflow/invoice.xml',
         'workflow/invoice_summary.xml',
 
+        'views/res_currency_rate.xml',
+
         'views/invoice.xml',
         'views/invoice_amount.xml',
         'views/invoice_summary.xml',

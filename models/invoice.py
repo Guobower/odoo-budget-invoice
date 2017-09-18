@@ -97,7 +97,7 @@ class Invoice(models.Model):
     input_other_deduction_amount = fields.Monetary(currency_field='currency_id',
                                                    string='Other Deduction Amount')
     input_due_amount = fields.Monetary(currency_field='currency_id',
-                                                  string='Due Amount')
+                                       string='Due Amount')
 
     # TODO DEPRECATE
     period_start_date = fields.Date(string='Period Start Date')
@@ -115,7 +115,7 @@ class Invoice(models.Model):
     cto_signed_date = fields.Date(string='CTO Signed Date')
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')
-    rfs_date = fields.Date(string='RFS Date') # TODO MAKE THIS CONTRACTUAL RFS
+    rfs_date = fields.Date(string='RFS Date')  # TODO MAKE THIS CONTRACTUAL RFS
     actual_rfs_date = fields.Date(string='Actual RFS Date')
     sent_finance_date = fields.Date(string='Sent to Finance Date')
     closed_date = fields.Date(string='Closed Date')
@@ -134,7 +134,7 @@ class Invoice(models.Model):
     # RELATIONSHIPS
     # ----------------------------------------------------------
     currency_id = fields.Many2one('res.currency', readonly=True,
-                                          default=lambda self: self.env.user.company_id.currency_id)
+                                  default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     contractor_id = fields.Many2one('budget.contractor.contractor', string='Contractor')
     # TODO DEPRECATED
@@ -315,20 +315,28 @@ class Invoice(models.Model):
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_opex_amount(self):
-        self.opex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type == 'opex'). \
-                               mapped('amount'))
-
+        for amount_id in self.amount_ids.filtered(lambda r: r.budget_type == 'opex'):
+            if amount_id.currency_id == self.env.user.company_id.currency_id:
+                self.opex_amount += amount_id.amount
+            else:
+                self.opex_amount += amount_id.amount / amount_id.currency_id.rate
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_capex_amount(self):
-        self.capex_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type in ['capex']). \
-                                mapped('amount'))
+        for amount_id in self.amount_ids.filtered(lambda r: r.budget_type in ['capex']):
+            if amount_id.currency_id == self.env.user.company_id.currency_id:
+                self.capex_amount += amount_id.amount
+            else:
+                self.capex_amount += amount_id.amount / amount_id.currency_id.rate
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_revenue_amount(self):
-        self.revenue_amount = sum(self.amount_ids.filtered(lambda r: r.budget_type in ['revenue']). \
-                                  mapped('amount'))
+        for amount_id in self.amount_ids.filtered(lambda r: r.budget_type in ['revenue']):
+            if amount_id.currency_id == self.env.user.company_id.currency_id:
+                self.revenue_amount += amount_id.amount
+            else:
+                self.revenue_amount += amount_id.amount / amount_id.currency_id.rate
 
     @api.one
     @api.depends('revenue_amount', 'opex_amount', 'capex_amount')
