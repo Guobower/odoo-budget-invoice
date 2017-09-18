@@ -426,6 +426,8 @@ class InvoiceSummary(models.Model):
         ws.cell("F5").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
         ws.cell("F7").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
         ws.cell("I7").value = get_joined_value(self.mapped('invoice_ids.po_id.no'))
+        ws.cell("I11").value = get_joined_value(self.mapped('invoice_ids.po_id.amount'))
+
         # TODO CREATE LOGIC FOR CONTRACT VALIDITY
         ws.cell("F9").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
         ws.cell("F11").value = get_joined_value(self.mapped('invoice_ids.contract_id.amount'))
@@ -443,7 +445,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 3).value = r.description or ''
             ws.cell(row=row, column=column + 4).value = r.region_id.alias.upper() or ''
-            ws.cell(row=row, column=column + 5).value = r.due_percentage or ''
+            ws.cell(row=row, column=column + 5).value = '' if not r.due_percentage else r.due_percentage/100
             ws.cell(row=row, column=column + 6).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 7).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 8).value = r.capex_amount or ''
