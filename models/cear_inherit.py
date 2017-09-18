@@ -18,7 +18,7 @@ class TaskInherit(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    # company_currency_id already exist in the parent model
+    # currency_id already exist in the parent model
 
     allocation_ids = fields.One2many('budget.invoice.cear.allocation',
                                      'cear_id',
@@ -41,7 +41,7 @@ class TaskInherit(models.Model):
                           compute='_compute_problem',
                           store=True)
 
-    im_utilized_amount = fields.Monetary(currency_field='company_currency_id',
+    im_utilized_amount = fields.Monetary(currency_field='currency_id',
                                          string='Utilized Amount (IM)',
                                          compute='_compute_im_utilized_amount',
                                          store=True)

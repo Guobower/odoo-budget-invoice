@@ -30,14 +30,14 @@ class InvoiceAmount(models.Model):
     invoice_type = fields.Selection(INVOICE_TYPES)
     payment_type = fields.Selection(PAYMENT_TYPES)
 
-    amount = fields.Monetary(string='Amount', currency_field='company_currency_id')
+    amount = fields.Monetary(string='Amount', currency_field='currency_id')
 
     # Used for Invoice Summary sequence
     sequence = fields.Integer('Display order')
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    company_currency_id = fields.Many2one('res.currency', readonly=True,
+    currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     invoice_id = fields.Many2one('budget.invoice.invoice',
                               string='Invoice')

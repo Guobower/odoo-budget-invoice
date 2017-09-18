@@ -91,12 +91,12 @@ class Invoice(models.Model):
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
-    input_on_hold_amount = fields.Monetary(currency_field='company_currency_id', string='On Hold Amount')
-    input_penalty_amount = fields.Monetary(currency_field='company_currency_id', string='Penalty Amount')
-    input_discount_amount = fields.Monetary(currency_field='company_currency_id', string='Discount Amount')
-    input_other_deduction_amount = fields.Monetary(currency_field='company_currency_id',
+    input_on_hold_amount = fields.Monetary(currency_field='currency_id', string='On Hold Amount')
+    input_penalty_amount = fields.Monetary(currency_field='currency_id', string='Penalty Amount')
+    input_discount_amount = fields.Monetary(currency_field='currency_id', string='Discount Amount')
+    input_other_deduction_amount = fields.Monetary(currency_field='currency_id',
                                                    string='Other Deduction Amount')
-    input_due_amount = fields.Monetary(currency_field='company_currency_id',
+    input_due_amount = fields.Monetary(currency_field='currency_id',
                                                   string='Due Amount')
 
     # TODO DEPRECATE
@@ -133,7 +133,7 @@ class Invoice(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    company_currency_id = fields.Many2one('res.currency', readonly=True,
+    currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     contractor_id = fields.Many2one('budget.contractor.contractor', string='Contractor')
@@ -201,48 +201,48 @@ class Invoice(models.Model):
                                index=True,
                                store=True,
                                help='Year is the invoice year against contract period (eg. contract start is 08/08/2017, year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
-    opex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    opex_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_opex_amount',
                                   inverse='_set_opex_amount',
                                   string='OPEX Amount')
-    capex_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    capex_amount = fields.Monetary(currency_field='currency_id', store=True,
                                    compute="_compute_capex_amount",
                                    inverse='_set_capex_amount',
                                    string='CAPEX Amount')
-    revenue_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    revenue_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_revenue_amount',
                                      inverse='_set_revenue_amount',
                                      string='Revenue Amount')
-    invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    invoice_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_invoice_amount',
                                      string='Invoice Amount')
-    penalty_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    penalty_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_penalty_amount',
                                      string='Penalty Amount')
-    discount_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    discount_amount = fields.Monetary(currency_field='currency_id', store=True,
                                       compute='_compute_discount_amount',
                                       string='Discount Amount')
-    on_hold_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    on_hold_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_on_hold_amount',
                                      string='On Hold Amount')
-    other_deduction_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    other_deduction_amount = fields.Monetary(currency_field='currency_id', store=True,
                                              compute='_compute_other_deduction_amount',
                                              string='Other Deduction Amount')
-    due_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    due_amount = fields.Monetary(currency_field='currency_id', store=True,
                                  compute='_compute_due_amount',
                                  string='Due Amount')
-    certified_invoice_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    certified_invoice_amount = fields.Monetary(currency_field='currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
                                                string='Certified Amount')
-    balance_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    balance_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_balance_amount',
                                      string='Balance Amount')
 
-    cear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    cear_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_cear_amount',
                                   string='Cear Amount')
 
-    oear_amount = fields.Monetary(currency_field='company_currency_id', store=True,
+    oear_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
 

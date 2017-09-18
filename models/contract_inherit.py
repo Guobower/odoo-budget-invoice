@@ -14,12 +14,12 @@ class Contract(models.Model):
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    # company_currency_id exist in the main contract model
+    # currency_id exist in the main contract model
     invoice_count = fields.Integer(string="Invoice Count",
                                    compute='_compute_invoice_count',
                                    store=True
                                    )
-    total_invoice_amount = fields.Monetary(currency_field='company_currency_id',
+    total_invoice_amount = fields.Monetary(currency_field='currency_id',
                                            compute='_compute_total_invoice_amount',
                                            string='Total Certified Amount',
                                            store=True)
