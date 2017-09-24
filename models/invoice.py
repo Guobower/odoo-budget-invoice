@@ -6,7 +6,8 @@ from odoo.exceptions import ValidationError, UserError
 
 from dateutil.relativedelta import relativedelta
 
-
+# TODO CHECK AND ADD TEST FOR MULTI CURRENCY
+# TODO CHECK THE PROBLEM LOGIC WHEN UNLINK/DELETE
 # TODO REVENUE OF HEAD OFFICE GOES TO OPEX ( CC-AC )
 # DUE TO REFLECT ALL CHANGES IN ALL SIDES
 def amount_setter(invoice=None, budget_type=None):
