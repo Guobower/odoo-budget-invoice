@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.addons.budget_utilities.models.utilities import choices_tuple
+from odoo.tools.safe_eval import safe_eval
 
 from odoo.exceptions import ValidationError, UserError
 
 from dateutil.relativedelta import relativedelta
+
 
 # TODO CHECK AND ADD TEST FOR MULTI CURRENCY
 # TODO CHECK THE PROBLEM LOGIC WHEN UNLINK/DELETE
@@ -127,7 +129,9 @@ class Invoice(models.Model):
     remark = fields.Text(string='Remarks')
     system_remark = fields.Text(string='System Remarks')
     description = fields.Text(string='Description')
+    # TODO DEPRECATE
     proj_no = fields.Char(string="PEC No")
+    # ---------------
 
     # Used for Invoice Summary sequence
     sequence = fields.Integer('Display order')
@@ -136,18 +140,19 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     currency_id = fields.Many2one('res.currency', readonly=True,
                                   default=lambda self: self.env.user.company_id.currency_id)
+    pec_id = fields.Many2one('budget.invoice.pec', string='PEC No')
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     contractor_id = fields.Many2one('budget.contractor.contractor', string='Contractor')
     # TODO DEPRECATED
     old_contractor_id = fields.Many2one('res.partner', string='Old Contractor')
-
+    # ---------------
     po_id = fields.Many2one('budget.purchase.order',
                             string='Purchase Order')
 
     # TODO DEPRECATED ONCE ALDREADY TRANSFERED TO OEARS
     account_code_id = fields.Many2one('budget.core.account.code', string='Account Code')
     cost_center_id = fields.Many2one('budget.core.cost.center', string='Cost Center')
-
+    # ---------------
     amount_ids = fields.One2many('budget.invoice.amount',
                                  'invoice_id',
                                  string="Amounts")
@@ -173,9 +178,26 @@ class Invoice(models.Model):
 
     # ONCHANGE FIELDS
     # ----------------------------------------------------------
+    @api.onchange('contractor_id', 'invoice_no')
+    def _onchange_domain_contract_id(self):
+        if self.contractor_id:
+            return {'domain': {'contract_id': [('contractor_id', '=', self.contractor_id.id)]}}
+        else:
+            return {'domain': {'contract_id': []}}
+
     @api.onchange('contract_id')
-    def _onchange_contract_id(self):
+    def _onchange_contractor_id(self):
         self.contractor_id = self.contract_id.contractor_id
+
+    @api.onchange('contract_id')
+    def _onchange_input_discount_percentage(self):
+        if self.contract_id.discount_rule_id:
+            self.is_discount_percentage = True
+            self.input_discount_amount = 0
+            eval_context = {'invoice_id': self,
+                            'contract_id': self.contract_id}
+            eval_context = self.contract_id.discount_rule_id.run_rule_code(eval_context)
+            self.discount_percentage = eval_context['discount_percentage']
 
     @api.onchange('rfs_date')
     def _onchange_actual_rfs_date(self):
@@ -321,6 +343,7 @@ class Invoice(models.Model):
                 self.opex_amount += amount_id.amount
             else:
                 self.opex_amount += amount_id.amount / amount_id.currency_id.rate
+
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_capex_amount(self):

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--START VIEWS-->
+        <!--START TREE VIEW-->
+        <record model="ir.ui.view" id="view_tree_discount_rule">
+            <field name="name">budget.contractor.discount.rule.tree</field>
+            <field name="model">budget.contractor.discount.rule</field>
+            <field name="inherit_id" ref="budget_contractor.view_tree_discount_rule"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='description']" position="after">
+                    <field name="code"/>
+                </xpath>
+            </field>
+        </record>
+        <!--END TREE VIEW-->
+    </data>
+</odoo>

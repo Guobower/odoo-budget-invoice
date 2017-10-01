@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!--START INVOICE SUMMARY VIEWS-->
+        <!--INVOICE SUMMARY FORM VIEW-->
+        <record model="ir.ui.view" id="view_form_pec">
+            <field name="name">budget.invoice.pec.form</field>
+            <field name="model">budget.invoice.pec</field>
+            <field name="arch" type="xml">
+                <form string="Project Estimated Cost">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="write_date" groups="base.group_no_one"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="no"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="currency_id" groups="base.group_no_one"/>
+                                <field name="date"/>
+                                <field name="amount"/>
+                            </group>
+                            <group>
+                                <field name="contract_id"/>
+                                <field name="cear_id"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Invoices" attrs="{'invisible': [('write_date','=',False)]}">
+                                <field name="invoice_ids" readonly="1">
+                                    <tree default_order="sequence"
+                                          decoration-success="problem in ['ok', False]"
+                                          decoration-danger="problem in ['duplicate', 'overrun']">
+                                        <field name="currency_id" groups="base.group_no_one"/>
+                                        <field name="problem"/>
+                                        <field name="state"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="invoice_no"/>
+                                        <field name="contract_id"/>
+                                        <field name="invoice_amount"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--INVOICE SUMMARY TREE VIEW-->
+        <record model="ir.ui.view" id="view_tree_pec">
+            <field name="name">budget.invoice.pec.tree</field>
+            <field name="model">budget.invoice.pec</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="currency_id" groups="base.group_no_one"/>
+                    <field name="contract_id"/>
+                    <field name="cear_id"/>
+                    <field name="no"/>
+                    <field name="date"/>
+                    <field name="amount"/>
+                </tree>
+            </field>
+        </record>
+        <!--END INVOICE SUMMARY VIEWS-->
+        <!--START SEARCH-->
+        <record model="ir.ui.view" id="search_pec">
+            <field name="name">budget.invoice.pec.search</field>
+            <field name="model">budget.invoice.pec</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="no"/>
+                </search>
+            </field>
+        </record>
+        <!--END SEARCH-->
+
+        <!--START ACTIONS-->
+        <record model="ir.actions.act_window" id="action_pec">
+            <field name="name">Project Estimated Cost</field>
+            <field name="res_model">budget.invoice.pec</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_tree_pec"/>
+            <field name="search_view_id" ref="search_pec"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_pec'}
+            </field>
+        </record>
+        <!--END ACTIONS-->
+
+    </data>
+</odoo>
