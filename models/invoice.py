@@ -190,7 +190,7 @@ class Invoice(models.Model):
 
     @api.onchange('contract_id', 'invoice_date')
     def _onchange_input_discount_percentage(self):
-        if self.contract_id.discount_rule_id:
+        if self.contract_id.discount_rule_id and self.contract_id.is_discount_applicable:
             self.is_discount_percentage = True
             self.input_discount_amount = 0
             eval_context = {'datetime': datetime,
