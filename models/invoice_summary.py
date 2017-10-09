@@ -59,13 +59,19 @@ def get_joined_value(vals):
     new_vals = []
     for val in vals:
         if isinstance(val, float):
-            val = '{0:.2f}'.format(val)
+            val = float(val)
         elif isinstance(val, bool) or val is False:
             continue
+        elif isinstance(val, fields.Date):
+            val = fields.Datetime.from_string(val).strftime('%d-%b-%Y')
         else:
             val = '{}'.format(val)
 
         new_vals.append(val)
+
+    if len(new_vals) == 1 and isinstance(new_vals[0], float):
+        return float(new_vals[0])
+
     return ', '.join(new_vals)
 
 
@@ -397,8 +403,8 @@ class InvoiceSummary(models.Model):
         column = 1
         sr = 1
         # Table 2
-#        row2 = 28
-#        column2 = 1
+        #        row2 = 28
+        #        column2 = 1
 
         row_count = len(self.invoice_ids) - 1
 
@@ -411,7 +417,8 @@ class InvoiceSummary(models.Model):
         ws.cell("A7").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
         ws.cell("A9").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
         ws.cell("A11").value = get_joined_value(self.mapped('invoice_ids.cear_allocation_ids.cear_id.no'))
-        ws.cell("A13").value = get_joined_value(self.mapped('invoice_ids.cear_allocation_ids.cear_id.authorized_amount'))
+        ws.cell("A13").value = get_joined_value(
+            self.mapped('invoice_ids.cear_allocation_ids.cear_id.authorized_amount'))
 
         cc_ac_list = []
         for oear in self.mapped('invoice_ids.oear_allocation_ids'):
@@ -425,17 +432,17 @@ class InvoiceSummary(models.Model):
         ws.cell("A17").value = 'N/A'
 
         ws.cell("F5").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
-        ws.cell("F7").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
+        ws.cell("F7").value = get_joined_value(self.mapped('invoice_ids.contract_id.contract_ref'))
         ws.cell("I7").value = get_joined_value(self.mapped('invoice_ids.po_id.no'))
         ws.cell("I11").value = get_joined_value(self.mapped('invoice_ids.po_id.amount'))
 
         # TODO CREATE LOGIC FOR CONTRACT VALIDITY
-        ws.cell("F9").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
+        ws.cell("F9").value = get_joined_value(self.mapped('invoice_ids.contract_id.expiry_date'))
         ws.cell("F11").value = get_joined_value(self.mapped('invoice_ids.contract_id.amount'))
 
         # Prepare Tables
         ws.insert_rows(row, row_count)  # Table 1
-        #ws.insert_rows(row2 + row_count, row_count)  # Table 2
+        # ws.insert_rows(row2 + row_count, row_count)  # Table 2
 
         # Populate Data
         invoices = self.invoice_ids.sorted(key=lambda self: self.sequence)
@@ -446,7 +453,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 3).value = r.description or ''
             ws.cell(row=row, column=column + 4).value = r.region_id.alias.upper() or ''
-            ws.cell(row=row, column=column + 5).value = '' if not r.due_percentage else r.due_percentage/100
+            ws.cell(row=row, column=column + 5).value = '' if not r.due_percentage else r.due_percentage / 100
             ws.cell(row=row, column=column + 6).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 7).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 8).value = r.capex_amount or ''
@@ -474,7 +481,7 @@ class InvoiceSummary(models.Model):
         ws = inject_form_header(ws, self.team_filter, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
-        for r in [28, 30]: # A28, A30
+        for r in [28, 30]:  # A28, A30
             footer_cell = ws.cell(row=r + row_count, column=1)  # A28 + row_count - 2 row
             footer_cell.font = Font(size=11, bold=True)
             ws.row_dimensions[footer_cell.row].height = 60
