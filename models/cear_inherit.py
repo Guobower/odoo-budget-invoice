@@ -59,11 +59,11 @@ class TaskInherit(models.Model):
             # False to represent that problem check is not to be perform
             self.problem = False
 
-        elif self.authorized_amount < self.im_utilized_amount:
+        if self.authorized_amount < self.im_utilized_amount:
             self.problem = 'overrun'
 
         # TODO THIS GOES TO ACTUAL
-        elif self.authorized_amount < self.fn_utilized_amount:
+        if self.authorized_amount < self.fn_utilized_amount:
             self.problem = 'overrun'
 
         else:

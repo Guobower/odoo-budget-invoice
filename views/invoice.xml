@@ -30,6 +30,11 @@
                                 name="reject"
                                 type="workflow"
                                 states="draft,verified,on hold"/>
+                        <button
+                                string="Create Summary"
+                                name="summary_wizard"
+                                type="object"
+                                states="verified"/>
 
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,verified,summary generated,sent to finance,closed"/>

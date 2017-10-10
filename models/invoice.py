@@ -279,6 +279,7 @@ class Invoice(models.Model):
                                      string='Revenue Amount')
     invoice_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_invoice_amount',
+                                     inverse='_set_invoice_amount',
                                      string='Invoice Amount')
     penalty_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_penalty_amount',
@@ -486,6 +487,10 @@ class Invoice(models.Model):
     # INVERSE FIELDS
     # ----------------------------------------------------------
     @api.one
+    def _set_invoice_amount(self):
+        return
+
+    @api.one
     def _set_penalty_amount(self):
         return
 
@@ -603,6 +608,26 @@ class Invoice(models.Model):
             raise ValidationError("Must not be part of a Summary, Please Remove")
         self.delete_workflow()
         self.create_workflow()
+
+    # REDIRECT/OPEN OTHER VIEWS BUTTONS
+    # ----------------------------------------------------------
+    def summary_wizard(self):
+        form_id = self.env.ref('budget_invoice.view_form_invoice_summary').id
+        context = {
+            'default_invoice_ids': [(6, 0, self.ids)],
+            'auto_generate': True
+        }
+        res = {
+            'name': 'Create Summary',
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'new',
+            'res_model': 'budget.invoice.invoice.summary',
+            'views': [(form_id, 'form')],
+            'context': context
+        }
+        return res
 
     # ADDITIONAL FUNCTIONS
     # ----------------------------------------------------------

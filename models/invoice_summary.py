@@ -515,6 +515,7 @@ class InvoiceSummary(models.Model):
                           form_filename=self.form)
 
         # get attribute from form name removing .xlsx
+        # eg. self.form_c0001ver01
         form = getattr(self, self.form.split('.')[0])
         form(creator)
 
@@ -587,10 +588,35 @@ class InvoiceSummary(models.Model):
         self.delete_workflow()
         self.create_workflow()
 
+    # REDIRECT/OPEN OTHER VIEWS BUTTONS
+    # ----------------------------------------------------------
+    @api.multi
+    def download_summary(self):
+        attachment_id = self.env['ir.attachment'].search([
+            ('res_model', '=', 'budget.invoice.invoice.summary'),
+            ('res_id', '=', self.id)
+        ], limit=1, order='id desc')
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/web/content/%s/%s' % (attachment_id.id, self.summary_no),
+            'target': 'self',
+            'res_id': self.id,
+        }
+
     # POLYMORPH FUNCTIONS
+    # ----------------------------------------------------------
     @api.one
     def unlink(self):
         self.invoice_ids.delete_workflow()
         self.invoice_ids.create_workflow()
         self.invoice_ids.signal_workflow('verify')
         return super(InvoiceSummary, self).unlink()
+
+    @api.model
+    def create(self, vals):
+        res = super(InvoiceSummary, self).create(vals)
+        if self.env.context.get('auto_generate', False):
+            res.set2file_generated()
+
+        return res
