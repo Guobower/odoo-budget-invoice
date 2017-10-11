@@ -255,7 +255,7 @@
                     <field name="invoice_no"/>
                     <field name="po_id"/>
                     <field name="contract_id"/>
-                    <field name="certified_invoice_amount"/>
+                    <field name="certified_invoice_amount" sum="1"/>
                     <field name="invoice_date"/>
                     <field name="invoice_cert_date"/>
                     <field name="received_date"/>
@@ -306,6 +306,16 @@
         <!--END SEARCH-->
         <!--START ACTIONS-->
         <!--Invoice Action-->
+        <record model="ir.actions.act_window" id="action_invoice_no_filter">
+            <field name="name">Invoice</field>
+            <field name="res_model">budget.invoice.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="search_view_id" ref="search_invoice"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice'}
+            </field>
+        </record>
         <record model="ir.actions.act_window" id="action_invoice">
             <field name="name">Invoice</field>
             <field name="res_model">budget.invoice.invoice</field>

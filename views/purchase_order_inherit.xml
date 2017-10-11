@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--START VIEWS-->
+        <!--START FORM VIEW-->
+        <record model="ir.ui.view" id="view_form_purchase_order_inherit">
+            <field name="name">budget.purchase.order.form</field>
+            <field name="model">budget.purchase.order</field>
+            <field name="inherit_id" ref="budget_purchase_order.view_form_purchase_order"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="%(action_invoice_no_filter)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            context="{'search_default_po_id': id, 'search_default_need_action': 0}">
+                        <field string="Invoices" name="total_invoice_amount_shorthand" widget="statinfo"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+        <!--END FORM VIEW-->
+
+    </data>
+</odoo>

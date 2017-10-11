@@ -40,6 +40,7 @@ Invoice Management
         'views/invoice_summary.xml',
         'views/project_estimated_cost.xml',
         'views/contract_inherit.xml',
+        'views/purchase_order_inherit.xml',
         'views/discount_rule_inherit.xml',
         'views/cear_inherit.xml',
         'views/oear_inherit.xml',

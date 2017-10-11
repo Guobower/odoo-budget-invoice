@@ -9,7 +9,7 @@
             <field name="inherit_id" ref="budget_contractor.view_form_contract"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[@name='button_box']" position="inside">
-                    <button name="%(action_invoice)d"
+                    <button name="%(action_invoice_no_filter)d"
                             type="action"
                             class="oe_stat_button"
                             icon="fa-pencil-square-o"

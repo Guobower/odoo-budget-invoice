@@ -3,7 +3,7 @@
 # INHERITANCE MODELS
 # ----------------------------------------------------------
 from . import budget_inherit, contract_inherit, contractor_inherit, \
-    cear_inherit, oear_inherit, discount_rule_inherit
+    cear_inherit, oear_inherit, discount_rule_inherit, purchase_order_inherit
 
 # BASIC MODELS
 # ----------------------------------------------------------
