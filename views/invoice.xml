@@ -305,8 +305,9 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="invoice_no"/>
-                    <field name="contract_id"/>
                     <field name="po_id"/>
+                    <field name="contractor_id"/>
+                    <field name="contract_id"/>
                     <filter
                             name="regional"
                             string="Regional"
@@ -319,7 +320,8 @@
                     <filter
                             name="my_activity"
                             string="My Activities"
-                            domain="[('create_uid', '=', uid)]"/>
+                            domain="[('responsible_id', '=', uid)]"/>
+                    <seperator/>
                     <filter
                             name="need_action"
                             string="Need Action"
@@ -329,7 +331,11 @@
                             name="volume_discount"
                             string="Volume Discount"
                             domain="[('state', 'in', ['verified', 'summary generated', 'under certification', 'sent to finance', 'closed'])]"/>
-
+                    <group expand="0" string="Group By" colspan="16">
+                        <filter string="Purchase Order" context="{'group_by':'po_id'}"/>
+                        <filter string="Contractor" context="{'group_by':'contractor_id'}"/>
+                        <filter string="Contract" context="{'group_by':'contract_id'}" />
+                    </group>
                 </search>
             </field>
         </record>
@@ -383,6 +389,7 @@
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
                 'search_default_head_office': 1,
                 'search_default_need_action': 1,
+                'search_default_my_activity': 1,
                 }
             </field>
         </record>

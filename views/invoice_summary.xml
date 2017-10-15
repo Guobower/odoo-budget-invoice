@@ -149,9 +149,14 @@
                 <search>
                     <field name="summary_no"/>
                     <filter
-                            name="filter_state"
+                            name="need_action"
                             string="Need Action"
                             domain="[('state', 'not in', ['closed', 'cancelled'])]"/>
+                    <seperator/>
+                    <filter
+                            name="my_activity"
+                            string="My Activities"
+                            domain="[('create_uid', '=', uid)]"/>
                 </search>
             </field>
         </record>
@@ -166,7 +171,8 @@
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary',
-                                   'search_default_filter_state': 1}
+                                   'search_default_need_action': 1,
+                                   'search_default_my_activity': 1}
             </field>
         </record>
         <!--END ACTIONS-->
