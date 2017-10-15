@@ -119,6 +119,13 @@
                                 </group>
                                 <hr/>
                                 <group>
+                                    <group>
+                                        <field name="responsible_id" options="{'no_create': True, 'no_open': True}"/>
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>
+                                <group>
                                     <field name="summary_ids" widget="many2many_tags"
                                            attrs="{'invisible': [('write_date', '=', False)]}"
                                            options="{'no_create': True}"/>
@@ -285,6 +292,7 @@
                     <field name="invoice_date"/>
                     <field name="description"/>
                     <field name="problem"/>
+                    <field name="responsible_id"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -347,7 +355,7 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                                   'search_default_need_action': 1}
+                'search_default_need_action': 1}
             </field>
         </record>
         <!--Invoice Regional Action-->

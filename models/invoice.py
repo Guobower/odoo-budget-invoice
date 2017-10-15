@@ -139,6 +139,8 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     currency_id = fields.Many2one('res.currency', readonly=True,
                                   default=lambda self: self.env.user.company_id.currency_id)
+    responsible_id = fields.Many2one('res.users', string='Responsible',
+                                     default=lambda self: self.env.user.id)
     pec_id = fields.Many2one('budget.invoice.pec', string='PEC No')
     contract_id = fields.Many2one('budget.contractor.contract', string='Contract')
     contractor_id = fields.Many2one('budget.contractor.contractor', string='Contractor')
