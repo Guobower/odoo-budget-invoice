@@ -112,7 +112,7 @@ class InvoiceSummary(models.Model):
     form = fields.Selection(FORMS)
     signature = fields.Selection(SIGNATURES)
     objective = fields.Selection(OBJECTIVES, default='invoice certification')
-    team_filter = Invoice.team
+    team = Invoice.team
 
     # TODO DEPRECATE
     signed_date = fields.Date(string='Signed Date')
@@ -242,7 +242,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team_filter, creator, logo_coor, header_coor)
+        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
@@ -304,7 +304,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team_filter, creator, logo_coor, header_coor)
+        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
@@ -374,7 +374,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team_filter, creator, logo_coor, header_coor)
+        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         # SIGNATURE
@@ -478,7 +478,7 @@ class InvoiceSummary(models.Model):
         #     sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team_filter, creator, logo_coor, header_coor)
+        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         for r in [28, 30]:  # A28, A30
