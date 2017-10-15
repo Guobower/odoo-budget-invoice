@@ -174,7 +174,12 @@ class Invoice(models.Model):
 
     # RELATED FIELDS
     # ----------------------------------------------------------
-
+    related_po_amount = fields.Monetary(currency_field='currency_id',
+                                        related='po_id.amount',
+                                        string='PO Amount')
+    related_po_paid_amount = fields.Monetary(currency_field='currency_id',
+                                        related='po_id.total_invoice_amount',
+                                        string='PO Paid Amount')
     # ONCHANGE FIELDS
     # ----------------------------------------------------------
     @api.onchange('contractor_id', 'invoice_no')

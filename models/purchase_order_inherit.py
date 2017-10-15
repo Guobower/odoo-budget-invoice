@@ -24,7 +24,6 @@ class PurchaseOrder(models.Model):
                                            compute='_compute_total_invoice_amount',
                                            string='Total Certified Amount',
                                            store=True)
-
     total_invoice_amount_shorthand = fields.Char(compute='_compute_total_invoice_amount_shorthand',
                                                  string='Total Certified Amount',
                                                  store=True)

@@ -243,7 +243,7 @@
                 </form>
             </field>
         </record>
-        <!--TREE VIEW-->
+        <!--TREE VIEW DEFAULT-->
         <record model="ir.ui.view" id="view_tree_invoice">
             <field name="name">Invoice</field>
             <field name="model">budget.invoice.invoice</field>
@@ -262,6 +262,28 @@
                     <field name="sent_finance_date"/>
                     <field name="create_uid"/>
                     <field name="write_uid"/>
+                    <field name="problem"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <!--TREE VIEW HEAD OFFICE-->
+        <record model="ir.ui.view" id="view_tree_invoice_head_office">
+            <field name="name">Invoice</field>
+            <field name="model">budget.invoice.invoice</field>
+            <field name="arch" type="xml">
+                <tree default_order="id desc"
+                      decoration-success="problem in ['ok', '', False]"
+                      decoration-danger="problem not in ['ok', '', False]"
+                      decoration-muted="state == 'closed'">
+                    <field name="invoice_no"/>
+                    <field name="po_id"/>
+                    <field name="related_po_amount" readonly="1"/>
+                    <field name="related_po_paid_amount" readonly="1"/>
+                    <field name="contract_id"/>
+                    <field name="certified_invoice_amount" sum="1"/>
+                    <field name="invoice_date"/>
+                    <field name="description"/>
                     <field name="problem"/>
                     <field name="state"/>
                 </tree>
@@ -316,6 +338,7 @@
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice'}
             </field>
         </record>
+        <!--Invoice Action No Filter-->
         <record model="ir.actions.act_window" id="action_invoice">
             <field name="name">Invoice</field>
             <field name="res_model">budget.invoice.invoice</field>
@@ -347,7 +370,7 @@
             <field name="res_model">budget.invoice.invoice</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,pivot,graph</field>
-            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="view_id" ref="view_tree_invoice_head_office"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
                 'search_default_head_office': 1,

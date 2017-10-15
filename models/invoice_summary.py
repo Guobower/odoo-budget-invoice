@@ -12,15 +12,15 @@ from invoice import Invoice
 
 def inject_form_header(ws, team, creator, logo_coor, header_coor):
     color = {
-        'head office': '808000',
-        'regional': '00FFFF',
-        'resource': '00FF00'
+        'head office': 'ADE75F',
+        'regional': 'ADE75F',
+        'resource': '387917'
     }
     fill = PatternFill(start_color=color[team], end_color=color[team], fill_type='solid')
 
     h_cell = ws.cell(header_coor)
     h_cell.fill = fill
-    h_cell.value += " ({})".format(team.upper())
+#    h_cell.value += " ({})".format(team.upper())
     ws.add_image(creator.logo, logo_coor)
     return ws
 
