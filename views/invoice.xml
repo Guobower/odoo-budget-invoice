@@ -46,6 +46,9 @@
                                 <field name="team"/>
                                 <field name="system_remark"/>
                                 <field name="currency_id"/>
+                                <field name="cear_amount"/>
+                                <field name="oear_amount"/>
+                                <field name="total_revenue_amount"/>
                             </group>
                             <group string="DEPRECATED">
                                 <!-- TODO DEPRECATE -->
@@ -72,7 +75,7 @@
                             <page string="General">
                                 <group>
                                     <group>
-                                        <field name="region_id" options="{'no_create': True}"/>
+                                        <field name="region_id" required="1" options="{'no_create': True}"/>
                                         <field name="contract_id" options="{'no_create': True}"/>
                                         <field name="contractor_id" options="{'no_create': True}"/>
                                         <field name="po_id" options="{'no_create': True}"/>
@@ -104,7 +107,7 @@
                                         <field name="start_date"/>
                                         <field name="end_date"/>
                                         <field name="rfs_date"/>
-                                        <field name="actual_rfs_date"/>
+                                        <field name="actual_rfs_date" attrs="{'invisible': [('team','=','regional')]}"/>
                                     </group>
                                     <group attrs="{'invisible': [('write_date','=',False)]}">
                                         <field name="sd_signed_date"/>
@@ -180,10 +183,10 @@
                                     </field>
                                 </group>
                                 <group>
-                                    <field name="cear_amount" invisible="1"/>
                                     <field name="cear_allocation_ids"
                                            context="{'default_invoice_id': id, 'default_amount': cear_amount}"
-                                           attrs="{'invisible': [('cear_amount','=',0.0)]}">
+                                           attrs="{'invisible': [('cear_amount','=',0.0),
+                                                                 ('total_revenue_amount','=',0.0)]}">
                                         <tree editable="bottom" decoration-success="problem in ['ok', False]"
                                               decoration-danger="problem in ['overrun']">
                                             <field name="invoice_id" groups="base.group_no_one"/>
@@ -199,10 +202,10 @@
                                     </field>
                                 </group>
                                 <group>
-                                    <field name="oear_amount" invisible="1"/>
                                     <field name="oear_allocation_ids"
                                            context="{'default_invoice_id': id,'default_amount': oear_amount}"
-                                           attrs="{'invisible': [('oear_amount','=',0.0)]}">
+                                           attrs="{'invisible': [('oear_amount','=',0.0),
+                                                                 ('total_revenue_amount','=',0.0)]}">
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_no_one"/>
                                             <field name="currency_id" groups="base.group_no_one"/>
@@ -219,8 +222,8 @@
                             <page string="Summary">
                                 <group>
                                     <group>
-                                        <field name="year_rfs" attrs="{'readonly': True}"/>
-                                        <field name="year_invoice" attrs="{'readonly': True}"/>
+                                        <field name="year_rfs" readonly="1"/>
+                                        <field name="year_invoice" readonly="1"/>
                                     </group>
                                     <group>
                                         <field name="certified_invoice_amount"/>
@@ -228,16 +231,16 @@
                                 </group>
                                 <group>
                                     <group>
-                                        <field name="capex_amount" attrs="{'readonly': True}"/>
-                                        <field name="opex_amount" attrs="{'readonly': True}"/>
-                                        <field name="revenue_amount" attrs="{'readonly': True}"/>
-                                        <field name="invoice_amount"/>
+                                        <field name="capex_amount" readonly="1"/>
+                                        <field name="opex_amount" readonly="1"/>
+                                        <field name="revenue_amount" readonly="1"/>
+                                        <field name="invoice_amount" readonly="1"/>
                                     </group>
                                     <group>
-                                        <field name="penalty_amount" attrs="{'readonly': True}"/>
-                                        <field name="discount_amount" attrs="{'readonly': True}"/>
-                                        <field name="on_hold_amount" attrs="{'readonly': True}"/>
-                                        <field name="other_deduction_amount" attrs="{'readonly': True}"/>
+                                        <field name="penalty_amount" readonly="1"/>
+                                        <field name="discount_amount" readonly="1"/>
+                                        <field name="on_hold_amount" readonly="1"/>
+                                        <field name="other_deduction_amount" readonly="1"/>
                                     </group>
                                 </group>
                             </page>

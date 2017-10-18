@@ -6,8 +6,9 @@ import random
 
 class TestInvoiceCalculation01(TransactionCase):
     """
-    Test Invoice function using percentage for the following
-    penalty_percentage, on_hold_percentage, discount_percentage, other_deduction_percentage
+    Test Invoice function using percentage with the following
+    penalty_percentage, on_hold_percentage,
+    discount_percentage, other_deduction_percentage
     """
     at_install = False
     post_install = True
@@ -61,7 +62,7 @@ class TestInvoiceCalculation01(TransactionCase):
 
     def test_calculation_cear_amount(self):
         # CEAR AMOUNT
-        expected_amount = 10000.00
+        expected_amount = 3000.00
         self.assertTrue(self.invoice.cear_amount == expected_amount, "CEAR Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.cear_amount))
 
@@ -70,6 +71,12 @@ class TestInvoiceCalculation01(TransactionCase):
         expected_amount = 4000.00
         self.assertTrue(self.invoice.oear_amount == expected_amount, "OEAR Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.oear_amount))
+
+    def test_calculation_total_revenue_amount(self):
+        # TOTAL REVENUE
+        expected_amount = 7000.00
+        self.assertTrue(self.invoice.total_revenue_amount == expected_amount, "Total Revenue Amount must be {}, Given {}".
+                        format(expected_amount, self.invoice.total_revenue_amount))
 
     def test_calculation_invoice_amount(self):
         # INVOICE AMOUNT
@@ -112,7 +119,7 @@ class TestInvoiceCalculation01(TransactionCase):
 
 class TestInvoiceCalculation02(TransactionCase):
     """
-    Test Invoice function using explicit amount for the following
+    Test Invoice function using explicit amount with the following
     input_penalty_amount, input_on_hold_amount, 
     input_discount_amount, input_other_deduction_amount
     """
@@ -148,7 +155,7 @@ class TestInvoiceCalculation02(TransactionCase):
                                        'amount': 7000})
                                ],
                 'cear_allocation_ids': [(0, 0, {
-                    'amount': 10000
+                    'amount': 3000
                 })]
             }
         )
@@ -173,7 +180,7 @@ class TestInvoiceCalculation02(TransactionCase):
 
     def test_calculation_cear_amount(self):
         # CEAR AMOUNT
-        expected_amount = 10000.00
+        expected_amount = 3000.00
         self.assertTrue(self.invoice.cear_amount == expected_amount, "CEAR Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.cear_amount))
 
@@ -182,6 +189,12 @@ class TestInvoiceCalculation02(TransactionCase):
         expected_amount = 4000.00
         self.assertTrue(self.invoice.oear_amount == expected_amount, "OEAR Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.oear_amount))
+
+    def test_calculation_total_revenue_amount(self):
+        # OEAR AMOUNT
+        expected_amount = 7000.00
+        self.assertTrue(self.invoice.total_revenue_amount == expected_amount, "Total Revenue Amount must be {}, Given {}".
+                        format(expected_amount, self.invoice.total_revenue_amount))
 
     def test_calculation_invoice_amount(self):
         # INVOICE AMOUNT

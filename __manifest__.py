@@ -22,7 +22,9 @@ Invoice Management
                 'budget_contractor',
                 'budget_purchase_order',
                 'budget_capex',
-                'budget_opex'],
+                'budget_opex',
+                'budget_signature',
+                ],
     'external_dependencies': {
         'python': ['openpyxl']
     },

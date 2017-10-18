@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 # TODO replace sudo with suspend_security using OCA base_suspend_security
+import tempfile
+from openpyxl.drawing.image import Image
+
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.budget_utilities.models.utilities import choices_tuple
@@ -20,7 +23,7 @@ def inject_form_header(ws, team, creator, logo_coor, header_coor):
 
     h_cell = ws.cell(header_coor)
     h_cell.fill = fill
-#    h_cell.value += " ({})".format(team.upper())
+    #    h_cell.value += " ({})".format(team.upper())
     ws.add_image(creator.logo, logo_coor)
     return ws
 
@@ -104,7 +107,7 @@ class InvoiceSummary(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     active = fields.Boolean(default=True, help="Set active to false to hide the tax without removing it.")
-    state = fields.Selection(STATES)
+    state = fields.Selection(STATES, track_visibility='onchange')
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     # TODO USE GET DEFAULT_SUMMARY IN CREATE
     summary_no = fields.Char(string='Summary No',
@@ -118,12 +121,12 @@ class InvoiceSummary(models.Model):
     signed_date = fields.Date(string='Signed Date')
     # --------------
 
-    sd_signed_date = fields.Date(string='SD Signed Date')
-    svp_signed_date = fields.Date(string='SVP Signed Date')
-    cto_signed_date = fields.Date(string='CTO Signed Date')
+    sd_signed_date = fields.Date(string='SD Signed Date', track_visibility='onchange')
+    svp_signed_date = fields.Date(string='SVP Signed Date', track_visibility='onchange')
+    cto_signed_date = fields.Date(string='CTO Signed Date', track_visibility='onchange')
 
-    closed_date = fields.Date(string='Closed Date')
-    sent_finance_date = fields.Date(string='Sent to Finance Date')
+    closed_date = fields.Date(string='Closed Date', track_visibility='onchange')
+    sent_finance_date = fields.Date(string='Sent to Finance Date', track_visibility='onchange')
     sequence = fields.Integer(string='Sequence')
 
     # RELATIONSHIPS
@@ -133,6 +136,10 @@ class InvoiceSummary(models.Model):
                                    'budget_invoice_summary_invoice',
                                    'summary_id',
                                    'invoice_id')
+    signature_ids = fields.Many2many('budget.signature.signatory',
+                                     'budget_invoice_summary_signature',
+                                     'summary_id',
+                                     'signature_id')
     # TODO REMOVE
     section_id = fields.Many2one('res.partner', string='Section')
 
@@ -248,8 +255,12 @@ class InvoiceSummary(models.Model):
         footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
         footter_cell.font = Font(size=11, bold=True)
         ws.row_dimensions[footter_cell.row].height = 60
+
         # SIGNATURE
-        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        signatory_img = self.get_signatories()
+        tmpfile = tempfile.TemporaryFile()
+        signatory_img.save(tmpfile, format="PNG")
+        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
         # SAVE FINAL ATTACHMENT
         creator.save()
@@ -310,8 +321,12 @@ class InvoiceSummary(models.Model):
         footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
         footter_cell.font = Font(size=11, bold=True)
         ws.row_dimensions[footter_cell.row].height = 60
+
         # SIGNATURE
-        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        signatory_img = self.get_signatories()
+        tmpfile = tempfile.TemporaryFile()
+        signatory_img.save(tmpfile, format="PNG")
+        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
         # SAVE FINAL ATTACHMENT
         creator.save()
@@ -377,8 +392,12 @@ class InvoiceSummary(models.Model):
         ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
+
         # SIGNATURE
-        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        signatory_img = self.get_signatories()
+        tmpfile = tempfile.TemporaryFile()
+        signatory_img.save(tmpfile, format="PNG")
+        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
         # SAVE FINAL ATTACHMENT
         creator.save()
@@ -433,6 +452,7 @@ class InvoiceSummary(models.Model):
 
         ws.cell("F5").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
         ws.cell("F7").value = get_joined_value(self.mapped('invoice_ids.contract_id.contract_ref'))
+        ws.cell("F15").value = get_joined_value(self.mapped('invoice_ids.mms_no'))
         ws.cell("I7").value = get_joined_value(self.mapped('invoice_ids.po_id.no'))
         ws.cell("I11").value = get_joined_value(self.mapped('invoice_ids.po_id.amount'))
 
@@ -487,7 +507,10 @@ class InvoiceSummary(models.Model):
             ws.row_dimensions[footer_cell.row].height = 60
 
         # SIGNATURE
-        ws.add_image(creator.signature, "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        signatory_img = self.get_signatories()
+        tmpfile = tempfile.TemporaryFile()
+        signatory_img.save(tmpfile, format="PNG")
+        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
         # SAVE FINAL ATTACHMENT
         creator.save()
@@ -500,18 +523,17 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     # TODO MUST DO A TRANSITION FOR RETURNING TO DRAFT
 
-    @api.one
+    @api.multi
     def set2draft(self):
         self.state = 'draft'
 
-    @api.one
+    @api.multi
     def set2file_generated(self):
         if len(self.invoice_ids) == 0:
             raise ValidationError('Empty Invoice List')
 
         creator = Creator(summary_no=self.summary_no,
                           summary_res_id=self.id,
-                          signature=self.signature,
                           form_filename=self.form)
 
         # get attribute from form name removing .xlsx
@@ -525,34 +547,37 @@ class InvoiceSummary(models.Model):
 
         self.state = 'file generated'
 
-    @api.one
+    @api.multi
     def set2sd_signed(self):
         if self.sd_signed_date is False:
-            raise ValidationError('SD Signed Date is Required')
+            self.sd_signed_date = fields.Date.today()
+
         for invoice in self.invoice_ids:
             invoice.sudo().signal_workflow('sd_sign')
         self.state = 'sd signed'
 
-    @api.one
+    @api.multi
     def set2svp_signed(self):
         if self.svp_signed_date is False:
-            raise ValidationError('SVP Signed Date is Required')
+            self.svp_signed_date = fields.Date.today()
+
         for invoice in self.invoice_ids:
             invoice.sudo().signal_workflow('svp_sign')
         self.state = 'svp signed'
 
-    @api.one
+    @api.multi
     def set2cto_signed(self):
         if self.cto_signed_date is False:
-            raise ValidationError('CTO Signed Date is Required')
+            self.cto_signed_date = fields.Date.today()
+
         for invoice in self.invoice_ids:
             invoice.sudo().signal_workflow('cto_sign')
         self.state = 'cto signed'
 
-    @api.one
+    @api.multi
     def set2sent_to_finance(self):
         if self.sent_finance_date is False:
-            raise ValidationError('Sent to Finance Date is Required')
+            self.sent_finance_date = fields.Date.today()
 
         for invoice in self.invoice_ids:
             invoice.sent_finance_date = self.sent_finance_date
@@ -560,10 +585,11 @@ class InvoiceSummary(models.Model):
             invoice.sudo().signal_workflow('send_to_finance')
         self.state = 'sent to finance'
 
-    @api.one
+    @api.multi
     def set2closed(self):
         if self.closed_date is False:
-            raise ValidationError('Close Date is Required')
+            self.closed_date = fields.Date.today()
+
         for invoice in self.invoice_ids:
             invoice.closed_date = self.closed_date
             if invoice.on_hold_amount > 0 and invoice.state != 'amount hold':
@@ -572,17 +598,13 @@ class InvoiceSummary(models.Model):
                 invoice.sudo().signal_workflow('close')
         self.state = 'closed'
 
-    @api.one
+    @api.multi
     def set2cancelled(self):
-        # attachments = self.env['ir.attachment'].search([('res_model', '=', self._name), ('res_id', '=', 212)])
-        # for attachment in attachments:
-        #     attachment.unlink()
-
         for invoice in self.invoice_ids:
             invoice.sudo().signal_workflow('cancel')
         self.state = 'cancelled'
 
-    @api.one
+    @api.multi
     def reset_summary(self):
         self.set2cancelled()
         self.delete_workflow()
@@ -597,12 +619,21 @@ class InvoiceSummary(models.Model):
             ('res_id', '=', self.id)
         ], limit=1, order='id desc')
 
+        # TODO CHECK HW TO REMOVE ?debug on the url
         return {
             'type': 'ir.actions.act_url',
-            'url': '/web/content/%s/%s' % (attachment_id.id, self.summary_no),
+            'url': '/web/content/%s?download=true' % attachment_id.id,
             'target': 'self',
             'res_id': self.id,
         }
+
+    # MISC FUNCTIONS
+    # ----------------------------------------------------------
+    @api.multi
+    def get_signatories(self):
+        ids = self.mapped('signature_ids').ids
+        signatories = self.signature_ids.create_signatories(ids)
+        return signatories
 
     # POLYMORPH FUNCTIONS
     # ----------------------------------------------------------

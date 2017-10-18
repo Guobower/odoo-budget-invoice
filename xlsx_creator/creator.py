@@ -133,7 +133,7 @@ Worksheet.insert_rows = insert_rows
 
 class Creator(object):
     def __init__(self, logo='logo.png', summary_no=None, summary_res_id=None,
-                 signature=None, form_filename=None, data=None):
+                 form_filename=None, data=None):
         self.summary_no = summary_no
         self.summary_res_id = summary_res_id
         self.form_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'form_template'))
@@ -145,9 +145,7 @@ class Creator(object):
         self.data = data
 
         logo_path = os.path.join(self.form_template_path, "img", logo)
-        sign_path = os.path.join(self.form_template_path, "img", signature)
         self.logo = Image(logo_path)
-        self.signature = Image(sign_path)
 
     def get_wb(self):
         return self.wb

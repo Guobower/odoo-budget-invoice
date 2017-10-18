@@ -112,15 +112,15 @@ class Invoice(models.Model):
     # TODO DEPRECATE
     signed_date = fields.Date(string='Signed Date')
     # ---------------
-    sd_signed_date = fields.Date(string='SD Signed Date')
-    svp_signed_date = fields.Date(string='SVP Signed Date')
-    cto_signed_date = fields.Date(string='CTO Signed Date')
+    sd_signed_date = fields.Date(string='SD Signed Date', track_visibility='onchange')
+    svp_signed_date = fields.Date(string='SVP Signed Date', track_visibility='onchange')
+    cto_signed_date = fields.Date(string='CTO Signed Date', track_visibility='onchange')
+    sent_finance_date = fields.Date(string='Sent to Finance Date', track_visibility='onchange')
+    closed_date = fields.Date(string='Closed Date', track_visibility='onchange')
     start_date = fields.Date(string='Start Date')
     end_date = fields.Date(string='End Date')
     rfs_date = fields.Date(string='RFS Date')  # TODO MAKE THIS CONTRACTUAL RFS
     actual_rfs_date = fields.Date(string='Actual RFS Date')
-    sent_finance_date = fields.Date(string='Sent to Finance Date')
-    closed_date = fields.Date(string='Closed Date')
 
     on_hold_date = fields.Date(string='On Hold Date')
     reject_date = fields.Date(string='Reject Date')
@@ -180,8 +180,9 @@ class Invoice(models.Model):
                                         related='po_id.amount',
                                         string='PO Amount')
     related_po_paid_amount = fields.Monetary(currency_field='currency_id',
-                                        related='po_id.total_invoice_amount',
-                                        string='PO Paid Amount')
+                                             related='po_id.total_invoice_amount',
+                                             string='PO Paid Amount')
+
     # ONCHANGE FIELDS
     # ----------------------------------------------------------
     @api.onchange('contractor_id', 'invoice_no')
@@ -241,7 +242,7 @@ class Invoice(models.Model):
             #             discount_percentage = discount.discount_percentage
             #             break
 
-                # self.discount_percentage = discount_percentage
+            # self.discount_percentage = discount_percentage
 
             # CODE END
             eval_context = self.contract_id.discount_rule_id.run_rule_code(eval_context)
@@ -281,7 +282,7 @@ class Invoice(models.Model):
                                    inverse='_set_capex_amount',
                                    string='CAPEX Amount')
     revenue_amount = fields.Monetary(currency_field='currency_id', store=True,
-                                     compute='_compute_revenue_amount',
+                                     compute="_compute_revenue_amount",
                                      inverse='_set_revenue_amount',
                                      string='Revenue Amount')
     invoice_amount = fields.Monetary(currency_field='currency_id', store=True,
@@ -317,6 +318,10 @@ class Invoice(models.Model):
     oear_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
+    # SAME AS CEAR AND OEAR, IT WILL BE USE TO CHECK WHETHER TO HIDE CEAR AND OEAR TABS
+    total_revenue_amount = fields.Monetary(currency_field='currency_id', store=True,
+                                  compute='_compute_total_revenue_amount',
+                                  string='Total Revenue Amount')
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
@@ -482,14 +487,19 @@ class Invoice(models.Model):
                                         self.on_hold_amount - self.other_deduction_amount
 
     @api.one
-    @api.depends('cear_allocation_ids', 'capex_amount', 'revenue_amount')
+    @api.depends('cear_allocation_ids', 'capex_amount')
     def _compute_cear_amount(self):
-        self.cear_amount = self.capex_amount + self.revenue_amount
+        self.cear_amount = self.capex_amount
 
     @api.one
-    @api.depends('amount_ids', 'opex_amount')
+    @api.depends('oear_allocation_ids', 'opex_amount')
     def _compute_oear_amount(self):
         self.oear_amount = self.opex_amount
+
+    @api.one
+    @api.depends('cear_allocation_ids', 'oear_allocation_ids', 'revenue_amount')
+    def _compute_total_revenue_amount(self):
+        self.total_revenue_amount = self.revenue_amount
 
     # INVERSE FIELDS
     # ----------------------------------------------------------
