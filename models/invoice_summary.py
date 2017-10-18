@@ -553,6 +553,7 @@ class InvoiceSummary(models.Model):
             self.sd_signed_date = fields.Date.today()
 
         for invoice in self.invoice_ids:
+            invoice.sd_signed_date = self.sd_signed_date
             invoice.sudo().signal_workflow('sd_sign')
         self.state = 'sd signed'
 
@@ -562,6 +563,7 @@ class InvoiceSummary(models.Model):
             self.svp_signed_date = fields.Date.today()
 
         for invoice in self.invoice_ids:
+            invoice.svp_signed_date = self.svp_signed_date
             invoice.sudo().signal_workflow('svp_sign')
         self.state = 'svp signed'
 
@@ -571,6 +573,7 @@ class InvoiceSummary(models.Model):
             self.cto_signed_date = fields.Date.today()
 
         for invoice in self.invoice_ids:
+            invoice.cto_signed_date = self.cto_signed_date
             invoice.sudo().signal_workflow('cto_sign')
         self.state = 'cto signed'
 
@@ -581,7 +584,6 @@ class InvoiceSummary(models.Model):
 
         for invoice in self.invoice_ids:
             invoice.sent_finance_date = self.sent_finance_date
-            invoice.signed_date = self.signed_date
             invoice.sudo().signal_workflow('send_to_finance')
         self.state = 'sent to finance'
 

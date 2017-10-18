@@ -320,8 +320,8 @@ class Invoice(models.Model):
                                   string='Oear Amount')
     # SAME AS CEAR AND OEAR, IT WILL BE USE TO CHECK WHETHER TO HIDE CEAR AND OEAR TABS
     total_revenue_amount = fields.Monetary(currency_field='currency_id', store=True,
-                                  compute='_compute_total_revenue_amount',
-                                  string='Total Revenue Amount')
+                                           compute='_compute_total_revenue_amount',
+                                           string='Total Revenue Amount')
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
@@ -674,11 +674,10 @@ class Invoice(models.Model):
 
     @api.multi
     def unlink(self):
-        ids = []
-        for res in self:
-            ids.append(res.id)
+        list_invoice_no = self.mapped('invoice_no')
         res = super(Invoice, self).unlink()
-        self.env.add_todo(self._fields['problem'], self.search([('invoice_no', 'in', ids)]))
+        invoice_ids = self.search([('invoice_no', 'in', list_invoice_no)])
+        self.env.add_todo(self._fields['problem'], invoice_ids)
         self.recompute()
         self.env.cr.commit()
         return res
