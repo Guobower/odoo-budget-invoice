@@ -548,20 +548,23 @@ class Invoice(models.Model):
          'Penalty Percentage must be with in 0-100'),
     ]
 
-    @api.one
-    @api.constrains('cear_amount', 'cear_allocation_ids')
-    def _check_total_capex(self):
-        current_user = self.env.user
-        if current_user.has_group('base.group_system'):
-            return
-        allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
-        # if the difference of cear_amount and allocation is less than 1 (threshold),
-        # it means that it is miss allocated
-        if abs(self.cear_amount - allocation_cear_amount) > 1:
-            msg = 'TOTAL INVOICE (CEAR) AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(self.cear_amount,
-                                                                                             allocation_cear_amount
-                                                                                             )
-            raise ValidationError(msg)
+    # @api.one
+    # @api.constrains('cear_amount', 'cear_allocation_ids')
+    # def _check_total_capex(self):
+    #     current_user = self.env.user
+    #     if current_user.has_group('base.group_system'):
+    #         return
+    #
+    #     allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
+    #     budget_types = self.mapped('cear_allocation_ids.budget_type')
+    #     # if the difference of cear_amount and allocation is less than 1 (threshold),
+    #     # it means that it is miss allocated
+    #     if abs(self.cear_amount - allocation_cear_amount) > 1:
+    #         if 'capex' in budget_types:
+    #             msg = 'TOTAL INVOICE (CEAR) AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(self.cear_amount,
+    #                                                                                              allocation_cear_amount
+    #                                                                                              )
+    #         raise ValidationError(msg)
 
     # @api.one
     # @api.constrains('opex_amount', 'oear_allocation_ids')
