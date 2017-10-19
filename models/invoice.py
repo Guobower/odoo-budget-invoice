@@ -6,11 +6,14 @@ from odoo.exceptions import ValidationError, UserError
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-
 # TODO CHECK AND ADD TEST FOR MULTI CURRENCY
 # TODO CHECK THE PROBLEM LOGIC WHEN UNLINK/DELETE
 # TODO REVENUE OF HEAD OFFICE GOES TO OPEX ( CC-AC )
 # DUE TO REFLECT ALL CHANGES IN ALL SIDES
+
+DIFFERENCE_THRESHOLD = 1
+
+
 def amount_setter(invoice=None, budget_type=None):
     if budget_type is None:
         raise ValidationError('Budget Type In Amount Setter must not be None')
@@ -376,7 +379,7 @@ class Invoice(models.Model):
                 break
 
     @api.one
-    @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contract_id')
+    @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contractor_id')
     def _compute_problem(self):
         # Checks Duplicate
         count = self.search_count([('invoice_no', '=', self.invoice_no),
@@ -548,33 +551,26 @@ class Invoice(models.Model):
          'Penalty Percentage must be with in 0-100'),
     ]
 
-    # @api.one
-    # @api.constrains('cear_amount', 'cear_allocation_ids')
-    # def _check_total_capex(self):
-    #     current_user = self.env.user
-    #     if current_user.has_group('base.group_system'):
-    #         return
-    #
-    #     allocation_cear_amount = sum(self.cear_allocation_ids.mapped('amount'))
-    #     budget_types = self.mapped('cear_allocation_ids.budget_type')
-    #     # if the difference of cear_amount and allocation is less than 1 (threshold),
-    #     # it means that it is miss allocated
-    #     if abs(self.cear_amount - allocation_cear_amount) > 1:
-    #         if 'capex' in budget_types:
-    #             msg = 'TOTAL INVOICE (CEAR) AMOUNT IS {} BUT CEAR AMOUNT ALLOCATED IS {}'.format(self.cear_amount,
-    #                                                                                              allocation_cear_amount
-    #                                                                                              )
-    #         raise ValidationError(msg)
+    @api.one
+    @api.constrains('cear_amount', 'oear_amount', 'total_revenue_amount',
+                    'oear_allocation_ids', 'cear_allocation_ids')
+    def _check_total_distributed_amount(self):
+        current_user = self.env.user
 
-    # @api.one
-    # @api.constrains('opex_amount', 'oear_allocation_ids')
-    # def _check_total_opex(self):
-    #     oear_amount = self.opex_amount
-    #     allocation_oear_amount = sum(self.oear_allocation_ids.mapped('amount'))
-    #     if oear_amount != allocation_oear_amount:
-    #         msg = 'TOTAL OEAR AMOUNT IS {} BUT OEAR AMOUNT ALLOCATED IS {}'.format(allocation_oear_amount,
-    #                                                                                oear_amount)
-    #         raise ValidationError(msg)
+        if current_user.has_group('base.group_system'):
+            return
+
+        amount = sum(self.mapped('amount_ids.amount'))
+        allocation_cear_amount = sum(self.mapped('cear_allocation_ids.amount'))
+        allocation_oear_amount = sum(self.mapped('oear_allocation_ids.amount'))
+        allocated_amount = allocation_cear_amount + allocation_oear_amount
+        # if the difference of cear_amount and allocation is less than (threshold),
+        # it means that it is miss allocated
+        if abs(amount - allocated_amount) > DIFFERENCE_THRESHOLD:
+            msg = 'TOTAL INVOICE AMOUNT IS {} BUT TOTAL AMOUNT ALLOCATED IS {}'.format(amount,
+                                                                                       allocated_amount
+                                                                                       )
+            raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
