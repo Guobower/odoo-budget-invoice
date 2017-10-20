@@ -10,3 +10,11 @@ from . import budget_inherit, contract_inherit, contractor_inherit, \
 from . import invoice, invoice_summary, invoice_amount, \
     invoice_cear_allocation, invoice_oear_allocation, \
     actual, invoice_volume_discount, project_estimated_cost
+
+# SPECIAL MODELS
+# ----------------------------------------------------------
+from . import ir_autovacuum
+
+# REPORT VIEW MODELS
+# ----------------------------------------------------------
+from . import cear_allocation_bi

@@ -637,6 +637,12 @@ class InvoiceSummary(models.Model):
         signatories = self.signature_ids.create_signatories(ids)
         return signatories
 
+    @api.multi
+    def _delete_attachments(self):
+        attachment = self.env['ir.attachment'].search([('res_model', '=', self._name)])
+        attachment.unlink()
+        return True
+
     # POLYMORPH FUNCTIONS
     # ----------------------------------------------------------
     @api.one

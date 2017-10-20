@@ -12,6 +12,11 @@
                 name="Invoice"
                 sequence="1"
                 parent="menu_invoice_top"/>
+        <menuitem
+                id="menu_bi_left"
+                name="Business Intelligence"
+                sequence="99"
+                parent="menu_invoice_top"/>
         <!-- INVOICE VIEW FOR DEPENDENT -->
         <menuitem
                 id="menu_invoice_left_child"
@@ -55,15 +60,12 @@
                 sequence="4"
                 parent="menu_invoice_left"
                 action="budget_purchase_order.action_purchase_order"/>
-
-
         <menuitem
                 id="menu_cear_left"
                 name="Cear"
                 sequence="2"
                 parent="menu_invoice_top"
                 action="budget_capex.action_cear"/>
-
         <menuitem
                 id="menu_external_left"
                 name="Dependencies"
@@ -87,7 +89,12 @@
                 sequence="99"
                 parent="menu_external_left"
                 action="action_currency_rate"/>
-
-
+        <!-- BUSINESS INTELLIGENCE VIEW -->
+        <menuitem
+                id="menu_cear_allocation_left_child"
+                name="By Cear Allocation"
+                sequence="1"
+                parent="menu_bi_left"
+                action="action_cear_allocation_bi"/>
     </data>
 </odoo>

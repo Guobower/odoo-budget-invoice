@@ -46,8 +46,10 @@ Invoice Management
         'views/discount_rule_inherit.xml',
         'views/cear_inherit.xml',
         'views/oear_inherit.xml',
-        #        'views/account_code_inherit.xml',
         'views/budget_inherit.xml',
+
+        'views/cear_allocation_bi.xml',
+
         'views/menu.xml',
     ],
     'demo': [

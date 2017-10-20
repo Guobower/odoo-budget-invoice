@@ -72,7 +72,6 @@
                                 <field name="signed_date"/>
                                 <!-- ############## -->
                             </group>
-
                             <h1>
                                 <field name="summary_no" readonly="1"/>
                             </h1>
@@ -115,7 +114,7 @@
                                         <field name="sequence" widget="handle"/>
                                         <field name="invoice_no"/>
                                         <field name="contract_id"/>
-                                        <field name="invoice_amount"/>
+                                        <field name="invoice_amount" sum="1"/>
                                         <field name="invoice_date"/>
                                         <field name="invoice_cert_date"/>
                                         <field name="received_date"/>
@@ -191,7 +190,7 @@
             <field name="name">Invoice Summary</field>
             <field name="res_model">budget.invoice.invoice.summary</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="view_mode">tree,form</field>
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary',
