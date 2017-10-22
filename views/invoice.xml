@@ -68,7 +68,7 @@
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
                             </h1>
                             <h3>
-                                <field name="problem" decoration-danger="True" readonly="1"/>
+                                <field name="problem" class="text-danger" readonly="1"/>
                             </h3>
                         </div>
                         <notebook>
@@ -259,8 +259,8 @@
             <field name="model">budget.invoice.invoice</field>
             <field name="arch" type="xml">
                 <tree default_order="id desc"
-                      decoration-success="problem in ['ok', '', False]"
-                      decoration-danger="problem not in ['ok', '', False]"
+                      decoration-success="problem == False"
+                      decoration-danger="problem != False"
                       decoration-muted="state == 'closed'">
                     <field name="invoice_no"/>
                     <field name="po_id"/>

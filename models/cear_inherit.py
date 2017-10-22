@@ -67,7 +67,7 @@ class TaskInherit(models.Model):
             self.problem = 'overrun'
 
         else:
-            self.problem = 'ok'
+            self.problem = False
 
     @api.one
     @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')

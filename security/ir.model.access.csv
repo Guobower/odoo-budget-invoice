@@ -28,3 +28,4 @@ access_budget_invoice_026,budget_invoice.invoice.volume.discount,model_budget_in
 access_budget_invoice_027,budget_invoice.invoice.volume.discount,model_budget_invoice_volume_discount,budget_contractor.group_contractor_user,1,1,1,0
 access_budget_invoice_028,budget_invoice.invoice.volume.discount,model_budget_invoice_volume_discount,budget_contractor.group_contractor_manager,1,1,1,1
 access_budget_invoice_029,budget_invoice.cear.allocation.bi,model_budget_invoice_cear_allocation_bi,group_invoice_dependent,1,0,0,0
+access_budget_invoice_030,budget_invoice.cear.allocation.bi,model_budget_invoice_cear_allocation_bi,group_invoice_user,1,0,0,0

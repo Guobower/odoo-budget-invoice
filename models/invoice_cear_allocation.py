@@ -57,7 +57,7 @@ class CearAllocation(models.Model):
             self.problem = self.cear_id.problem
             return
 
-        if self.cear_id.problem != "ok":
+        if self.cear_id.problem:
             self.problem = self.cear_id.problem
             return
         cear_im_utilized = self.cear_id.im_utilized_amount
@@ -70,6 +70,3 @@ class CearAllocation(models.Model):
 
         elif cear_fn_utilized + invoice_certified_invoice > cear_authorized:
             self.problem = "overrun"
-
-        else:
-            self.problem = "ok"
