@@ -262,7 +262,8 @@
                 <tree default_order="id desc"
                       decoration-success="problem == False"
                       decoration-warning="problem == 'FN overrun'"
-                      decoration-danger="problem in ['IM overrun', 'duplicate']">
+                      decoration-danger="problem not in ['FN overrun', False]"
+                      decoration-muted="state in ['closed', 'rejected']">
                     <field name="invoice_no"/>
                     <field name="po_id"/>
                     <field name="contract_id"/>

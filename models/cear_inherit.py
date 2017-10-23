@@ -25,18 +25,14 @@ class TaskInherit(models.Model):
                                      string="Allocations")
 
     actual_ids = fields.One2many('budget.invoice.actual',
-                                'cear_id',
-                                string="Actuals")
+                                 'cear_id',
+                                 string="Actuals")
 
     # RELATED FIELDS
     # ----------------------------------------------------------
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    invoice_ids = fields.One2many('budget.invoice.invoice',
-                                  compute='_compute_invoice_ids',
-                                  string='Invoices')
-
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
@@ -47,30 +43,27 @@ class TaskInherit(models.Model):
                                          store=True)
 
     @api.one
-    @api.depends('allocation_ids', 'allocation_ids.invoice_id')
-    def _compute_invoice_ids(self):
-        self.invoice_ids = self.mapped('allocation_ids.invoice_id')
-
-    @api.one
-    @api.depends('authorized_amount', 'fn_utilized_amount', 'im_utilized_amount', 'category', 'state')
+    @api.depends('authorized_amount', 'fn_utilized_amount', 'im_utilized_amount', 'category')
     def _compute_problem(self):
 
         if self.category == "Y":
-            # False to represent that problem check is not to be perform
             self.problem = False
+            return
 
         if self.authorized_amount < self.im_utilized_amount:
             self.problem = 'IM overrun'
+            return
 
         if self.authorized_amount < self.fn_utilized_amount:
             self.problem = 'FN overrun'
+            return
 
-        else:
-            self.problem = False
+        self.problem = False
 
     @api.one
     @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')
     def _compute_im_utilized_amount(self):
+        self.invoice_ids = self.mapped('allocation_ids.invoice_id')
         cear_allocations = self.env['budget.invoice.cear.allocation'].search([('cear_id', '=', self.id),
                                                                               ('invoice_id.state', 'not in',
                                                                                ['draft', 'on hold', 'rejected'])

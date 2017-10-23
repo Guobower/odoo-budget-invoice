@@ -383,7 +383,7 @@ class Invoice(models.Model):
         domain = [('invoice_no', '=', self.invoice_no),
                   ('contractor_id', '=', self.contractor_id.id),
                   ('state', '!=', 'rejected')]
-        if self.id:
+        if isinstance(self.id, models.NewId):
             domain.append(('id', '!=', self.id))
 
         invoice_ids = self.search(domain)

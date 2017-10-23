@@ -18,11 +18,6 @@
                 <xpath expr="//field[@name='fn_utilized_amount']" position="before">
                     <field name="im_utilized_amount"/>
                 </xpath>
-                <xpath expr="//notebook" position="inside">
-                    <page string="Invoice">
-                        <field name="invoice_ids" readonly="1"/>
-                    </page>
-                </xpath>
             </field>
         </record>
         <record model="ir.ui.view" id="view_tree_cear_inherit">
