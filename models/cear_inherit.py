@@ -63,7 +63,6 @@ class TaskInherit(models.Model):
     @api.one
     @api.depends('allocation_ids', 'allocation_ids.amount', 'allocation_ids.invoice_id.state')
     def _compute_im_utilized_amount(self):
-        self.invoice_ids = self.mapped('allocation_ids.invoice_id')
         cear_allocations = self.env['budget.invoice.cear.allocation'].search([('cear_id', '=', self.id),
                                                                               ('invoice_id.state', 'not in',
                                                                                ['draft', 'on hold', 'rejected'])

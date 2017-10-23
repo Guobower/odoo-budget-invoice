@@ -38,7 +38,6 @@ Invoice Management
         'views/res_currency_rate.xml',
 
         'views/invoice.xml',
-        'views/invoice_amount.xml',
         'views/invoice_summary.xml',
         'views/project_estimated_cost.xml',
         'views/contract_inherit.xml',

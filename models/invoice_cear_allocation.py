@@ -25,6 +25,7 @@ class CearAllocation(models.Model):
     currency_id = fields.Many2one('res.currency', readonly=True,
                                           default=lambda self: self.env.user.company_id.currency_id)
     invoice_id = fields.Many2one('budget.invoice.invoice',
+                                 ondelete='cascade',
                                  string='Invoice')
     cear_id = fields.Many2one('budget.capex.cear',
                               string='CEAR',

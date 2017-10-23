@@ -377,8 +377,12 @@ class Invoice(models.Model):
                 break
 
     @api.one
-    @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contractor_id')
+    @api.depends('state', 'cear_allocation_ids.problem', 'invoice_no', 'contractor_id')
     def _compute_problem(self):
+        if self.state == 'rejected':
+            self.problem = False
+            return
+
         # Checks Duplicate
         domain = [('invoice_no', '=', self.invoice_no),
                   ('contractor_id', '=', self.contractor_id.id),
