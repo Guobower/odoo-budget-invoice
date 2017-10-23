@@ -52,7 +52,7 @@ class CearAllocation(models.Model):
     @api.one
     @api.depends('invoice_id.state', 'invoice_id.certified_invoice_amount', 'cear_id.problem')
     def _compute_problem(self):
-        if self.cear_id.problem:
+        if self.cear_id.problem or self.invoice_id.state not in ['draft']:
             self.problem = self.cear_id.problem
             return
 
