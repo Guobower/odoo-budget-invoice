@@ -68,7 +68,7 @@
                                 <field name="invoice_no" required="1" default_focus="1" placeholder="Invoice No"/>
                             </h1>
                             <h3>
-                                <field name="problem" class="text-danger" readonly="1"/>
+                                <field name="problem" class="text-danger"/>
                             </h3>
                         </div>
                         <notebook>
@@ -77,7 +77,7 @@
                                     <group>
                                         <field name="region_id" required="1" options="{'no_create': True}"/>
                                         <field name="contract_id" options="{'no_create': True}"/>
-                                        <field name="contractor_id" options="{'no_create': True}"/>
+                                        <field name="contractor_id" required="1" options="{'no_create': True}"/>
                                         <field name="po_id" options="{'no_create': True}"/>
                                         <field name="division_id" options="{'no_create': True}"/>
                                         <field name="section_id" options="{'no_create': True}"/>
@@ -187,8 +187,9 @@
                                            context="{'default_invoice_id': id, 'default_amount': invoice_amount}"
                                            attrs="{'invisible': [('cear_amount','=',0.0),
                                                                  ('total_revenue_amount','=',0.0)]}">
-                                        <tree editable="bottom" decoration-success="problem in ['ok', False]"
-                                              decoration-danger="problem in ['overrun']">
+                                        <tree editable="bottom" decoration-success="problem == False"
+                                              decoration-warning="problem == 'FN overrun'"
+                                              decoration-danger="problem in ['IM overrun', 'duplicate']">
                                             <field name="invoice_id" groups="base.group_no_one"/>
                                             <field name="currency_id" groups="base.group_no_one"/>
                                             <field name="sequence" widget="handle"/>
@@ -260,8 +261,8 @@
             <field name="arch" type="xml">
                 <tree default_order="id desc"
                       decoration-success="problem == False"
-                      decoration-danger="problem != False"
-                      decoration-muted="state == 'closed'">
+                      decoration-warning="problem == 'FN overrun'"
+                      decoration-danger="problem in ['IM overrun', 'duplicate']">
                     <field name="invoice_no"/>
                     <field name="po_id"/>
                     <field name="contract_id"/>
@@ -283,8 +284,9 @@
             <field name="model">budget.invoice.invoice</field>
             <field name="arch" type="xml">
                 <tree default_order="id desc"
-                      decoration-success="problem in ['ok', '', False]"
-                      decoration-danger="problem not in ['ok', '', False]"
+                      decoration-success="problem == False"
+                      decoration-warning="problem == 'FN overrun'"
+                      decoration-danger="problem in ['IM overrun', 'duplicate']"
                       decoration-muted="state == 'closed'">
                     <field name="invoice_no"/>
                     <field name="po_id"/>
@@ -337,7 +339,7 @@
                     <group expand="0" string="Group By" colspan="16">
                         <filter string="Purchase Order" context="{'group_by':'po_id'}"/>
                         <filter string="Contractor" context="{'group_by':'contractor_id'}"/>
-                        <filter string="Contract" context="{'group_by':'contract_id'}" />
+                        <filter string="Contract" context="{'group_by':'contract_id'}"/>
                     </group>
                 </search>
             </field>

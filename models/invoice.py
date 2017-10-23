@@ -380,16 +380,25 @@ class Invoice(models.Model):
     @api.depends('cear_allocation_ids.problem', 'invoice_no', 'contractor_id')
     def _compute_problem(self):
         # Checks Duplicate
-        count = self.search_count([('invoice_no', '=', self.invoice_no),
-                                   ('contract_id.contractor_id', '=', self.contractor_id.id),
-                                   ('state', '!=', 'rejected')])
-        if count > 1:
-            self.problem = 'duplicate'
+        domain = [('invoice_no', '=', self.invoice_no),
+                  ('contractor_id', '=', self.contractor_id.id),
+                  ('state', '!=', 'rejected')]
+        if self.id:
+            domain.append(('id', '!=', self.id))
 
-        else:
-            problems = self.cear_allocation_ids.mapped('problem')
-            uniq_problems = set(problems) - set([False])
+        invoice_ids = self.search(domain)
+        if len(invoice_ids) > 0:
+            self.problem = 'duplicate'
+            return
+
+        problems = self.cear_allocation_ids.mapped('problem')
+        uniq_problems = set(problems) - set([False])
+        if len(uniq_problems) > 0:
             self.problem = '; '.join(uniq_problems)
+            return
+
+        self.problem = False
+        return
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -645,6 +654,15 @@ class Invoice(models.Model):
 
     # ADDITIONAL FUNCTIONS
     # ----------------------------------------------------------
+    @api.model
+    def recompute_problem(self, list_invoice_no):
+        # APPLY DUPLICATE CHECK FOR ALL RELATED INVOICES USING WRITE
+        # BECAUSE THE COMPUTED FIELD WON'T ALLOW UPDATE OF OTHER INVOICES
+        # list_invoice_no = [self.invoice_no, vals.get('invoice_no')]
+        invoice_ids = self.search([('invoice_no', 'in', list_invoice_no)])
+        self.env.add_todo(self._fields['problem'], invoice_ids)
+        self.recompute()
+        self.env.cr.commit()
 
     # POLYMORPH FUNCTIONS
     # ----------------------------------------------------------
@@ -669,12 +687,30 @@ class Invoice(models.Model):
 
         return super(Invoice, self).copy(default)
 
+    @api.model
+    def create(self, vals):
+        list_invoice_no = self.mapped('invoice_no')
+        if vals.get('invoice_no', False):
+            list_invoice_no.append(vals.get('invoice_no'))
+        res = super(Invoice, self).create(vals)
+
+        self.recompute_problem(list_invoice_no)
+        return res
+
+    @api.multi
+    def write(self, vals):
+        list_invoice_no = self.mapped('invoice_no')
+        if vals.get('invoice_no', False):
+            list_invoice_no.append(vals.get('invoice_no'))
+        res = super(Invoice, self).write(vals)
+
+        self.recompute_problem(list_invoice_no)
+        return res
+
     @api.multi
     def unlink(self):
         list_invoice_no = self.mapped('invoice_no')
         res = super(Invoice, self).unlink()
-        invoice_ids = self.search([('invoice_no', 'in', list_invoice_no)])
-        self.env.add_todo(self._fields['problem'], invoice_ids)
-        self.recompute()
-        self.env.cr.commit()
+
+        self.recompute_problem(list_invoice_no)
         return res

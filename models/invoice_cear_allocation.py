@@ -50,23 +50,24 @@ class CearAllocation(models.Model):
                           store=True)
 
     @api.one
-    @api.depends('invoice_id.state', 'invoice_id.certified_invoice_amount',
-                 'cear_id.problem')
+    @api.depends('invoice_id.state', 'invoice_id.certified_invoice_amount', 'cear_id.problem')
     def _compute_problem(self):
-        if self.invoice_id.state not in ['draft', False]:
-            self.problem = self.cear_id.problem
-            return
-
         if self.cear_id.problem:
             self.problem = self.cear_id.problem
             return
+
         cear_im_utilized = self.cear_id.im_utilized_amount
         cear_fn_utilized = self.cear_id.fn_utilized_amount
         cear_authorized = self.cear_id.authorized_amount
         invoice_certified_invoice = self.invoice_id.certified_invoice_amount
 
-        if cear_im_utilized + invoice_certified_invoice > cear_authorized:
-            self.problem = "overrun"
+        if cear_authorized < cear_fn_utilized + invoice_certified_invoice:
+            self.problem = "FN overrun"
+            return
 
-        elif cear_fn_utilized + invoice_certified_invoice > cear_authorized:
-            self.problem = "overrun"
+        if cear_authorized < cear_im_utilized + invoice_certified_invoice:
+            self.problem = "IM overrun"
+            return
+
+        self.problem = False
+        return
