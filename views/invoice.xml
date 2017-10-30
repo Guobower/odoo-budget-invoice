@@ -40,7 +40,7 @@
                                statusbar_visible="draft,verified,summary generated,sent to finance,closed"/>
                     </header>
                     <sheet>
-                        <group groups="base.group_no_one">
+                        <group readonly="1" groups="base.group_no_one">
                             <group>
                                 <field name="write_date"/>
                                 <field name="team"/>
