@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Invoice",
-    'version': '0.1',
+    'version': '11.0.0.1',
     'summary': 'Invoice Management',
     'sequence': 6,
     'description': """
@@ -18,7 +18,9 @@ Invoice Management
     'author': "Marc Philippe de Villeres",
     'website': "https://github.com/mpdevilleres",
     'category': 'TBPC Budget',
-    'depends': ['document',
+    'depends': ['base',
+                'document',
+                'mail',
                 'budget_contractor',
                 'budget_purchase_order',
                 'budget_capex',
@@ -31,9 +33,6 @@ Invoice Management
     'data': [
         'security/budget_invoice.xml',
         'security/ir.model.access.csv',
-
-        'workflow/invoice.xml',
-        'workflow/invoice_summary.xml',
 
         'views/res_currency_rate.xml',
 

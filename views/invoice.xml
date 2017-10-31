@@ -310,38 +310,33 @@
             <field name="model">budget.invoice.invoice</field>
             <field name="arch" type="xml">
                 <search>
+                    <group expand="0" string="Group By" colspan="16">
+                        <filter string="Purchase Order" domain="[]" context="{'group_by':'po_id'}"/>
+                        <filter string="Contractor" domain="[]" context="{'group_by':'contractor_id'}"/>
+                        <filter string="Contract" domain="[]" context="{'group_by':'contract_id'}"/>
+                    </group>
+                    <filter name="regional"
+                            string="Regional"
+                            domain="[('team', '=', 'regional')]"/>
+                    <filter name="head_office"
+                            string="Head Office"
+                            domain="[('team', '=', 'head office')]"/>
+                    <separator/>
+                    <filter name="my_activity"
+                            string="My Activities"
+                            domain="[('responsible_id', '=', uid)]"/>
+                    <separator/>
+                    <filter name="need_action"
+                            string="Need Action"
+                            domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
+                    <separator/>
+                    <filter name="volume_discount"
+                            string="Volume Discount"
+                            domain="[('state', 'in', ['verified', 'summary generated', 'under certification', 'sent to finance', 'closed'])]"/>
                     <field name="invoice_no"/>
                     <field name="po_id"/>
                     <field name="contractor_id"/>
                     <field name="contract_id"/>
-                    <filter
-                            name="regional"
-                            string="Regional"
-                            domain="[('team', '=', 'regional')]"/>
-                    <filter
-                            name="head_office"
-                            string="Head Office"
-                            domain="[('team', '=', 'head office')]"/>
-                    <seperator/>
-                    <filter
-                            name="my_activity"
-                            string="My Activities"
-                            domain="[('responsible_id', '=', uid)]"/>
-                    <seperator/>
-                    <filter
-                            name="need_action"
-                            string="Need Action"
-                            domain="[('state', 'in', ['draft', 'verified', 'summary generated','under certification', 'sent to finance'])]"/>
-                    <seperator/>
-                    <filter
-                            name="volume_discount"
-                            string="Volume Discount"
-                            domain="[('state', 'in', ['verified', 'summary generated', 'under certification', 'sent to finance', 'closed'])]"/>
-                    <group expand="0" string="Group By" colspan="16">
-                        <filter string="Purchase Order" context="{'group_by':'po_id'}"/>
-                        <filter string="Contractor" context="{'group_by':'contractor_id'}"/>
-                        <filter string="Contract" context="{'group_by':'contract_id'}"/>
-                    </group>
                 </search>
             </field>
         </record>

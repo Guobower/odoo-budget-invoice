@@ -10,7 +10,7 @@ from ..xlsx_creator.creator import Creator
 from openpyxl.styles import Font
 from openpyxl.styles import PatternFill
 
-from invoice import Invoice
+from .invoice import Invoice
 
 
 def inject_form_header(ws, team, creator, logo_coor, header_coor):
