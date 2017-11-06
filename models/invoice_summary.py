@@ -106,7 +106,7 @@ class InvoiceSummary(models.Model):
 
     # BASIC FIELDS
     # ----------------------------------------------------------
-    active = fields.Boolean(default=True, help="Set active to false to hide the tax without removing it.")
+    active = fields.Boolean(default=True)
     state = fields.Selection(STATES, track_visibility='onchange')
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     # TODO USE GET DEFAULT_SUMMARY IN CREATE
