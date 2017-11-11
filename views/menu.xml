@@ -24,7 +24,7 @@
                 sequence="1"
                 parent="menu_invoice_left"
                 action="action_invoice"
-                groups="base.group_no_one,budget_invoice.group_invoice_dependent"/>
+                groups="base.group_system,budget_invoice.group_invoice_dependent"/>
         <!-- INVOICE VIEW FOR REGIONAL -->
         <menuitem
                 id="menu_invoice_regional_left_child"

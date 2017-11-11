@@ -74,6 +74,11 @@ class Invoice(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     # division_id, section_id, sub_section_id exist in enduser.mixin
+
+    # TODO REMOVE AFTER MIGRATION
+    # ----------------------------------------------------------
+    odoo10_id = fields.Integer()
+    # ----------------------------------------------------------
     state = fields.Selection(STATES, default='draft', track_visibility='onchange')
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
     invoice_no = fields.Char(string="Invoice No")

@@ -16,6 +16,8 @@ class InvoiceCearAllocationBI(models.Model):
     invoice_id = fields.Many2one('budget.invoice.invoice',
                                  string='Invoice',
                                  readonly=True)
+    invoice_receive_date = fields.Date(string='Invoice Receive',
+                                       readonly=True)
     amount = fields.Monetary(currency_field='currency_id',
                              string='Allocated Amount',
                              readonly=True)
@@ -32,14 +34,15 @@ class InvoiceCearAllocationBI(models.Model):
         self._cr.execute("""
             CREATE OR REPLACE VIEW budget_invoice_cear_allocation_bi AS (
                 SELECT
-                  al.id          AS id,
-                  cear.id        AS cear_id,
-                  po.id          AS po_id,
-                  inv.id         AS invoice_id,
-                  al.currency_id AS currency_id,
-                  al.amount      AS amount,
-                  inv.state      AS state,
-                  inv.team      AS team
+                  al.id             AS id,
+                  cear.id           AS cear_id,
+                  po.id             AS po_id,
+                  inv.id            AS invoice_id,
+                  inv.received_date AS invoice_receive_date,
+                  al.currency_id    AS currency_id,
+                  al.amount         AS amount,
+                  inv.state         AS state,
+                  inv.team          AS team
                 FROM
                   budget_invoice_cear_allocation AS al
                   LEFT JOIN
