@@ -3,8 +3,6 @@
 from odoo import models, fields, api
 from odoo.addons.budget_utilities.models.utilities import choices_tuple
 
-from .invoice import Invoice
-
 
 class InvoiceAmount(models.Model):
     _name = 'budget.invoice.amount'
@@ -14,7 +12,6 @@ class InvoiceAmount(models.Model):
 
     # CHOICES
     # ----------------------------------------------------------
-    STATES = Invoice.STATES
     BUDGET_TYPES = choices_tuple(['capex', 'opex', 'revenue'])
     INVOICE_TYPES = choices_tuple(['sicet 2a', 'sicet 2b', 'sicet 3', 'monthly rfq', 'support', 'team based hiring',
                                    'others'])
@@ -40,7 +37,6 @@ class InvoiceAmount(models.Model):
 
     # RELATED FIELDS
     # ----------------------------------------------------------
-    state = fields.Selection(STATES, related="invoice_id.state", string='Invoice State', store=True)
 
     # RELATIONSHIPS
     # ----------------------------------------------------------

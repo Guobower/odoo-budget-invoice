@@ -139,8 +139,7 @@
                 <tree decoration-muted="state=='closed'">
                     <field name="summary_no"/>
                     <field name="objective"/>
-                    <field name="create_uid"/>
-                    <field name="create_date"/>
+                    <field name="responsible_id"/>
                     <field name="state"/>
                     <button name="set2sd_signed" string="SD Signed" type="object"
                             icon="fa-chevron-circle-right text-success"
@@ -176,7 +175,7 @@
                     <separator/>
                     <filter name="my_activity"
                             string="My Activities"
-                            domain="[('create_uid', '=', uid)]"/>
+                            domain="[('responsible_id', '=', uid)]"/>
                     <field name="summary_no"/>
                 </search>
             </field>

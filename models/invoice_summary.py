@@ -131,6 +131,8 @@ class InvoiceSummary(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
+    responsible_id = fields.Many2one('res.users', string='Responsible',
+                                     default=lambda self: self.env.user.id)
     # TODO MUST NOT EDITABLE WHEN ON PROCESS, CHECK RULE ACCESS
     invoice_ids = fields.Many2many('budget.invoice.invoice',
                                    'budget_invoice_summary_invoice',
