@@ -169,11 +169,11 @@
                                     </group>
                                 </group>
                                 <group>
-                                    <group>
-                                        <field name="initial_invoice_amount"/>
-                                    </group>
-                                    <group>
-                                    </group>
+                                    <field name="initial_invoice_amount"/>
+                                </group>
+                                <group>
+                                </group>
+                                <group>
                                     <field name="amount_ids" context="{'default_invoice_id': id}">
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_no_one"/>
