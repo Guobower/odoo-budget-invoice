@@ -3,6 +3,7 @@ import copy
 import re
 import shutil
 import tempfile
+import base64
 
 from openpyxl import *
 from openpyxl.cell import Cell
@@ -160,8 +161,8 @@ class Creator(object):
         ir_attach = env['ir.attachment']
         full_path = os.path.join(self.temp_file)
 
-        with open(full_path, 'r') as fp:
-            data = fp.read().encode('base64')
+        with open(full_path, 'rb') as fp:
+            data = base64.b64encode(fp.read())
         filename = os.path.split(full_path)[1]
         values = dict(
             name=filename,

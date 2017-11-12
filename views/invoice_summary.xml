@@ -17,40 +17,40 @@
                                 groups="base.group_system"/>
                         <button
                                 string="Generate"
-                                name="generate"
-                                type="workflow"
+                                name="set2file_generated"
+                                type="object"
                                 states="draft"/>
 
                         <button
                                 string="SD Sign"
-                                name="sd_sign"
-                                type="workflow"
+                                name="set2sd_signed"
+                                type="object"
                                 states="file generated"/>
                         <button
                                 string="SVP Sign"
-                                name="svp_sign"
-                                type="workflow"
+                                name="set2svp_signed"
+                                type="object"
                                 states="sd signed"/>
                         <button
                                 string="CTO Sign"
-                                name="cto_sign"
-                                type="workflow"
+                                name="set2cto_signed"
+                                type="object"
                                 states="svp signed"/>
 
                         <button
                                 string="Send to Finance"
-                                name="sent_to_finance"
-                                type="workflow"
+                                name="set2sent_to_finance"
+                                type="object"
                                 states="cto signed"/>
                         <button
                                 string="Close"
-                                name="closed"
-                                type="workflow"
+                                name="set2closed"
+                                type="object"
                                 states="sent to finance"/>
                         <button
                                 string="Cancel"
-                                name="cancel"
-                                type="workflow"
+                                name="set2cancelled"
+                                type="object"
                                 states="draft,file generated,sd signed,svp signed,cto signed,sent to finance"/>
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,file generated,sent to finance,closed"/>
@@ -142,19 +142,19 @@
                     <field name="create_uid"/>
                     <field name="create_date"/>
                     <field name="state"/>
-                    <button name="sd_sign" string="SD Signed" type="workflow"
+                    <button name="set2sd_signed" string="SD Signed" type="object"
                             icon="fa-chevron-circle-right text-success"
                             states="file generated"/>
-                    <button name="svp_sign" string="SVP Signed" type="workflow"
+                    <button name="set2svp_signed" string="SVP Signed" type="object"
                             icon="fa-chevron-circle-right text-success"
                             states="sd signed"/>
-                    <button name="cto_sign" string="CTO Signed" type="workflow"
+                    <button name="set2cto_signed" string="CTO Signed" type="object"
                             icon="fa-chevron-circle-right text-success"
                             states="svp signed"/>
-                    <button name="sent_to_finance" string="Sent to Finance" type="workflow"
+                    <button name="set2sent_to_finance" string="Sent to Finance" type="object"
                             icon="fa-chevron-circle-right text-success"
                             states="cto signed"/>
-                    <button name="closed" string="Close" type="workflow"
+                    <button name="set2closed" string="Close" type="object"
                             icon="fa-check-circle text-success"
                             states="sent to finance"/>
                     <button name="download_summary" string="Download" type="object"

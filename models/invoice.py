@@ -99,6 +99,9 @@ class Invoice(models.Model):
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
+    initial_invoice_amount = fields.Monetary(currency_field='currency_id', string='Initial Invoice Amount',
+                                             help="Invoice Amount used for Initial Input Only,"
+                                                  " not used for any calculation")
     input_on_hold_amount = fields.Monetary(currency_field='currency_id', string='On Hold Amount')
     input_penalty_amount = fields.Monetary(currency_field='currency_id', string='Penalty Amount')
     input_discount_amount = fields.Monetary(currency_field='currency_id', string='Discount Amount')
@@ -329,6 +332,10 @@ class Invoice(models.Model):
                                            compute='_compute_total_revenue_amount',
                                            string='Total Revenue Amount')
 
+    summary_id = fields.Many2one('budget.invoice.invoice.summary',
+                                 compute="_compute_summary_id",
+                                 string="Summary Reference")
+
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
     def _compute_discount_applicable(self):
@@ -520,6 +527,12 @@ class Invoice(models.Model):
     def _compute_total_revenue_amount(self):
         self.total_revenue_amount = self.revenue_amount
 
+    @api.one
+    @api.depends('summary_ids')
+    def _compute_summary_id(self):
+        if self.summary_ids:
+            self.summary_id = self.summary_ids.sorted(key='id', reverse=True)[0]
+
     # INVERSE FIELDS
     # ----------------------------------------------------------
     @api.one
@@ -638,8 +651,7 @@ class Invoice(models.Model):
     def reset(self):
         if self.summary_ids:
             raise ValidationError("Must not be part of a Summary, Please Remove")
-        self.delete_workflow()
-        self.create_workflow()
+        self.state = 'draft'
 
     # REDIRECT/OPEN OTHER VIEWS BUTTONS
     # ----------------------------------------------------------

@@ -17,18 +17,18 @@
                                 states="verified,on hold"/>
                         <button
                                 string="Verify"
-                                name="verify"
-                                type="workflow"
+                                name="set2verified"
+                                type="object"
                                 states="draft"/>
                         <button
                                 string="Place On-hold"
-                                name="on_hold"
-                                type="workflow"
+                                name="set2on_hold"
+                                type="object"
                                 states="draft,verified"/>
                         <button
                                 string="Reject"
-                                name="reject"
-                                type="workflow"
+                                name="set2rejected"
+                                type="object"
                                 states="draft,verified,on hold"/>
                         <button
                                 string="Create Summary"
@@ -49,6 +49,7 @@
                                 <field name="cear_amount"/>
                                 <field name="oear_amount"/>
                                 <field name="total_revenue_amount"/>
+                                <field name="summary_ids" widget="many2many_tags"/>
                             </group>
                             <group string="DEPRECATED">
                                 <!-- TODO DEPRECATE -->
@@ -98,8 +99,8 @@
                                 <hr/>
                                 <group>
                                     <group>
-                                        <field name="received_date"/>
-                                        <field name="invoice_date"/>
+                                        <field name="received_date" required="1"/>
+                                        <field name="invoice_date" required="1"/>
                                         <field name="invoice_cert_date"/>
 
                                     </group>
@@ -124,14 +125,13 @@
                                 <group>
                                     <group>
                                         <field name="responsible_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="summary_id" readonly="1"
+                                               attrs="{'invisible': [('write_date', '=', False)]}"/>
                                     </group>
                                     <group>
                                     </group>
                                 </group>
                                 <group>
-                                    <field name="summary_ids" widget="many2many_tags"
-                                           attrs="{'invisible': [('write_date', '=', False)]}"
-                                           options="{'no_create': True}"/>
                                     <field name="description"/>
                                     <field name="remark"/>
                                 </group>
@@ -169,6 +169,11 @@
                                     </group>
                                 </group>
                                 <group>
+                                    <group>
+                                        <field name="initial_invoice_amount"/>
+                                    </group>
+                                    <group>
+                                    </group>
                                     <field name="amount_ids" context="{'default_invoice_id': id}">
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_no_one"/>
@@ -272,8 +277,7 @@
                     <field name="invoice_cert_date"/>
                     <field name="received_date"/>
                     <field name="sent_finance_date"/>
-                    <field name="create_uid"/>
-                    <field name="write_uid"/>
+                    <field name="responsible_id"/>
                     <field name="problem"/>
                     <field name="state"/>
                 </tree>

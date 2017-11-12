@@ -107,7 +107,7 @@ class InvoiceSummary(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     active = fields.Boolean(default=True, help="Set active to false to hide the tax without removing it.")
-    state = fields.Selection(STATES, track_visibility='onchange')
+    state = fields.Selection(STATES, default='draft', track_visibility='onchange')
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     # TODO USE GET DEFAULT_SUMMARY IN CREATE
     summary_no = fields.Char(string='Summary No',
@@ -457,7 +457,7 @@ class InvoiceSummary(models.Model):
         ws.cell("I11").value = get_joined_value(self.mapped('invoice_ids.po_id.amount'))
 
         # TODO CREATE LOGIC FOR CONTRACT VALIDITY
-        ws.cell("F9").value = get_joined_value(self.mapped('invoice_ids.contract_id.expiry_date'))
+        ws.cell("F9").value = get_joined_value(self.mapped('invoice_ids.contract_id.end_date'))
         ws.cell("F11").value = get_joined_value(self.mapped('invoice_ids.contract_id.amount'))
 
         # Prepare Tables
@@ -543,7 +543,7 @@ class InvoiceSummary(models.Model):
 
         # Set related invoices state to "summary generated"
         for invoice in self.invoice_ids:
-            invoice.sudo().signal_workflow('summary_generate')
+            invoice.state = 'summary generated'
 
         self.state = 'file generated'
 
@@ -554,7 +554,7 @@ class InvoiceSummary(models.Model):
 
         for invoice in self.invoice_ids:
             invoice.sd_signed_date = self.sd_signed_date
-            invoice.sudo().signal_workflow('sd_sign')
+            invoice.state = 'sd signed'
         self.state = 'sd signed'
 
     @api.multi
@@ -564,7 +564,7 @@ class InvoiceSummary(models.Model):
 
         for invoice in self.invoice_ids:
             invoice.svp_signed_date = self.svp_signed_date
-            invoice.sudo().signal_workflow('svp_sign')
+            invoice.state = 'svp signed'
         self.state = 'svp signed'
 
     @api.multi
@@ -574,7 +574,7 @@ class InvoiceSummary(models.Model):
 
         for invoice in self.invoice_ids:
             invoice.cto_signed_date = self.cto_signed_date
-            invoice.sudo().signal_workflow('cto_sign')
+            invoice.state = 'cto signed'
         self.state = 'cto signed'
 
     @api.multi
@@ -584,7 +584,7 @@ class InvoiceSummary(models.Model):
 
         for invoice in self.invoice_ids:
             invoice.sent_finance_date = self.sent_finance_date
-            invoice.sudo().signal_workflow('send_to_finance')
+            invoice.state = 'sent to finance'
         self.state = 'sent to finance'
 
     @api.multi
@@ -595,22 +595,22 @@ class InvoiceSummary(models.Model):
         for invoice in self.invoice_ids:
             invoice.closed_date = self.closed_date
             if invoice.on_hold_amount > 0 and invoice.state != 'amount hold':
-                invoice.sudo().signal_workflow('amount_hold')
+                invoice.state = 'amount hold'
             else:
-                invoice.sudo().signal_workflow('close')
+                invoice.state = 'closed'
         self.state = 'closed'
 
     @api.multi
     def set2cancelled(self):
         for invoice in self.invoice_ids:
-            invoice.sudo().signal_workflow('cancel')
+            invoice.state = 'verified'
         self.state = 'cancelled'
 
     @api.multi
     def reset_summary(self):
-        self.set2cancelled()
-        self.delete_workflow()
-        self.create_workflow()
+        for invoice in self.invoice_ids:
+            invoice.state = 'verified'
+        self.state = 'draft'
 
     # REDIRECT/OPEN OTHER VIEWS BUTTONS
     # ----------------------------------------------------------
@@ -647,9 +647,8 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     @api.one
     def unlink(self):
-        self.invoice_ids.delete_workflow()
-        self.invoice_ids.create_workflow()
-        self.invoice_ids.signal_workflow('verify')
+        for invoice in self.invoice_ids:
+            invoice.state = 'verified'
         return super(InvoiceSummary, self).unlink()
 
     @api.model
