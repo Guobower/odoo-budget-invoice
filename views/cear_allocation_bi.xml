@@ -9,12 +9,15 @@
             <field name="model">budget.invoice.cear.allocation.bi</field>
             <field name="arch" type="xml">
                 <tree>
+                    <field name="contract_id"/>
+                    <field name="contractor_id"/>
                     <field name="cear_id"/>
                     <field name="invoice_id"/>
                     <field name="po_id"/>
                     <field name="amount"/>
                     <field name="state"/>
                     <field name="team"/>
+                    <field name="responsible_id"/>
                 </tree>
             </field>
         </record>
