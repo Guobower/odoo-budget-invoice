@@ -20,11 +20,11 @@ class BudgetInherit(models.Model):
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    invoice_ids = fields.One2many('budget.invoice.invoice',
-                                  compute='_compute_invoice_ids',
-                                  string="Invoices")
-
-    @api.one
-    def _compute_invoice_ids(self):
-        # TODO ADD INVOICE_IDS TO OEAR THEN ADD TO BELOW
-        self.invoice_ids = self.cear_ids.mapped('invoice_ids')
+    # invoice_ids = fields.One2many('budget.invoice.invoice',
+    #                               compute='_compute_invoice_ids',
+    #                               string="Invoices")
+    #
+    # @api.one
+    # def _compute_invoice_ids(self):
+    #     # TODO ADD INVOICE_IDS TO OEAR THEN ADD TO BELOW
+    #     self.invoice_ids = self.cear_ids.mapped('invoice_ids')
