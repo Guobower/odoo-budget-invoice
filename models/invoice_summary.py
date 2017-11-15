@@ -61,9 +61,7 @@ def get_joined_value(vals):
     vals = set(vals)
     new_vals = []
     for val in vals:
-        if isinstance(val, float):
-            val = float(val)
-        elif isinstance(val, bool) or val is False:
+        if isinstance(val, bool) or val is False:
             continue
         elif isinstance(val, fields.Date):
             val = fields.Datetime.from_string(val).strftime('%d-%b-%Y')
