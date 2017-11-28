@@ -334,7 +334,10 @@ class Invoice(models.Model):
 
     summary_id = fields.Many2one('budget.invoice.invoice.summary',
                                  compute="_compute_summary_id",
-                                 string="Summary Reference")
+                                 inverse='_set_summary_id',
+                                 string="Summary Reference",
+                                 track_visibility='onchange',
+                                 store=True)
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
@@ -570,6 +573,11 @@ class Invoice(models.Model):
     @api.one
     def _set_year_invoice(self):
         return
+
+    @api.one
+    def _set_summary_id(self):
+        return
+
 
     # CONSTRAINS
     # ----------------------------------------------------------

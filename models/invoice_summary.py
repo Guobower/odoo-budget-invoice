@@ -150,6 +150,10 @@ class InvoiceSummary(models.Model):
                                        inverse='_set_invoice_state_filter',
                                        store=True)
 
+    invoice_count = fields.Char(string='Invoice Count',
+                                compute='_compute_invoice_count',
+                                store=True)
+
     @api.one
     @api.depends('objective')
     def _compute_invoice_state_filter(self):
@@ -159,6 +163,11 @@ class InvoiceSummary(models.Model):
             self.invoice_state_filter = 'on hold'
         else:
             self.invoice_state_filter = False
+
+    @api.one
+    @api.depends('invoice_ids')
+    def _compute_invoice_count(self):
+        self.invoice_count = len(self.invoice_ids)
 
     @api.one
     def _set_invoice_state_filter(self):

@@ -72,3 +72,9 @@ class CearAllocation(models.Model):
 
         self.problem = False
         return
+
+    # CONSTRAINS
+    # ----------------------------------------------------------
+    _sql_constraints = [
+        ('uniq', 'UNIQUE (cear_id, invoice_id)', 'Invoice can only have one allocation per CEAR')
+    ]
