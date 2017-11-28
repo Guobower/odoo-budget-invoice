@@ -150,9 +150,9 @@ class InvoiceSummary(models.Model):
                                        inverse='_set_invoice_state_filter',
                                        store=True)
 
-    invoice_count = fields.Char(string='Invoice Count',
-                                compute='_compute_invoice_count',
-                                store=True)
+    invoice_count = fields.Integer(string='Invoice Count',
+                                   compute='_compute_invoice_count',
+                                   store=True)
 
     @api.one
     @api.depends('objective')
