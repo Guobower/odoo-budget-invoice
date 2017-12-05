@@ -165,12 +165,15 @@ class Invoice(models.Model):
     # ---------------
     amount_ids = fields.One2many('budget.invoice.amount',
                                  'invoice_id',
+                                 copy=True,
                                  string="Amounts")
     cear_allocation_ids = fields.One2many('budget.invoice.cear.allocation',
                                           'invoice_id',
+                                          copy=True,
                                           string="CEARs")
     oear_allocation_ids = fields.One2many('budget.invoice.oear.allocation',
                                           'invoice_id',
+                                          copy=True,
                                           string="OEARs")
     summary_ids = fields.Many2many('budget.invoice.invoice.summary',
                                    'budget_invoice_summary_invoice',
@@ -578,7 +581,6 @@ class Invoice(models.Model):
     def _set_summary_id(self):
         return
 
-
     # CONSTRAINS
     # ----------------------------------------------------------
     _sql_constraints = [
@@ -699,21 +701,7 @@ class Invoice(models.Model):
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {})
-
-        dup_amounts = []
-        for amount in self.amount_ids:
-            dup_amounts.append(amount.copy({'invoice_id': False}))
-
-        dup_cear_allocations = []
-        for cear_allocation in self.cear_allocation_ids:
-            dup_cear_allocations.append(cear_allocation.copy({'invoice_id': False}))
-
-        default.update(
-            amount_ids=[(6, 0, [i.id for i in dup_amounts])],
-            cear_allocation_ids=[(6, 0, [i.id for i in dup_cear_allocations])],
-            summary_ids=False
-        )
-
+        default.update(summary_ids=False)
         return super(Invoice, self).copy(default)
 
     @api.model
