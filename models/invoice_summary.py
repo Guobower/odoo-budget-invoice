@@ -145,33 +145,21 @@ class InvoiceSummary(models.Model):
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
-    invoice_state_filter = fields.Char(string='State Filter',
-                                       compute='_compute_invoice_state_filter',
-                                       inverse='_set_invoice_state_filter',
-                                       store=True)
-
     invoice_count = fields.Integer(string='Invoice Count',
                                    compute='_compute_invoice_count',
                                    store=True)
 
-    @api.one
-    @api.depends('objective')
-    def _compute_invoice_state_filter(self):
+    @api.onchange('objective', 'team')
+    def _onchange_invoice_ids_filter(self):
         if self.objective == 'invoice certification':
-            self.invoice_state_filter = 'verified'
+            return {'domain': {'invoice_ids': [('state', '=', 'verified'), ('team', '=', self.team)]}}
         elif self.objective == 'on hold certification':
-            self.invoice_state_filter = 'on hold'
-        else:
-            self.invoice_state_filter = False
+            return {'domain': {'invoice_ids': [('has_hold_amount', '=', True), ('team', '=', self.team)]}}
 
     @api.one
     @api.depends('invoice_ids')
     def _compute_invoice_count(self):
         self.invoice_count = len(self.invoice_ids)
-
-    @api.one
-    def _set_invoice_state_filter(self):
-        return
 
     # CONSTRAINTS
     # ----------------------------------------------------------
@@ -305,7 +293,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
+        for r in self.mapped('self.invoice_ids').sorted(key=lambda rec: rec.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
@@ -375,7 +363,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
+        for r in self.mapped('self.invoice_ids').sorted(key=lambda rec: rec.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime(
                 '%d-%b-%Y') or ''
@@ -602,11 +590,10 @@ class InvoiceSummary(models.Model):
             self.closed_date = fields.Date.today()
 
         for invoice in self.invoice_ids:
+            if self.objective == 'on hold certification':
+                invoice.release_hold_amount()
             invoice.closed_date = self.closed_date
-            if invoice.on_hold_amount > 0 and invoice.state != 'amount hold':
-                invoice.state = 'amount hold'
-            else:
-                invoice.state = 'closed'
+            invoice.state = 'closed'
         self.state = 'closed'
 
     @api.multi

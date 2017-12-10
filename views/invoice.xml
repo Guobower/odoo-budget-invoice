@@ -49,6 +49,7 @@
                                 <field name="cear_amount"/>
                                 <field name="oear_amount"/>
                                 <field name="total_revenue_amount"/>
+                                <field name="has_hold_amount"/>
                                 <field name="summary_ids" widget="many2many_tags"/>
                             </group>
                             <group string="DEPRECATED">

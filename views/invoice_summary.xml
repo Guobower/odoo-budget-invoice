@@ -56,23 +56,22 @@
                                statusbar_visible="draft,file generated,sent to finance,closed"/>
                     </header>
                     <sheet>
-                        <div class="oe_button_box" name="box">
-                            <button name="toggle_active" type="object" groups="base.group_no_one"
-                                    class="oe_stat_button" icon="fa-archive">
-                                <field name="active" widget="boolean_button"
-                                       options='{"terminology": "archive"}'/>
-                            </button>
-                        </div>
-                        <div class="oe_title">
-                            <group readonly="1" groups="base.group_no_one">
+                        <group readonly="1" groups="base.group_no_one">
+                            <group>
                                 <field name="invoice_count"/>
                                 <field name="write_date"/>
-                                <field name="invoice_state_filter"/>
                                 <field name="team"/>
+                                <field name="responsible_id"/>
+                            </group>
+                            <group string="DEPRECATED">
                                 <!-- TODO DEPRECATE -->
                                 <field name="signed_date"/>
-                                <!-- ############## -->
                             </group>
+                        </group>
+
+                        <div class="oe_button_box" name="box">
+                        </div>
+                        <div class="oe_title">
                             <h1>
                                 <field name="summary_no" readonly="1"/>
                             </h1>
@@ -101,11 +100,7 @@
                         </group>
                         <notebook>
                             <page string="Invoices">
-                                <field name="invoice_ids"
-                                       domain="[('state', '=', invoice_state_filter),
-                                                ('team', '=', team)]">
-                                    <!--context="{'search_view_ref': 'budget_invoice.search_invoice',-->
-                                    <!--'search_default_need_action': }"-->
+                                <field name="invoice_ids">
                                     <tree default_order="sequence"
                                           decoration-success="problem in ['ok', False]"
                                           decoration-danger="problem in ['duplicate', 'overrun']">

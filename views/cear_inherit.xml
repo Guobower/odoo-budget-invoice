@@ -26,7 +26,7 @@
             <field name="inherit_id" ref="budget_capex.view_tree_cear"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='fn_utilized_amount']" position="after">
-                    <field name="im_utilized_amount"/>
+                    <field name="im_utilized_amount" sum="1"/>
                     <field name="problem"/>
                 </xpath>
             </field>

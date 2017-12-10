@@ -101,6 +101,7 @@ class TestInvoiceCalculation01(TransactionCase):
         expected_amount = 1820.00
         self.assertTrue(self.invoice.on_hold_amount == expected_amount, "On Hold Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.on_hold_amount))
+        self.assertTrue(self.invoice.has_hold_amount)
 
     def test_calculation_other_deduction_amount(self):
         # ON HOLD AMOUNT
@@ -219,6 +220,7 @@ class TestInvoiceCalculation02(TransactionCase):
         expected_amount = 1820.00
         self.assertTrue(self.invoice.on_hold_amount == expected_amount, "On Hold Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.on_hold_amount))
+        self.assertTrue(self.invoice.has_hold_amount)
 
     def test_calculation_other_deduction_amount(self):
         # ON HOLD AMOUNT

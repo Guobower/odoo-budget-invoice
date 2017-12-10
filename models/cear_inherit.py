@@ -41,6 +41,7 @@ class TaskInherit(models.Model):
                                          string='Utilized Amount (IM)',
                                          compute='_compute_im_utilized_amount',
                                          store=True)
+    # TODO ADD BALANCE FIELD TO SHOW REMAINING AMOUNT AGAINST IM UTILIZATION
 
     @api.one
     @api.depends('authorized_amount', 'fn_utilized_amount', 'im_utilized_amount', 'category')

@@ -270,6 +270,9 @@ class Invoice(models.Model):
     problem = fields.Char(string='Problem',
                           compute='_compute_problem',
                           store=True)
+    has_hold_amount = fields.Boolean(string='Has Amount Hold',
+                                     compute='_compute_has_hold_amount',
+                                     store=True)
     discount_applicable = fields.Char(string='Discount Applicable',
                                       compute='_compute_discount_applicable',
                                       store=True)
@@ -278,13 +281,17 @@ class Invoice(models.Model):
                            inverse='_set_year_rfs',
                            index=True,
                            store=True,
-                           help='Year is the rfs year against contract period (eg. contract start is 08/08/2017, year_rfs 1 will be between 08/08/2017 - 08/08/2018)')
+                           help='Year is the rfs year against contract period '
+                                '(eg. contract start is 08/08/2017, '
+                                'year_rfs 1 will be between 08/08/2017 - 08/08/2018)')
     year_invoice = fields.Char(string='Year Invoice',
                                compute='_compute_year_invoice',
                                inverse='_set_year_invoice',
                                index=True,
                                store=True,
-                               help='Year is the invoice year against contract period (eg. contract start is 08/08/2017, year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
+                               help='Year is the invoice year against contract period '
+                                    '(eg. contract start is 08/08/2017, '
+                                    'year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
     opex_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_opex_amount',
                                   inverse='_set_opex_amount',
@@ -395,6 +402,11 @@ class Invoice(models.Model):
                 break
 
     @api.one
+    @api.depends('on_hold_amount')
+    def _compute_has_hold_amount(self):
+        self.has_hold_amount = True if self.on_hold_amount != 0.0 else False
+
+    @api.one
     @api.depends('state', 'cear_allocation_ids.problem', 'invoice_no', 'contractor_id')
     def _compute_problem(self):
         if self.state == 'rejected':
@@ -414,7 +426,7 @@ class Invoice(models.Model):
             return
 
         problems = self.cear_allocation_ids.mapped('problem')
-        uniq_problems = set(problems) - set([False])
+        uniq_problems = set(problems) - {False}
         if len(uniq_problems) > 0:
             self.problem = '; '.join(uniq_problems)
             return
@@ -694,6 +706,11 @@ class Invoice(models.Model):
         self.env.add_todo(self._fields['problem'], invoice_ids)
         self.recompute()
         self.env.cr.commit()
+
+    @api.one
+    def release_hold_amount(self):
+        self.on_hold_percentage = 0.0
+        self.on_hold_amount = 0.0
 
     # POLYMORPH FUNCTIONS
     # ----------------------------------------------------------
