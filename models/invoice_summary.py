@@ -230,7 +230,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.invoice_ids.sorted(key=lambda self: self.sequence):
+        for r in self.invoice_ids.sorted(key=lambda rec: rec.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
@@ -293,7 +293,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.mapped('self.invoice_ids').sorted(key=lambda rec: rec.sequence):
+        for r in self.mapped('invoice_ids').sorted(key=lambda rec: rec.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = r.region_id.alias.upper() or ''
             ws.cell(row=row, column=column + 2).value = r.contract_id.contractor_id.name or ''
@@ -363,7 +363,7 @@ class InvoiceSummary(models.Model):
 
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.mapped('self.invoice_ids').sorted(key=lambda rec: rec.sequence):
+        for r in self.mapped('invoice_ids').sorted(key=lambda rec: rec.sequence):
             ws.cell(row=row, column=column).value = sr
             ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime(
                 '%d-%b-%Y') or ''
@@ -462,7 +462,7 @@ class InvoiceSummary(models.Model):
         # ws.insert_rows(row2 + row_count, row_count)  # Table 2
 
         # Populate Data
-        invoices = self.invoice_ids.sorted(key=lambda self: self.sequence)
+        invoices = self.invoice_ids.sorted(key=lambda rec: rec.sequence)
         # Table 1
         for r in invoices:
             ws.cell(row=row, column=column).value = sr
@@ -539,7 +539,7 @@ class InvoiceSummary(models.Model):
         form(creator)
 
         # Set related invoices state to "summary generated"
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.state = 'summary generated'
 
         self.state = 'file generated'
@@ -549,7 +549,7 @@ class InvoiceSummary(models.Model):
         if self.sd_signed_date is False:
             self.sd_signed_date = fields.Date.today()
 
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.sd_signed_date = self.sd_signed_date
             invoice.state = 'sd signed'
         self.state = 'sd signed'
@@ -559,7 +559,7 @@ class InvoiceSummary(models.Model):
         if self.svp_signed_date is False:
             self.svp_signed_date = fields.Date.today()
 
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.svp_signed_date = self.svp_signed_date
             invoice.state = 'svp signed'
         self.state = 'svp signed'
@@ -569,7 +569,7 @@ class InvoiceSummary(models.Model):
         if self.cto_signed_date is False:
             self.cto_signed_date = fields.Date.today()
 
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.cto_signed_date = self.cto_signed_date
             invoice.state = 'cto signed'
         self.state = 'cto signed'
@@ -579,7 +579,7 @@ class InvoiceSummary(models.Model):
         if self.sent_finance_date is False:
             self.sent_finance_date = fields.Date.today()
 
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.sent_finance_date = self.sent_finance_date
             invoice.state = 'sent to finance'
         self.state = 'sent to finance'
@@ -589,7 +589,7 @@ class InvoiceSummary(models.Model):
         if self.closed_date is False:
             self.closed_date = fields.Date.today()
 
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             if self.objective == 'on hold certification':
                 invoice.release_hold_amount()
             invoice.closed_date = self.closed_date
@@ -598,13 +598,13 @@ class InvoiceSummary(models.Model):
 
     @api.multi
     def set2cancelled(self):
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.state = 'verified'
         self.state = 'cancelled'
 
     @api.multi
     def reset_summary(self):
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.state = 'verified'
         self.state = 'draft'
 
@@ -643,7 +643,7 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     @api.one
     def unlink(self):
-        for invoice in self.invoice_ids:
+        for invoice in self.mapped('invoice_ids'):
             invoice.state = 'verified'
         return super(InvoiceSummary, self).unlink()
 
