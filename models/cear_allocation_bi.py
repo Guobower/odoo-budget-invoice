@@ -20,10 +20,10 @@ class InvoiceCearAllocationBI(models.Model):
     invoice_received_date = fields.Date(string='Invoice Received Date',
                                         readonly=True)
     amount = fields.Monetary(currency_field='currency_id',
-                             string='Allocated Amount',
+                             string='Allocated Against Invoice Amount',
                              readonly=True)
     authorized_amount = fields.Monetary(currency_field='currency_id',
-                                        string='Allocated Amount',
+                                        string='Authorized Amount',
                                         readonly=True)
     expenditure_amount = fields.Monetary(currency_field='currency_id',
                                          string='Expenditure Amount',
@@ -72,13 +72,14 @@ class InvoiceCearAllocationBI(models.Model):
                 SELECT
                   al.id                          AS id,
                   cear.id                        AS cear_id,
-                  cear.authorized_amount    AS authorized_amount,
-                  cear.commitment_amount    AS commitment_amount,
-                  cear.expenditure_amount   AS expenditure_amount,
-                  al.amount                 AS amount,
+                  AVG(cear.authorized_amount)    AS authorized_amount,
+                  AVG(cear.commitment_amount)    AS commitment_amount,
+                  AVG(cear.expenditure_amount)   AS expenditure_amount,
+                  SUM(al.amount)                 AS amount,
                   cear.year                      AS cear_year,
                   po.id                          AS po_id,
                   inv.id                         AS invoice_id,
+                  inv.invoice_no                 AS invoice_no,
                   inv.received_date              AS invoice_received_date,
                   al.currency_id                 AS currency_id,
                   inv.state                      AS state,
@@ -86,10 +87,12 @@ class InvoiceCearAllocationBI(models.Model):
                   inv.contractor_id              AS contractor_id,
                   inv.responsible_id             AS responsible_id,
                   inv.team                       AS team
-                FROM 
+                FROM
                   budget_invoice_cear_allocation AS al
                   LEFT JOIN budget_invoice_invoice AS inv ON inv.id = al.invoice_id
                   LEFT JOIN budget_purchase_order AS po ON po.id = inv.po_id
                   LEFT JOIN budget_capex_cear AS cear ON cear.id = al.cear_id
+                  GROUP BY al.id, cear.id, cear_year, po.id, inv.id, invoice_no, invoice_received_date, inv.currency_id,
+                    inv.state, contract_id, inv.contractor_id, responsible_id
               )
         """)
