@@ -91,7 +91,7 @@ class InvoiceCearAllocationBI(models.Model):
                   LEFT JOIN budget_invoice_invoice AS inv ON inv.id = al.invoice_id
                   LEFT JOIN budget_purchase_order AS po ON po.id = inv.po_id
                   LEFT JOIN budget_capex_cear AS cear ON cear.id = al.cear_id
-                GROUP BY al.id, cear_id, cear_year, po.id, invoice_id, invoice_received_date, al.currency_id, inv.state,
-                  contract_id, inv.contractor_id, responsible_id
+                GROUP BY id, cear_id, cear_year, po_id, invoice_id, invoice_received_date, currency_id, state,
+                  contract_id, contractor_id, responsible_id
               )
         """)
