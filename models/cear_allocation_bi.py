@@ -72,10 +72,10 @@ class InvoiceCearAllocationBI(models.Model):
                 SELECT
                   al.id                          AS id,
                   cear.id                        AS cear_id,
-                  AVG(cear.authorized_amount)    AS authorized_amount,
-                  AVG(cear.commitment_amount)    AS commitment_amount,
-                  AVG(cear.expenditure_amount)   AS expenditure_amount,
-                  SUM(al.amount)                 AS amount,
+                  cear.authorized_amount    AS authorized_amount,
+                  cear.commitment_amount    AS commitment_amount,
+                  cear.expenditure_amount   AS expenditure_amount,
+                  al.amount                 AS amount,
                   cear.year                      AS cear_year,
                   po.id                          AS po_id,
                   inv.id                         AS invoice_id,
@@ -91,7 +91,5 @@ class InvoiceCearAllocationBI(models.Model):
                   LEFT JOIN budget_invoice_invoice AS inv ON inv.id = al.invoice_id
                   LEFT JOIN budget_purchase_order AS po ON po.id = inv.po_id
                   LEFT JOIN budget_capex_cear AS cear ON cear.id = al.cear_id
-                GROUP BY id, cear_id, cear_year, po_id, invoice_id, invoice_received_date, currency_id, state,
-                  contract_id, contractor_id, responsible_id
               )
         """)
