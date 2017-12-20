@@ -13,6 +13,7 @@ class InvoiceCearAllocationBI(models.Model):
     # ----------------------------------------------------------
     STATES = Invoice.STATES
     TEAMS = Invoice.TEAMS
+    YEARS = [(year, year) for year in range(1950, 2050)]
 
     # BASIC FIELDS
     # ----------------------------------------------------------
@@ -27,6 +28,9 @@ class InvoiceCearAllocationBI(models.Model):
     team = fields.Selection(selection=TEAMS,
                             string='Team',
                             readonly=True)
+    cear_year = fields.Selection(selection=YEARS,
+                                 string='Year',
+                                 readonly=True)
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
