@@ -22,6 +22,15 @@ class InvoiceCearAllocationBI(models.Model):
     amount = fields.Monetary(currency_field='currency_id',
                              string='Allocated Amount',
                              readonly=True)
+    authorized_amount = fields.Monetary(currency_field='currency_id',
+                                        string='Allocated Amount',
+                                        readonly=True)
+    expenditure_amount = fields.Monetary(currency_field='currency_id',
+                                         string='Expenditure Amount',
+                                         readonly=True)
+    commitment_amount = fields.Monetary(currency_field='currency_id',
+                                        string='Commitment Amount',
+                                        readonly=True)
     state = fields.Selection(selection=STATES,
                              string='State',
                              readonly=True)
@@ -61,23 +70,28 @@ class InvoiceCearAllocationBI(models.Model):
         self._cr.execute("""
             CREATE OR REPLACE VIEW budget_invoice_cear_allocation_bi AS (
                 SELECT
-                  al.id               AS id,
-                  cear.id             AS cear_id,
-                  cear.year           AS cear_year,
-                  po.id               AS po_id,
-                  inv.id              AS invoice_id,
-                  inv.received_date   AS invoice_received_date,
-                  al.currency_id      AS currency_id,
-                  al.amount           AS amount,
-                  inv.state           AS state,
-                  inv.contract_id     AS contract_id,
-                  inv.contractor_id   AS contractor_id,
-                  inv.responsible_id  AS responsible_id,
-                  inv.team            AS team
-                FROM
+                  al.id                          AS id,
+                  cear.id                        AS cear_id,
+                  AVG(cear.authorized_amount)    AS authorized_amount,
+                  AVG(cear.commitment_amount)    AS commitment_amount,
+                  AVG(cear.expenditure_amount)   AS expenditure_amount,
+                  SUM(al.amount)                 AS amount,
+                  cear.year                      AS cear_year,
+                  po.id                          AS po_id,
+                  inv.id                         AS invoice_id,
+                  inv.received_date              AS invoice_received_date,
+                  al.currency_id                 AS currency_id,
+                  inv.state                      AS state,
+                  inv.contract_id                AS contract_id,
+                  inv.contractor_id              AS contractor_id,
+                  inv.responsible_id             AS responsible_id,
+                  inv.team                       AS team
+                FROM 
                   budget_invoice_cear_allocation AS al
                   LEFT JOIN budget_invoice_invoice AS inv ON inv.id = al.invoice_id
                   LEFT JOIN budget_purchase_order AS po ON po.id = inv.po_id
                   LEFT JOIN budget_capex_cear AS cear ON cear.id = al.cear_id
+                GROUP BY al.id, cear_id, cear_year, po.id, invoice_id, invoice_received_date, al.currency_id, inv.state,
+                  contract_id, inv.contractor_id, responsible_id
               )
         """)
