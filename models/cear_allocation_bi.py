@@ -59,6 +59,7 @@ class InvoiceCearAllocationBI(models.Model):
                 SELECT
                   al.id               AS id,
                   cear.id             AS cear_id,
+                  cear.year           AS cear_year,
                   po.id               AS po_id,
                   inv.id              AS invoice_id,
                   inv.received_date   AS invoice_received_date,
