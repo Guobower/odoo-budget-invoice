@@ -87,8 +87,10 @@
                                     </group>
                                     <group>
                                         <field name="pec_id"/>
+                                        <field name="charge_account"
+                                               attrs="{'invisible': [('team','!=','resource')]}"/>
                                         <field name="approval_ref"
-                                               attrs="{'invisible': [('team','!=','head office')]}"/>
+                                               attrs="{'invisible': [('team','!=','resource')]}"/>
                                         <field name="mms_no"
                                                attrs="{'invisible': [('team','!=','head office')]}"/>
                                         <field name="mms_month"
@@ -231,6 +233,8 @@
                                     <group>
                                         <field name="year_rfs" readonly="1"/>
                                         <field name="year_invoice" readonly="1"/>
+                                        <field name="kpi_lapse_days" readonly="1"/>
+                                        <field name="kpi_state" readonly="1"/>
                                     </group>
                                     <group>
                                         <field name="certified_invoice_amount"/>
@@ -326,6 +330,9 @@
                     <filter name="head_office"
                             string="Head Office"
                             domain="[('team', '=', 'head office')]"/>
+                    <filter name="resource"
+                            string="Resource"
+                            domain="[('team', '=', 'resource')]"/>
                     <separator/>
                     <filter name="my_activity"
                             string="My Activities"
@@ -394,6 +401,21 @@
             <field name="search_view_id" ref="search_invoice"/>
             <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
                 'search_default_head_office': 1,
+                'search_default_need_action': 1,
+                'search_default_my_activity': 1,
+                }
+            </field>
+        </record>
+        <!--Invoice Resource Action-->
+        <record model="ir.actions.act_window" id="action_invoice_resource">
+            <field name="name">Invoice</field>
+            <field name="res_model">budget.invoice.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="search_view_id" ref="search_invoice"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
+                'search_default_resource': 1,
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1,
                 }

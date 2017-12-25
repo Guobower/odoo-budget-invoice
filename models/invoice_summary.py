@@ -356,7 +356,7 @@ class InvoiceSummary(models.Model):
         ws.cell("E15").value = get_joined_value(self.mapped('invoice_ids.approval_ref'))
         ws.cell("J11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
         ws.cell("J15").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
-        ws.cell("M15").value = get_joined_value(self.mapped('invoice_ids.section_id.alias'))
+        ws.cell("M15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -369,16 +369,20 @@ class InvoiceSummary(models.Model):
                 '%d-%b-%Y') or ''
             ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
             ws.cell(row=row, column=column + 3).value = r.description or ''
-            ws.cell(row=row, column=column + 4).value = r.revenue_amount or 0
-            ws.cell(row=row, column=column + 5).value = r.opex_amount or 0
-            ws.cell(row=row, column=column + 6).value = r.capex_amount or 0
-            ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount or 0
+            ws.cell(row=row, column=column + 4).value = r.revenue_amount
+            ws.cell(row=row, column=column + 5).value = r.opex_amount
+            ws.cell(row=row, column=column + 6).value = r.capex_amount
+            ws.cell(row=row, column=column + 7).value = "{}({}%)".format(
+                r.discount_amount,
+                r.discount_amount / r.certified_invoice_amount * 100
+            )
+            ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount
             ws.cell(row=row, column=column + 9).value = r.po_id.no or ''
             ws.cell(row=row, column=column + 10).value = ', '.join(
                 [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
             ws.cell(row=row, column=column + 11).value = '{} {}'.format(r.cost_center_id.cost_center or '',
                                                                         r.account_code_id.account_code or '')
-            ws.cell(row=row, column=column + 12).value = 71101
+            ws.cell(row=row, column=column + 12).value = r.charge_account
             ws.cell(row=row, column=column + 14).value = r.discount_amount or 0
             ws.cell(row=row, column=column + 15).value = r.discount_percentage or 0
 

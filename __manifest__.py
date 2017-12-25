@@ -38,6 +38,7 @@ Invoice Management
 
         'views/invoice.xml',
         'views/invoice_summary.xml',
+        'views/invoice_kpi_checker.xml',
         'views/project_estimated_cost.xml',
         'views/contract_inherit.xml',
         'views/purchase_order_inherit.xml',

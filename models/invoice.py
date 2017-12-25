@@ -40,8 +40,9 @@ def _set_team(self=None):
     # else:
     #     print 'This user is not a salesman'
     options = {
+        'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager'],
         'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
-        'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager']
+        'resource': ['group_invoice_resource_user', 'group_invoice_resource_manager']
     }
     for team, groups in options.items():
         for group in groups:
@@ -63,6 +64,7 @@ class Invoice(models.Model):
                             'cto signed', 'sent to finance', 'closed',
                             'on hold', 'rejected', 'amount hold'], is_sorted=False)
     TEAMS = choices_tuple(['head office', 'regional', 'resource'], is_sorted=False)
+    KPI_STATES = choices_tuple(['pending', 'in', 'out'], is_sorted=False)
     INVOICE_TYPES = choices_tuple(['access network', 'supply of materials', 'civil works', 'cable works',
                                    'damage case', 'development', 'fdh uplifting', 'fttm activities',
                                    'maintenance work', 'man power', 'mega project', 'migration',
@@ -81,11 +83,13 @@ class Invoice(models.Model):
     # ----------------------------------------------------------
     state = fields.Selection(STATES, default='draft', track_visibility='onchange')
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
+
     invoice_no = fields.Char(string="Invoice No")
     approval_ref = fields.Char(string="Approval Ref")
     mms_no = fields.Char(string="MMS No")
     mms_month = fields.Selection(MMS_MONTH, string="MMS Month")
     mms_year = fields.Selection(MMS_YEAR, string="MMS Year")
+    charge_account = fields.Char(string="Charge Account")
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
@@ -292,6 +296,13 @@ class Invoice(models.Model):
                                help='Year is the invoice year against contract period '
                                     '(eg. contract start is 08/08/2017, '
                                     'year_invoice 1 will be between 08/08/2017 - 08/08/2018)')
+    kpi_lapse_days = fields.Integer(string="KPI Lapse Days",
+                                    compute='_compute_kpi_lapse_days',
+                                    store=True)
+    kpi_state = fields.Selection(KPI_STATES, string="KPI Status",
+                                 compute='_compute_kpi_state',
+                                 default='pending',
+                                 store=True)
     opex_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_opex_amount',
                                   inverse='_set_opex_amount',
@@ -353,6 +364,28 @@ class Invoice(models.Model):
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
     def _compute_discount_applicable(self):
         pass
+
+    @api.one
+    @api.depends('received_date', 'sent_finance_date')
+    def _compute_kpi_lapse_days(self):
+        if self.received_date and self.sent_finance_date:
+            sent_finance_date = fields.Date.from_string(self.sent_finance_date)
+            received_date = fields.Date.from_string(self.received_date)
+
+            self.kpi_lapse_days = relativedelta(sent_finance_date, received_date).days
+        else:
+            self.kpi_lapse_days = 0
+
+    @api.one
+    @api.depends('kpi_lapse_days')
+    def _compute_kpi_state(self):
+        threshold = self.env['budget.invoice.invoice.kpi.checker'].search([('team', '=', self.team)], limit=1)
+
+        if not threshold:
+            self.kpi_state = 'pending'
+            return
+
+        self.kpi_state = 'in' if self.kpi_lapse_days <= threshold.threshold else 'out'
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')

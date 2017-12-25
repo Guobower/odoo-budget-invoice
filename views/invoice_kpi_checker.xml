@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!--START INVOICE SUMMARY VIEWS-->
+        <!--INVOICE SUMMARY TREE VIEW-->
+        <record model="ir.ui.view" id="view_tree_invoice_kpi_checker">
+            <field name="name">Invoice KPI Checker</field>
+            <field name="model">budget.invoice.invoice.kpi.checker</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="team"/>
+                    <field name="threshold"/>
+                    <field name="write_date" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+        <!--END INVOICE SUMMARY VIEWS-->
+
+        <!--START ACTIONS-->
+        <record model="ir.actions.act_window" id="action_invoice_kpi_checker">
+            <field name="name">Invoice KPI Checker</field>
+            <field name="res_model">budget.invoice.invoice.kpi.checker</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+        </record>
+        <!--END ACTIONS-->
+    </data>
+</odoo>
