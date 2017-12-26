@@ -14,7 +14,7 @@
                                 string="Reset"
                                 name="reset_summary"
                                 type="object"
-                                groups="base.group_system"/>
+                                groups="base.group_no_one"/>
                         <button
                                 string="Generate"
                                 name="set2file_generated"
