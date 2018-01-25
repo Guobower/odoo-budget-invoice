@@ -249,9 +249,9 @@ class InvoiceSummary(models.Model):
         ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
-        footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
-        footter_cell.font = Font(size=11, bold=True)
-        ws.row_dimensions[footter_cell.row].height = 60
+        footer_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
+        footer_cell.font = Font(size=11, bold=True)
+        ws.row_dimensions[footer_cell.row].height = 83
 
         # SIGNATURE
         signatory_img = self.get_signatories()
@@ -315,9 +315,9 @@ class InvoiceSummary(models.Model):
         ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
-        footter_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
-        footter_cell.font = Font(size=11, bold=True)
-        ws.row_dimensions[footter_cell.row].height = 60
+        footer_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
+        footer_cell.font = Font(size=11, bold=True)
+        ws.row_dimensions[footer_cell.row].height = 83
 
         # SIGNATURE
         signatory_img = self.get_signatories()
@@ -505,7 +505,7 @@ class InvoiceSummary(models.Model):
         for r in [28, 30]:  # A28, A30
             footer_cell = ws.cell(row=r + row_count, column=1)  # A28 + row_count - 2 row
             footer_cell.font = Font(size=11, bold=True)
-            ws.row_dimensions[footer_cell.row].height = 60
+            ws.row_dimensions[footer_cell.row].height = 83
 
         # SIGNATURE
         signatory_img = self.get_signatories()
