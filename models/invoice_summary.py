@@ -372,9 +372,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 4).value = r.revenue_amount
             ws.cell(row=row, column=column + 5).value = r.opex_amount
             ws.cell(row=row, column=column + 6).value = r.capex_amount
-            ws.cell(row=row, column=column + 7).value = "{}".format(
-                r.discount_amount
-            )
+            ws.cell(row=row, column=column + 7).value = r.discount_amount
             ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount
             ws.cell(row=row, column=column + 9).value = r.po_id.no or ''
             ws.cell(row=row, column=column + 10).value = ', '.join(
