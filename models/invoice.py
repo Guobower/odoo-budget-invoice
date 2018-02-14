@@ -89,6 +89,7 @@ class Invoice(models.Model):
     mms_no = fields.Char(string="MMS No")
     mms_month = fields.Selection(MMS_MONTH, string="MMS Month")
     mms_year = fields.Selection(MMS_YEAR, string="MMS Year")
+    # TODO DEPRECATED
     charge_account = fields.Char(string="Charge Account")
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))

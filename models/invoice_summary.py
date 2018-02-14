@@ -17,7 +17,7 @@ def inject_form_header(ws, team, creator, logo_coor, header_coor):
     color = {
         'head office': 'ADE75F',
         'regional': 'ADE75F',
-        'resource': '387917'
+        'resource': 'AFDC7E'
     }
     fill = PatternFill(start_color=color[team], end_color=color[team], fill_type='solid')
 
@@ -372,19 +372,20 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 4).value = r.revenue_amount
             ws.cell(row=row, column=column + 5).value = r.opex_amount
             ws.cell(row=row, column=column + 6).value = r.capex_amount
-            ws.cell(row=row, column=column + 7).value = "{}({}%)".format(
-                r.discount_amount,
-                r.discount_amount / r.certified_invoice_amount * 100
+            ws.cell(row=row, column=column + 7).value = "{}".format(
+                r.discount_amount
             )
             ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount
             ws.cell(row=row, column=column + 9).value = r.po_id.no or ''
             ws.cell(row=row, column=column + 10).value = ', '.join(
                 [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
-            ws.cell(row=row, column=column + 11).value = '{} {}'.format(r.cost_center_id.cost_center or '',
-                                                                        r.account_code_id.account_code or '')
-            ws.cell(row=row, column=column + 12).value = r.charge_account
-            ws.cell(row=row, column=column + 14).value = r.discount_amount or 0
-            ws.cell(row=row, column=column + 15).value = r.discount_percentage or 0
+            ws.cell(row=row, column=column + 11).value = '{} {}'.format(
+                r.oear_allocation_ids[0].cost_center_id.cost_center or '',
+                r.oear_allocation_ids[0].account_code_id.account_code or '')
+            ws.cell(row=row, column=column + 12).value = r.oear_allocation_ids[1].cost_center_id.cost_center or '',
+            ws.cell(row=row, column=column + 13).value = r.remark
+            ws.cell(row=row, column=column + 15).value = r.discount_amount or 0
+            ws.cell(row=row, column=column + 16).value = r.discount_percentage or 0
 
             row += 1
             sr += 1
