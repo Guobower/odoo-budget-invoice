@@ -102,6 +102,8 @@ class Invoice(models.Model):
     is_penalty_percentage = fields.Boolean(string='Is Penalty (%)', default=True)
     is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
+    is_discount_apply_after_other_deduction_percentage = fields.Boolean(string='Apply After Other Deduction',
+                                                                        default=False)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
     initial_invoice_amount = fields.Monetary(currency_field='currency_id', string='Initial Invoice Amount',
@@ -515,12 +517,20 @@ class Invoice(models.Model):
 
     @api.one
     @api.depends('is_discount_percentage', 'discount_percentage',
+                 'is_discount_apply_after_other_deduction_percentage',
                  'input_discount_amount', 'invoice_amount')
     def _compute_discount_amount(self):
         if self.is_discount_percentage:
-            self.discount_amount = self.invoice_amount * self.discount_percentage / 100
+
+            if self.is_discount_apply_after_other_deduction_percentage:
+                to_be_discounted_amount = self.invoice_amount - self.other_deduction_amount
+            else:
+                to_be_discounted_amount = self.invoice_amount
+
+            self.discount_amount = to_be_discounted_amount * self.discount_percentage / 100
             self.input_discount_amount = 0
             return
+
         self.discount_amount = self.input_discount_amount
         self.discount_percentage = 0
 

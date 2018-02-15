@@ -173,6 +173,13 @@
                                     </group>
                                 </group>
                                 <group>
+                                    <group>
+                                        <field name="is_discount_apply_after_other_deduction_percentage"/>
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>
+                                <group>
                                     <field name="initial_invoice_amount"/>
                                 </group>
                                 <group>
