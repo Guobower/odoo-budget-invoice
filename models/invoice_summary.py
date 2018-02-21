@@ -347,7 +347,7 @@ class InvoiceSummary(models.Model):
         column = 2
         sr = 1
         signature_coor = "B28"
-        logo_coor = "M1"
+        logo_coor = "N1"
         header_coor = "B3"
         ws = wb.get_sheet_by_name('main')
 
@@ -374,16 +374,17 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 6).value = r.capex_amount
             ws.cell(row=row, column=column + 7).value = r.discount_amount
             ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount
-            ws.cell(row=row, column=column + 9).value = r.po_id.no or ''
-            ws.cell(row=row, column=column + 10).value = ', '.join(
+            ws.cell(row=row, column=column + 9).value = r.other_deduction_amount
+            ws.cell(row=row, column=column + 10).value = r.po_id.no or ''
+            ws.cell(row=row, column=column + 11).value = ', '.join(
                 [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
-            ws.cell(row=row, column=column + 11).value = '{} {}'.format(
+            ws.cell(row=row, column=column + 12).value = '{} {}'.format(
                 r.oear_allocation_ids[0].cost_center_id.cost_center or '',
                 r.oear_allocation_ids[0].account_code_id.account_code or '')
-            ws.cell(row=row, column=column + 12).value = "71101"
-            ws.cell(row=row, column=column + 13).value = r.remark
-            ws.cell(row=row, column=column + 15).value = r.discount_amount or 0
-            ws.cell(row=row, column=column + 16).value = r.discount_percentage or 0
+            ws.cell(row=row, column=column + 13).value = "71101"
+            ws.cell(row=row, column=column + 14).value = r.remark
+            ws.cell(row=row, column=column + 16).value = r.discount_amount or 0
+            ws.cell(row=row, column=column + 17).value = r.discount_percentage or 0
 
             row += 1
             sr += 1
