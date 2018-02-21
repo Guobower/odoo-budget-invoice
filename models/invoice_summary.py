@@ -380,7 +380,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 11).value = '{} {}'.format(
                 r.oear_allocation_ids[0].cost_center_id.cost_center or '',
                 r.oear_allocation_ids[0].account_code_id.account_code or '')
-            ws.cell(row=row, column=column + 12).value = r.oear_allocation_ids[1].cost_center_id.cost_center or ''
+            ws.cell(row=row, column=column + 12).value = "71101"
             ws.cell(row=row, column=column + 13).value = r.remark
             ws.cell(row=row, column=column + 15).value = r.discount_amount or 0
             ws.cell(row=row, column=column + 16).value = r.discount_percentage or 0
