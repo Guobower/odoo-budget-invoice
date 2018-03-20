@@ -96,7 +96,7 @@ class InvoiceSummary(models.Model):
     FORMS = [
         ('form_a0001ver01.xlsx', 'Regional'),
         ('form_a0002ver01.xlsx', 'Regional - Volume Discount'),
-        ('form_b0001ver02.xlsx', 'Resource'),
+        ('form_b0001ver04.xlsx', 'Resource'),
         ('form_c0001ver01.xlsx', 'Head Office'),
     ]
 
@@ -385,6 +385,84 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 14).value = r.remark
             ws.cell(row=row, column=column + 16).value = r.discount_amount or 0
             ws.cell(row=row, column=column + 17).value = r.discount_percentage or 0
+
+            row += 1
+            sr += 1
+
+        # INSERT HEADER LOGO AND SIGNATURE
+        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+
+        # FORMAT FOOTER
+
+        # SIGNATURE
+        signatory_img = self.get_signatories()
+        tmpfile = tempfile.TemporaryFile()
+        signatory_img.save(tmpfile, format="PNG")
+        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+        # SAVE FINAL ATTACHMENT
+        creator.save()
+        creator.attach(self.env)
+
+    @api.one
+    def form_b0001ver04(self, creator):
+        """
+        GENERATE FORM ACCORDING TO form_b0001ver04
+        """
+
+        wb = creator.get_wb()
+
+        # CREATE ALLOCATION SHEET
+        # ----------------------------------------------------------
+        create_allocation_sheet(self, wb)
+
+        # WORK SHEET MAIN
+        # ----------------------------------------------------------
+        row = 18
+        column = 2
+        sr = 1
+        signature_coor = "B24"
+        logo_coor = "Q1"
+        header_coor = "B3"
+        ws = wb.get_sheet_by_name('main')
+
+        ws.cell("B11").value = self.summary_no
+        ws.cell("B15").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        ws.cell("E15").value = get_joined_value(self.mapped('invoice_ids.approval_ref'))
+        ws.cell("L11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
+        ws.cell("L15").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
+        ws.cell("O15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
+
+        # Create Table
+        ws.insert_rows(row, len(self.invoice_ids) - 1)
+
+        # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
+        # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
+        for r in self.mapped('invoice_ids').sorted(key=lambda rec: rec.sequence):
+            ws.cell(row=row, column=column).value = sr
+            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime(
+                '%d-%b-%Y') or ''
+            ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
+            ws.cell(row=row, column=column + 3).value = r.po_id.no or ''
+            ws.cell(row=row, column=column + 4).value = ', '.join(
+                [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
+            ws.cell(row=row, column=column + 5).value = '{} {}'.format(
+                r.oear_allocation_ids[0].cost_center_id.cost_center or '',
+                r.oear_allocation_ids[0].account_code_id.account_code or '')
+            ws.cell(row=row, column=column + 6).value = "71101"
+            ws.cell(row=row, column=column + 7).value = r.description or ''
+            ws.cell(row=row, column=column + 8).value = r.invoice_amount
+            ws.cell(row=row, column=column + 9).value = r.other_deduction_amount
+            ws.cell(row=row, column=column + 10).value = r.invoice_amount - r.other_deduction_amount
+            ws.cell(row=row, column=column + 11).value = r.discount_amount
+            ws.cell(row=row, column=column + 12).value = r.certified_invoice_amount
+            ws.cell(row=row, column=column + 13).value = r.capex_amount
+            ws.cell(row=row, column=column + 14).value = r.revenue_amount
+            ws.cell(row=row, column=column + 15).value = r.opex_amount
+            ws.cell(row=row, column=column + 16).value = r.remark
+
+            ws.cell(row=row, column=column + 18).value = r.discount_amount or 0
+            ws.cell(row=row, column=column + 19).value = r.discount_percentage or 0
 
             row += 1
             sr += 1

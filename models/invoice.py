@@ -102,7 +102,7 @@ class Invoice(models.Model):
     is_penalty_percentage = fields.Boolean(string='Is Penalty (%)', default=True)
     is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
-    is_discount_apply_after_other_deduction_percentage = fields.Boolean(string='Apply After Other Deduction',
+    is_discount_apply_after_other_deduction_percentage = fields.Boolean(string='Apply Discount After Other Deduction',
                                                                         default=False)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
@@ -333,7 +333,7 @@ class Invoice(models.Model):
                                      string='On Hold Amount')
     other_deduction_amount = fields.Monetary(currency_field='currency_id', store=True,
                                              compute='_compute_other_deduction_amount',
-                                             string='Other Deduction Amount')
+                                             string='Tools/Other Deduction Amount')
     due_amount = fields.Monetary(currency_field='currency_id', store=True,
                                  compute='_compute_due_amount',
                                  string='Due Amount')
