@@ -421,17 +421,17 @@ class InvoiceSummary(models.Model):
         row = 18
         column = 2
         sr = 1
-        signature_coor = "B24"
-        logo_coor = "Q1"
+        signature_coor = "E24"
+        logo_coor = "R1"
         header_coor = "B3"
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("B11").value = self.summary_no
         ws.cell("B15").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
         ws.cell("E15").value = get_joined_value(self.mapped('invoice_ids.approval_ref'))
-        ws.cell("L11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
-        ws.cell("L15").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
-        ws.cell("O15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
+        ws.cell("K11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
+        ws.cell("K15").value = get_joined_value(self.mapped('invoice_ids.contract_id.contract_ref'))
+        ws.cell("N15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -459,7 +459,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 13).value = r.capex_amount
             ws.cell(row=row, column=column + 14).value = r.revenue_amount
             ws.cell(row=row, column=column + 15).value = r.opex_amount
-            ws.cell(row=row, column=column + 16).value = r.remark
+            ws.cell(row=row, column=column + 16).value = r.remark or ''
 
             ws.cell(row=row, column=column + 18).value = r.discount_amount or 0
             ws.cell(row=row, column=column + 19).value = r.discount_percentage or 0
