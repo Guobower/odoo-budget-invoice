@@ -248,6 +248,9 @@
                                     </group>
                                     <group>
                                         <field name="certified_invoice_amount"/>
+                                        <field name="certified_capex_amount"/>
+                                        <field name="certified_opex_amount"/>
+                                        <field name="certified_revenue_amount"/>
                                     </group>
                                 </group>
                                 <group>

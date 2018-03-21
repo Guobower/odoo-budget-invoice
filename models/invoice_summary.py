@@ -462,9 +462,9 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 10).value = r.invoice_amount - r.other_deduction_amount
             ws.cell(row=row, column=column + 11).value = r.discount_amount
             ws.cell(row=row, column=column + 12).value = r.certified_invoice_amount
-            ws.cell(row=row, column=column + 13).value = r.capex_amount
-            ws.cell(row=row, column=column + 14).value = r.revenue_amount
-            ws.cell(row=row, column=column + 15).value = r.opex_amount
+            ws.cell(row=row, column=column + 13).value = r.certified_capex_amount
+            ws.cell(row=row, column=column + 14).value = r.certified_revenue_amount
+            ws.cell(row=row, column=column + 15).value = r.certified_opex_amount
             ws.cell(row=row, column=column + 16).value = r.remark or ''
 
             ws.cell(row=row, column=column + 18).value = r.discount_amount or 0
