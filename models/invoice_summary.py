@@ -446,9 +446,13 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 3).value = r.po_id.no or ''
             ws.cell(row=row, column=column + 4).value = ', '.join(
                 [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
-            ws.cell(row=row, column=column + 5).value = '{} {}'.format(
-                r.oear_allocation_ids[0].cost_center_id.cost_center or '',
-                r.oear_allocation_ids[0].account_code_id.account_code or '')
+
+            cc_ac = []
+            for i in r.oear_allocation_ids:
+                cc_ac.append('{} {}'.format(i.cost_center_id.cost_center,
+                                            i.cost_center_id.account_code))
+            ws.cell(row=row, column=column + 5).value = ','.join(cc_ac) if len(cc_ac) > 0 else ''
+
             ws.cell(row=row, column=column + 6).value = "71101"
             ws.cell(row=row, column=column + 7).value = r.description or ''
             ws.cell(row=row, column=column + 8).value = r.invoice_amount
