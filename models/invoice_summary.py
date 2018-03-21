@@ -450,7 +450,7 @@ class InvoiceSummary(models.Model):
             cc_ac = []
             for i in r.oear_allocation_ids:
                 cc_ac.append('{} {}'.format(i.cost_center_id.cost_center,
-                                            i.cost_center_id.account_code))
+                                            i.account_code_id.account_code))
             ws.cell(row=row, column=column + 5).value = ','.join(cc_ac) if len(cc_ac) > 0 else ''
 
             ws.cell(row=row, column=column + 6).value = "71101"
