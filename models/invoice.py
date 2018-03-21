@@ -343,6 +343,16 @@ class Invoice(models.Model):
     certified_invoice_amount = fields.Monetary(currency_field='currency_id', store=True,
                                                compute='_compute_certified_invoice_amount',
                                                string='Certified Amount')
+    certified_capex_amount = fields.Monetary(currency_field='currency_id', store=True,
+                                             compute='_compute_certified_capex_amount',
+                                             string='Certified Capex Amount')
+    certified_opex_amount = fields.Monetary(currency_field='currency_id', store=True,
+                                            compute='_compute_certified_opex_amount',
+                                            string='Certified Opex Amount')
+    certified_revenue_amount = fields.Monetary(currency_field='currency_id', store=True,
+                                               compute='_compute_certified_revenue_amount',
+                                               string='Certified Revenue Amount')
+
     balance_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_balance_amount',
                                      string='Balance Amount')
@@ -576,6 +586,30 @@ class Invoice(models.Model):
     def _compute_certified_invoice_amount(self):
         self.certified_invoice_amount = self.invoice_amount - self.penalty_amount - self.discount_amount - \
                                         self.on_hold_amount - self.other_deduction_amount
+
+    @api.one
+    @api.depends('invoice_amount', 'certified_invoice_amount', 'capex_amount')
+    def _compute_certified_capex_amount(self):
+        if self.invoice_amount == 0.0:
+            return
+        percentage = self.capex_amount / self.invoice_amount
+        self.certified_capex_amount = self.certified_invoice_amount * percentage
+
+    @api.one
+    @api.depends('invoice_amount', 'certified_invoice_amount', 'opex_amount')
+    def _compute_certified_opex_amount(self):
+        if self.invoice_amount == 0.0:
+            return
+        percentage = self.opex_amount / self.invoice_amount
+        self.certified_opex_amount = self.certified_invoice_amount * percentage
+
+    @api.one
+    @api.depends('invoice_amount', 'certified_invoice_amount', 'revenue_amount')
+    def _compute_certified_revenue_amount(self):
+        if self.invoice_amount == 0.0:
+            return
+        percentage = self.revenue_amount / self.invoice_amount
+        self.certified_revenue_amount = self.certified_invoice_amount * percentage
 
     @api.one
     @api.depends('cear_allocation_ids', 'capex_amount')
