@@ -124,6 +124,9 @@ class Invoice(models.Model):
 
     invoice_date = fields.Date(string='Invoice Date')
     invoice_cert_date = fields.Date(string='Inv Certification Date')
+    claim_start_date = fields.Date(string='Claim Start Date')
+    claim_end_date = fields.Date(string='Claim End Date')
+
     received_date = fields.Date(string='Received Date', default=lambda self: fields.Date.today())
     # TODO DEPRECATE
     signed_date = fields.Date(string='Signed Date')

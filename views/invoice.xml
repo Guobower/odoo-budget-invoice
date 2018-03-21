@@ -106,6 +106,8 @@
                                         <field name="received_date" required="1"/>
                                         <field name="invoice_date" required="1"/>
                                         <field name="invoice_cert_date"/>
+                                        <field name="claim_start_date"/>
+                                        <field name="claim_end_date"/>
 
                                     </group>
                                     <group>
