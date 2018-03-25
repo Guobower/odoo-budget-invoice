@@ -448,14 +448,17 @@ class InvoiceSummary(models.Model):
                 [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
 
             cc_ac = []
+            charge_account = ''
             for i in r.oear_allocation_ids:
                 if i.cost_center_id.cost_center == '71101':
-                    continue
-                cc_ac.append('{} {}'.format(i.cost_center_id.cost_center,
-                                            i.account_code_id.account_code))
+                    charge_account = i.cost_center_id.cost_center
+                else:
+                    cc_ac.append('{} {}'.format(i.cost_center_id.cost_center,
+                                                i.account_code_id.account_code))
+
             ws.cell(row=row, column=column + 5).value = ','.join(cc_ac) if len(cc_ac) > 0 else ''
 
-            ws.cell(row=row, column=column + 6).value = "71101"
+            ws.cell(row=row, column=column + 6).value = charge_account
             ws.cell(row=row, column=column + 7).value = r.description or ''
             ws.cell(row=row, column=column + 8).value = r.invoice_amount
             ws.cell(row=row, column=column + 9).value = r.other_deduction_amount
