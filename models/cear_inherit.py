@@ -41,6 +41,7 @@ class TaskInherit(models.Model):
                                          string='Utilized Amount (IM)',
                                          compute='_compute_im_utilized_amount',
                                          store=True)
+
     # TODO ADD BALANCE FIELD TO SHOW REMAINING AMOUNT AGAINST IM UTILIZATION
 
     @api.one
@@ -70,6 +71,19 @@ class TaskInherit(models.Model):
                                                                               ])
         self.im_utilized_amount = sum(cear_allocations.mapped('amount'))
 
-
-        # BUTTONS
-        # ----------------------------------------------------------
+    # BUTTONS
+    # ----------------------------------------------------------
+    def show_linked_invoices(self):
+        invoice_ids = self.mapped('allocation_ids.invoice_id.id')
+        tree_id = self.env.ref('budget_invoice.view_tree_invoice').id
+        search_id = self.env.ref('budget_invoice.search_invoice').id
+        res = {
+            'name': 'Linked Invoices',
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'tree',
+            'res_model': 'budget.invoice.invoice',
+            'domain': [("id", "in", invoice_ids)],
+            'views': [(tree_id, 'tree'), (search_id, 'search')],
+        }
+        return res

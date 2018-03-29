@@ -10,10 +10,11 @@
             <field name="inherit_id" ref="budget_capex.view_form_cear"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[@name='button_box']" position="inside">
-                    <button class="oe_stat_button" type="action"
-                        icon="fa-list-ul">
-                        <!--<field string="Invoice" name="total_invoice" widget="statinfo"/>-->
-                    </button>
+                    <button class="oe_stat_button"
+                            name="show_linked_invoices"
+                            type="object"
+                            string="Invoices"
+                            icon="fa-list"/>
                 </xpath>
                 <xpath expr="//field[@name='fn_utilized_amount']" position="before">
                     <field name="im_utilized_amount"/>
