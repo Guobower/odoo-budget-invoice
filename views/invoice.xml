@@ -245,6 +245,7 @@
                                         <field name="year_invoice" readonly="1"/>
                                         <field name="kpi_lapse_days" readonly="1"/>
                                         <field name="kpi_state" readonly="1"/>
+                                        <field name="claim_lapse_days" readonly="1"/>
                                     </group>
                                     <group>
                                         <field name="certified_invoice_amount"/>
