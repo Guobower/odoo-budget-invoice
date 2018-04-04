@@ -683,27 +683,27 @@ class Invoice(models.Model):
          'Penalty Percentage must be with in 0-100'),
     ]
 
-    @api.one
-    @api.constrains('cear_amount', 'oear_amount', 'total_revenue_amount',
-                    'oear_allocation_ids', 'cear_allocation_ids')
-    def _check_total_distributed_amount(self):
-        current_user = self.env.user
-
-        if current_user.has_group('base.group_system'):
-            return
-
-        amount = sum([amount_id.amount / amount_id.currency_id.rate for amount_id in self.mapped('amount_ids')])
-
-        allocation_cear_amount = sum(self.mapped('cear_allocation_ids.amount'))
-        allocation_oear_amount = sum(self.mapped('oear_allocation_ids.amount'))
-        allocated_amount = allocation_cear_amount + allocation_oear_amount
-        # if the difference of cear_amount and allocation is less than (threshold),
-        # it means that it is miss allocated
-        if abs(amount - allocated_amount) > DIFFERENCE_THRESHOLD:
-            msg = 'TOTAL INVOICE AMOUNT IS {} BUT TOTAL AMOUNT ALLOCATED IS {}'.format(amount,
-                                                                                       allocated_amount
-                                                                                       )
-            raise ValidationError(msg)
+    # @api.one
+    # @api.constrains('cear_amount', 'oear_amount', 'total_revenue_amount',
+    #                 'oear_allocation_ids', 'cear_allocation_ids')
+    # def _check_total_distributed_amount(self):
+    #     current_user = self.env.user
+    #
+    #     if current_user.has_group('base.group_system'):
+    #         return
+    #
+    #     amount = sum([amount_id.amount / amount_id.currency_id.rate for amount_id in self.mapped('amount_ids')])
+    #
+    #     allocation_cear_amount = sum(self.mapped('cear_allocation_ids.amount'))
+    #     allocation_oear_amount = sum(self.mapped('oear_allocation_ids.amount'))
+    #     allocated_amount = allocation_cear_amount + allocation_oear_amount
+    #     # if the difference of cear_amount and allocation is less than (threshold),
+    #     # it means that it is miss allocated
+    #     if abs(amount - allocated_amount) > DIFFERENCE_THRESHOLD:
+    #         msg = 'TOTAL INVOICE AMOUNT IS {} BUT TOTAL AMOUNT ALLOCATED IS {}'.format(amount,
+    #                                                                                    allocated_amount
+    #                                                                                    )
+    #         raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
