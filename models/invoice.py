@@ -309,6 +309,9 @@ class Invoice(models.Model):
                                  compute='_compute_kpi_state',
                                  default='pending',
                                  store=True)
+    claim_lapse_days = fields.Integer(string='Claim KPI Days',
+                                      compute='_compute_claim_lapse_days',
+                                      store=True)
     opex_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_opex_amount',
                                   inverse='_set_opex_amount',
@@ -402,6 +405,15 @@ class Invoice(models.Model):
             return
 
         self.kpi_state = 'in' if self.kpi_lapse_days <= threshold.threshold else 'out'
+
+    @api.one
+    @api.depends('claim_start_date', 'claim_end_date')
+    def _compute_claim_lapse_days(self):
+        if self.claim_start_date and self.claim_end_date:
+            diff = relativedelta(fields.Date.from_string(self.claim_end_date), fields.Date.from_string(self.claim_start_date)).days
+            self.claim_lapse_days = diff
+        else:
+            self.claim_lapse_days = 0
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
