@@ -813,9 +813,8 @@ class Invoice(models.Model):
     def copy(self, default=None):
         default = dict(default or {})
         new_values = {
-            'invoice_no': "(NEW)" + default.get('invoice_no', ''),
             'summary_ids': False,
-            'received_date': False,
+            'received_date': fields.Date.today(),
             'invoice_date': False,
             'invoice_cert_date': False,
             'start_date': False,
