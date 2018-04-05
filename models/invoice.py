@@ -812,7 +812,26 @@ class Invoice(models.Model):
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {})
-        default.update(summary_ids=False)
+        new_values = {
+            'invoice_no': "(NEW)" + default.get('invoice_no', ''),
+            'summary_ids': False,
+            'received_date': False,
+            'invoice_date': False,
+            'invoice_cert_date': False,
+            'start_date': False,
+            'end_date': False,
+            'rfs_date': False,
+            'claim_start_date': False,
+            'claim_end_date': False,
+            'sd_signed_date': False,
+            'svp_signed_date': False,
+            'cto_signed_date': False,
+            'sent_finance_date': False,
+            'closed_date': False,
+            'reject_date': False,
+        }
+        default.update(new_values)
+
         return super(Invoice, self).copy(default)
 
     @api.model
