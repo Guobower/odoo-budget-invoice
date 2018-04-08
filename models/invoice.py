@@ -218,6 +218,11 @@ class Invoice(models.Model):
     def _onchange_contractor_id(self):
         self.contractor_id = self.contract_id.contractor_id
 
+    @api.onchange('amount_ids', 'amount_ids.currency_id')
+    def _onchange_amount_ids_currency_id(self):
+        self.currency_id = False if not self.mapped('amount_ids.currency_id') \
+            else self.mapped('amount_ids.currency_id')[0]
+
     @api.onchange('contract_id', 'invoice_date')
     def _onchange_input_discount_percentage(self):
         if self.contract_id.discount_rule_id and self.contract_id.is_discount_applicable:
@@ -410,7 +415,8 @@ class Invoice(models.Model):
     @api.depends('claim_start_date', 'claim_end_date')
     def _compute_claim_lapse_days(self):
         if self.claim_start_date and self.claim_end_date:
-            diff = relativedelta(fields.Date.from_string(self.claim_end_date), fields.Date.from_string(self.claim_start_date)).days
+            diff = relativedelta(fields.Date.from_string(self.claim_end_date),
+                                 fields.Date.from_string(self.claim_start_date)).days
             self.claim_lapse_days = diff
         else:
             self.claim_lapse_days = 0
@@ -715,6 +721,25 @@ class Invoice(models.Model):
             msg = 'TOTAL INVOICE AMOUNT IS {} BUT TOTAL AMOUNT ALLOCATED IS {}'.format(amount,
                                                                                        allocated_amount
                                                                                        )
+            raise ValidationError(msg)
+
+    @api.one
+    @api.constrains('amount_ids', 'amount_ids.currency_id',
+                    'cear_allocation_ids', 'cear_allocation_ids.currency_id',
+                    'oear_allocation_ids', 'oear_allocation_ids.currency_id')
+    def _check_amount_ids_count_currency(self):
+        # current_user = self.env.user
+        #
+        # if current_user.has_group('base.group_system'):
+        #     return
+
+        currency_names = self.mapped('amount_ids.currency_id.name') + \
+                         self.mapped('cear_allocation_ids.currency_id.name') + \
+                         self.mapped('oear_allocation_ids.currency_id.name') + \
+                         [self.currency_id.name]
+
+        if len(set(currency_names)) > 1:
+            msg = 'Amount currency in an invoice should only be one and same for all elements'
             raise ValidationError(msg)
 
     # BUTTONS/TRANSITIONS
