@@ -45,12 +45,14 @@
                                 <field name="write_date"/>
                                 <field name="team"/>
                                 <field name="system_remark"/>
+                                <field name="aed_currency_id"/>
                                 <field name="currency_id"/>
                                 <field name="cear_amount"/>
                                 <field name="oear_amount"/>
                                 <field name="total_revenue_amount"/>
                                 <field name="has_hold_amount"/>
                                 <field name="summary_ids" widget="many2many_tags"/>
+                                <field name="is_different_currency"/>
                             </group>
                             <group string="DEPRECATED">
                                 <!-- TODO DEPRECATE -->
@@ -217,7 +219,7 @@
                                             <field name="related_cear_authorized_amount" readonly="1" sum="1"/>
                                             <field name="related_cear_fn_utilized_amount" readonly="1" sum="1"/>
                                             <field name="related_cear_im_utilized_amount" readonly="1" sum="1"/>
-                                            <field name="currency_id"/>
+                                            <field name="currency_id" options="{'no_open': True, 'no_create': True}"/>
                                             <field name="related_currency_name" groups="base.group_no_one"/>
                                             <field name="amount" required="1" sum="1"/>
                                             <field name="amount_aed" sum="1"/>
@@ -238,7 +240,7 @@
                                             <field name="account_code_id" required="1" options="{'no_create': True}"/>
                                             <field name="oear_id"/>
                                             <field name="related_accrued_amount" readonly="1"/>
-                                            <field name="currency_id"/>
+                                            <field name="currency_id" options="{'no_open': True, 'no_create': True}"/>
                                             <field name="related_currency_name" groups="base.group_no_one"/>
                                             <field name="amount" required="1" sum="1"/>
                                             <field name="amount_aed" sum="1"/>
@@ -264,10 +266,29 @@
                                 </group>
                                 <group>
                                     <group>
-                                        <field name="capex_amount" readonly="1"/>
-                                        <field name="opex_amount" readonly="1"/>
-                                        <field name="revenue_amount" readonly="1"/>
-                                        <field name="invoice_amount" readonly="1"/>
+                                        <label for="capex_amount" string="Capex Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="capex_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="capex_aed_amount" readonly="1" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                        </div>
+                                        <newline/>
+                                        <label for="opex_amount" string="Opex Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="opex_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="opex_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
+                                        <newline/>
+                                        <label for="revenue_amount" string="Revenue Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="revenue_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="revenue_aed_amount" class="o_address_street" readonly="1" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
+                                        <newline/>
+                                        <label for="invoice_amount" string="Invoice Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="invoice_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="invoice_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
                                     </group>
                                     <group>
                                         <field name="penalty_amount" readonly="1"/>

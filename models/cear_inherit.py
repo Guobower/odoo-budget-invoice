@@ -77,6 +77,7 @@ class TaskInherit(models.Model):
         invoice_ids = self.mapped('allocation_ids.invoice_id.id')
         tree_id = self.env.ref('budget_invoice.view_tree_invoice').id
         search_id = self.env.ref('budget_invoice.search_invoice').id
+        form_id = self.env.ref('budget_invoice.view_form_invoice').id
         res = {
             'name': 'Linked Invoices',
             'type': 'ir.actions.act_window',
@@ -84,6 +85,6 @@ class TaskInherit(models.Model):
             'view_mode': 'tree',
             'res_model': 'budget.invoice.invoice',
             'domain': [("id", "in", invoice_ids)],
-            'views': [(tree_id, 'tree'), (search_id, 'search')],
+            'views': [(tree_id, 'tree'), (form_id, 'form'), (search_id, 'search')],
         }
         return res

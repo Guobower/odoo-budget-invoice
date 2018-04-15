@@ -156,8 +156,16 @@ class Invoice(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
+    aed_currency_id = fields.Many2one('res.currency', readonly=True,
+                                      default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
+                                                                                           limit=1))
     currency_id = fields.Many2one('res.currency', readonly=True,
+                                  compute='_compute_currency_id',
                                   default=lambda self: self.env.user.company_id.currency_id)
+
+    is_different_currency = fields.Boolean(string="Is Diff. Currency", readonly=True,
+                                           compute='_compute_is_different_currency', store=False)
+
     responsible_id = fields.Many2one('res.users', string='Responsible',
                                      default=lambda self: self.env.user.id)
     pec_id = fields.Many2one('budget.invoice.pec', string='PEC No')
@@ -217,11 +225,6 @@ class Invoice(models.Model):
     @api.onchange('contract_id')
     def _onchange_contractor_id(self):
         self.contractor_id = self.contract_id.contractor_id
-
-    @api.onchange('amount_ids', 'amount_ids.currency_id')
-    def _onchange_amount_ids_currency_id(self):
-        self.currency_id = False if not self.mapped('amount_ids.currency_id') \
-            else self.mapped('amount_ids.currency_id')[0]
 
     @api.onchange('contract_id', 'invoice_date')
     def _onchange_input_discount_percentage(self):
@@ -372,6 +375,7 @@ class Invoice(models.Model):
     oear_amount = fields.Monetary(currency_field='currency_id', store=True,
                                   compute='_compute_oear_amount',
                                   string='Oear Amount')
+
     # SAME AS CEAR AND OEAR, IT WILL BE USE TO CHECK WHETHER TO HIDE CEAR AND OEAR TABS
     total_revenue_amount = fields.Monetary(currency_field='currency_id', store=True,
                                            compute='_compute_total_revenue_amount',
@@ -383,6 +387,23 @@ class Invoice(models.Model):
                                  string="Summary Reference",
                                  track_visibility='onchange',
                                  store=True)
+
+    capex_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                       string='Capex Amount AED',
+                                       compute='_compute_capex_aed_amount'
+                                       )
+
+    opex_aed_amount = fields.Monetary(compute='_compute_opex_aed_amount',
+                                      string='Opex Amount AED',
+                                      currency_field='aed_currency_id')
+
+    invoice_aed_amount = fields.Monetary(compute='_compute_invoice_aed_amount',
+                                         string='Invoice Amount AED',
+                                         currency_field='aed_currency_id')
+
+    revenue_aed_amount = fields.Monetary(compute="_compute_revenue_aed_amount",
+                                         string='Revenue Amount AED',
+                                         currency_field='aed_currency_id')
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
@@ -505,28 +526,43 @@ class Invoice(models.Model):
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_opex_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type == 'opex'):
-            if amount_id.currency_id == self.env.user.company_id.currency_id:
                 self.opex_amount += amount_id.amount
-            else:
-                self.opex_amount += amount_id.amount / amount_id.currency_id.rate
+
+    @api.one
+    @api.depends('currency_id', 'opex_amount')
+    def _compute_opex_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0.0:
+            raise ValidationError("Currency rate is not defined.")
+        self.opex_aed_amount = self.opex_amount / rate
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_capex_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type in ['capex']):
-            if amount_id.currency_id == self.env.user.company_id.currency_id:
-                self.capex_amount += amount_id.amount
-            else:
-                self.capex_amount += amount_id.amount / amount_id.currency_id.rate
+            self.capex_amount += amount_id.amount
+
+    @api.one
+    @api.depends('capex_amount', 'currency_id')
+    def _compute_capex_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0.0:
+            raise ValidationError("Currency rate is not defined")
+        self.capex_aed_amount = self.capex_amount / rate
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_revenue_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type in ['revenue']):
-            if amount_id.currency_id == self.env.user.company_id.currency_id:
-                self.revenue_amount += amount_id.amount
-            else:
-                self.revenue_amount += amount_id.amount / amount_id.currency_id.rate
+            self.revenue_amount += amount_id.amount
+
+    @api.one
+    @api.depends('currency_id', 'revenue_amount')
+    def _compute_revenue_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0.0:
+            raise ValidationError("Conversion rate is not defined.")
+        self.revenue_aed_amount = self.revenue_amount / rate
 
     @api.one
     @api.depends('revenue_amount', 'opex_amount', 'capex_amount')
@@ -534,6 +570,13 @@ class Invoice(models.Model):
         self.invoice_amount = self.opex_amount + \
                               self.capex_amount + \
                               self.revenue_amount
+
+    @api.one
+    @api.depends('revenue_aed_amount', 'opex_aed_amount', 'capex_aed_amount')
+    def _compute_invoice_aed_amount(self):
+        self.invoice_aed_amount = self.opex_aed_amount + \
+                              self.capex_aed_amount + \
+                              self.revenue_aed_amount
 
     @api.one
     @api.depends('is_penalty_percentage', 'penalty_percentage',
@@ -650,6 +693,22 @@ class Invoice(models.Model):
         if self.summary_ids:
             self.summary_id = self.summary_ids.sorted(key='id', reverse=True)[0]
 
+    @api.depends('amount_ids', 'amount_ids.currency_id')
+    def _compute_currency_id(self):
+        self.currency_id = False if not self.mapped('amount_ids.currency_id') \
+            else self.mapped('amount_ids.currency_id')[0]
+
+    @api.depends('currency_id', 'aed_currency_id')
+    def _compute_is_different_currency(self):
+        if self.currency_id == self.aed_currency_id:
+            self.is_different_currency = False
+        else:
+            self.is_different_currency = True
+
+    @api.depends('currency_id', 'currency_id.name')
+    def _compute_currency_name(self):
+        self.currency_name = self.currency_id.name
+
     # INVERSE FIELDS
     # ----------------------------------------------------------
     @api.one
@@ -728,16 +787,10 @@ class Invoice(models.Model):
                     'cear_allocation_ids', 'cear_allocation_ids.currency_id',
                     'oear_allocation_ids', 'oear_allocation_ids.currency_id')
     def _check_amount_ids_count_currency(self):
-        # current_user = self.env.user
-        #
-        # if current_user.has_group('base.group_system'):
-        #     return
-
         currency_names = self.mapped('amount_ids.currency_id.name') + \
                          self.mapped('cear_allocation_ids.currency_id.name') + \
                          self.mapped('oear_allocation_ids.currency_id.name') + \
                          [self.currency_id.name]
-
         if len(set(currency_names)) > 1:
             msg = 'Amount currency in an invoice should only be one and same for all elements'
             raise ValidationError(msg)
