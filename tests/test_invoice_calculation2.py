@@ -91,7 +91,8 @@ class TestInvoiceCalculation03(TransactionCase):
 
     def test_calculation_capex_aed_amount(self):
         # CAPEX AED AMOUNT
-        expected_amount = 11021.99
+        expected_amount = 11022.00
+
         self.assertTrue(self.invoice.capex_aed_amount == expected_amount, "Capex Amount (AED) must be {}, Given {}".
                         format(expected_amount, self.invoice.capex_aed_amount))
 
@@ -113,6 +114,62 @@ class TestInvoiceCalculation03(TransactionCase):
         self.assertTrue(self.invoice.invoice_aed_amount == expected_amount, "Invoice Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.invoice_aed_amount))
 
+    def test_calculation_certified_aed_invoice_amount(self):
+        # CERTIFIED INVOICE AED AMOUNT
+        expected_amount = 22631.83
+        self.assertTrue(self.invoice.certified_aed_invoice_amount == expected_amount,
+                        "Certified invoice amount in aed must be "
+                        "{}, given {}". format(expected_amount, self.invoice.certified_aed_invoice_amount))
+
+    def test_calculation_certified_aed_capex_amount(self):
+        # CERTIFIED CAPEX AED AMOUNT
+        expected_amount = 4849.68
+        self.assertTrue(self.invoice.certified_aed_capex_amount == expected_amount,
+                        "Certified capex amount in aed must be "
+                        "{}, given {}". format(expected_amount, self.invoice.certified_aed_capex_amount))
+
+    def test_calculation_certified_aed_opex_amount(self):
+        # CERTIFIED OPEX AED AMOUNT
+        expected_amount = 6466.24
+        self.assertTrue(self.invoice.certified_aed_opex_amount == expected_amount,
+                        "Certified opex amount in aed must be {},"
+                        " given {}". format(expected_amount, self.invoice.certified_aed_opex_amount))
+
+    def test_calculation_certified_aed_revenue_amount(self):
+        # CERTIFIED REVENUE AED AMOUNT
+        expected_amount = 11315.92
+        self.assertTrue(self.invoice.certified_aed_revenue_amount == expected_amount,
+                        "Certified revenue amount in aed must be"
+                        " {}, given {}". format(expected_amount, self.invoice.certified_aed_revenue_amount))
+
+    def test_calculation_penalty_aed_amount(self):
+        # PENALTY AED AMOUNT
+        expected_amount = 7201.04
+        self.assertTrue(self.invoice.penalty_aed_amount == expected_amount,
+                        "Penalty amount in aed must be "
+                        "{}, given {}". format(expected_amount, self.invoice.penalty_aed_amount))
+
+    def test_calculation_discount_aed_amount(self):
+        # DISCOUNT AED AMOUNT
+        expected_amount = 6172.32
+        self.assertTrue(self.invoice.discount_aed_amount == expected_amount,
+                        "Discount amount in aed must be "
+                        "{}, given {}". format(expected_amount, self.invoice.discount_aed_amount))
+
+    def test_calculation_on_hold_aed_amount(self):
+        # DISCOUNT AED AMOUNT
+        expected_amount = 6686.68
+        self.assertTrue(self.invoice.on_hold_aed_amount == expected_amount,
+                        "On hold amount in aed must be "
+                        "{}, given {}". format(expected_amount, self.invoice.on_hold_aed_amount))
+
+    def test_calculation_other_deduction_aed_amount(self):
+        # DISCOUNT AED AMOUNT
+        expected_amount = 8744.12
+        self.assertTrue(self.invoice.other_deduction_aed_amount == expected_amount,
+                        "Other deduction amount in aed must be "
+                        "{}, given {}". format(expected_amount, self.invoice.other_deduction_aed_amount))
+
     def test_single_currency_in_invoice(self):
         usd_id = self.env["res.currency"].search([('name', '=', 'USD')], limit=1).id
         try:
@@ -126,6 +183,4 @@ class TestInvoiceCalculation03(TransactionCase):
             
         finally:
             self.assertTrue(added, "CEAR with another currency must not be allowed to add.")
-
-
 

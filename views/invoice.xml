@@ -258,10 +258,26 @@
                                         <field name="claim_lapse_days" readonly="1"/>
                                     </group>
                                     <group>
-                                        <field name="certified_invoice_amount"/>
-                                        <field name="certified_capex_amount"/>
-                                        <field name="certified_opex_amount"/>
-                                        <field name="certified_revenue_amount"/>
+                                        <label for="certified_invoice_amount" string="Certified Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="certified_invoice_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="certified_aed_invoice_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                        </div>
+                                        <label for="certified_capex_amount" string="Certified Capex Amont"/>
+                                        <div class="o_address_format">
+                                            <field name="certified_capex_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="certified_aed_capex_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                        </div>
+                                        <label for="certified_opex_amount" string="Certified Opex Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="certified_opex_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="certified_aed_opex_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                        </div>
+                                        <label for="certified_revenue_amount" string="Certified Revenue Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="certified_revenue_amount" readonly="1" nolabel="1" class="o_address_street"/>
+                                            <field name="certified_aed_revenue_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                        </div>
                                     </group>
                                 </group>
                                 <group>
@@ -291,10 +307,26 @@
                                         </div>
                                     </group>
                                     <group>
-                                        <field name="penalty_amount" readonly="1"/>
-                                        <field name="discount_amount" readonly="1"/>
-                                        <field name="on_hold_amount" readonly="1"/>
-                                        <field name="other_deduction_amount" readonly="1"/>
+                                        <label for="penalty_amount" string="Penalty Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="penalty_amount" readonly="1" class="o_address_street"/>
+                                            <field name="penalty_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
+                                        <label for="discount_amount" string="Discount Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="discount_amount" readonly="1" class="o_address_street"/>
+                                            <field name="discount_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
+                                        <label for="on_hold_amount" string="On Hold Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="on_hold_amount" readonly="1" class="o_address_street"/>
+                                            <field name="on_hold_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
+                                        <label for="other_deduction_amount" string="Tools/Other Deduction Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="other_deduction_amount" readonly="1" class="o_address_street"/>
+                                            <field name="other_deduction_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
                                     </group>
                                 </group>
                             </page>

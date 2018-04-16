@@ -390,8 +390,7 @@ class Invoice(models.Model):
 
     capex_aed_amount = fields.Monetary(currency_field='aed_currency_id',
                                        string='Capex Amount AED',
-                                       compute='_compute_capex_aed_amount'
-                                       )
+                                       compute='_compute_capex_aed_amount')
 
     opex_aed_amount = fields.Monetary(compute='_compute_opex_aed_amount',
                                       string='Opex Amount AED',
@@ -404,6 +403,38 @@ class Invoice(models.Model):
     revenue_aed_amount = fields.Monetary(compute="_compute_revenue_aed_amount",
                                          string='Revenue Amount AED',
                                          currency_field='aed_currency_id')
+
+    certified_aed_invoice_amount = fields.Monetary(compute="_compute_certified_aed_invoice_amount",
+                                                   string='Certified Amount AED',
+                                                   currency_field='aed_currency_id')
+
+    certified_aed_capex_amount = fields.Monetary(compute="_compute_certified_aed_capex_amount",
+                                                 string='Certified Capex AED',
+                                                 currency_field='aed_currency_id')
+
+    certified_aed_opex_amount = fields.Monetary(compute="_compute_certified_aed_opex_amount",
+                                                string='Certified Opex AED',
+                                                currency_field='aed_currency_id')
+
+    certified_aed_revenue_amount = fields.Monetary(compute="_compute_certified_aed_revenue_amount",
+                                                   string='Certified Revenue AED',
+                                                   currency_field='aed_currency_id')
+
+    penalty_aed_amount = fields.Monetary(compute="_compute_penalty_aed_amount",
+                                         string='Penalty Amount AED',
+                                         currency_field='aed_currency_id')
+
+    discount_aed_amount = fields.Monetary(compute="_compute_discount_aed_amount",
+                                          string='Discount Amount AED',
+                                          currency_field='aed_currency_id')
+
+    on_hold_aed_amount = fields.Monetary(compute="_compute_on_hold_aed_amount",
+                                         string='On Hold Amount AED',
+                                         currency_field='aed_currency_id')
+
+    other_deduction_aed_amount = fields.Monetary(compute="_compute_other_deduction_aed_amount",
+                                                 string='Other Deduction Amount AED',
+                                                 currency_field='aed_currency_id')
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
@@ -693,6 +724,7 @@ class Invoice(models.Model):
         if self.summary_ids:
             self.summary_id = self.summary_ids.sorted(key='id', reverse=True)[0]
 
+    @api.one
     @api.depends('amount_ids', 'amount_ids.currency_id')
     def _compute_currency_id(self):
         self.currency_id = False if not self.mapped('amount_ids.currency_id') \
@@ -708,6 +740,70 @@ class Invoice(models.Model):
     @api.depends('currency_id', 'currency_id.name')
     def _compute_currency_name(self):
         self.currency_name = self.currency_id.name
+
+    @api.one
+    @api.depends('certified_invoice_amount')
+    def _compute_certified_aed_invoice_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.certified_aed_invoice_amount = self.certified_invoice_amount / rate
+
+    @api.one
+    @api.depends('certified_capex_amount')
+    def _compute_certified_aed_capex_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.certified_aed_capex_amount = self.certified_capex_amount / rate
+
+    @api.one
+    @api.depends('certified_opex_amount')
+    def _compute_certified_aed_opex_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.certified_aed_opex_amount = self.certified_opex_amount / rate
+
+    @api.one
+    @api.depends('certified_revenue_amount')
+    def _compute_certified_aed_revenue_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.certified_aed_revenue_amount = self.certified_revenue_amount / rate
+
+    @api.one
+    @api.depends('penalty_amount')
+    def _compute_penalty_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.penalty_aed_amount = self.penalty_amount / rate
+
+    @api.one
+    @api.depends('discount_amount')
+    def _compute_discount_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.discount_aed_amount = self.discount_amount / rate
+
+    @api.one
+    @api.depends('on_hold_amount')
+    def _compute_on_hold_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.on_hold_aed_amount = self.on_hold_amount / rate
+
+    @api.one
+    @api.depends('other_deduction_amount')
+    def _compute_other_deduction_aed_amount(self):
+        rate = self.currency_id.rate
+        if rate == 0:
+            raise ValidationError("Rate is not defined for this currency")
+        self.other_deduction_aed_amount = self.other_deduction_amount / rate
 
     # INVERSE FIELDS
     # ----------------------------------------------------------

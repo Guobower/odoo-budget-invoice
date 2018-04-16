@@ -22,7 +22,11 @@ class CearAllocation(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    currency_id = fields.Many2one('res.currency', readonly=False, required=True)
+    currency_id = fields.Many2one('res.currency', readonly=False, required=True,
+                                  default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
+                                                                                       limit=1)
+                                  )
+
     currency_aed_id = fields.Many2one('res.currency', readonly=True,
                                       default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
                                                                                            limit=1))
