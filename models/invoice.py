@@ -6,10 +6,15 @@ from odoo.exceptions import ValidationError, UserError
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-# TODO CHECK AND ADD TEST FOR MULTI CURRENCY
 # DUE TO REFLECT ALL CHANGES IN ALL SIDES
 
 DIFFERENCE_THRESHOLD = 1
+
+
+def convert_amount(currency_id, amount):
+    if currency_id:
+        return amount / currency_id.rate
+    return amount
 
 
 def amount_setter(invoice=None, budget_type=None):
@@ -404,19 +409,19 @@ class Invoice(models.Model):
                                          string='Revenue Amount AED',
                                          currency_field='aed_currency_id')
 
-    certified_aed_invoice_amount = fields.Monetary(compute="_compute_certified_aed_invoice_amount",
+    certified_invoice_aed_amount = fields.Monetary(compute="_compute_certified_invoice_aed_amount",
                                                    string='Certified Amount AED',
                                                    currency_field='aed_currency_id')
 
-    certified_aed_capex_amount = fields.Monetary(compute="_compute_certified_aed_capex_amount",
+    certified_capex_aed_amount = fields.Monetary(compute="_compute_certified_capex_aed_amount",
                                                  string='Certified Capex AED',
                                                  currency_field='aed_currency_id')
 
-    certified_aed_opex_amount = fields.Monetary(compute="_compute_certified_aed_opex_amount",
+    certified_opex_aed_amount = fields.Monetary(compute="_compute_certified_opex_aed_amount",
                                                 string='Certified Opex AED',
                                                 currency_field='aed_currency_id')
 
-    certified_aed_revenue_amount = fields.Monetary(compute="_compute_certified_aed_revenue_amount",
+    certified_revenue_aed_amount = fields.Monetary(compute="_compute_certified_revenue_aed_amount",
                                                    string='Certified Revenue AED',
                                                    currency_field='aed_currency_id')
 
@@ -557,15 +562,12 @@ class Invoice(models.Model):
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
     def _compute_opex_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type == 'opex'):
-                self.opex_amount += amount_id.amount
+            self.opex_amount += amount_id.amount
 
     @api.one
     @api.depends('currency_id', 'opex_amount')
     def _compute_opex_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0.0:
-            raise ValidationError("Currency rate is not defined.")
-        self.opex_aed_amount = self.opex_amount / rate
+        self.opex_aed_amount = convert_amount(self.currency_id, self.opex_amount)
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -576,10 +578,7 @@ class Invoice(models.Model):
     @api.one
     @api.depends('capex_amount', 'currency_id')
     def _compute_capex_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0.0:
-            raise ValidationError("Currency rate is not defined")
-        self.capex_aed_amount = self.capex_amount / rate
+        self.capex_aed_amount = convert_amount(self.currency_id, self.capex_amount)
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
@@ -590,10 +589,7 @@ class Invoice(models.Model):
     @api.one
     @api.depends('currency_id', 'revenue_amount')
     def _compute_revenue_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0.0:
-            raise ValidationError("Conversion rate is not defined.")
-        self.revenue_aed_amount = self.revenue_amount / rate
+        self.revenue_aed_amount = convert_amount(self.currency_id, self.revenue_amount)
 
     @api.one
     @api.depends('revenue_amount', 'opex_amount', 'capex_amount')
@@ -606,8 +602,8 @@ class Invoice(models.Model):
     @api.depends('revenue_aed_amount', 'opex_aed_amount', 'capex_aed_amount')
     def _compute_invoice_aed_amount(self):
         self.invoice_aed_amount = self.opex_aed_amount + \
-                              self.capex_aed_amount + \
-                              self.revenue_aed_amount
+                                  self.capex_aed_amount + \
+                                  self.revenue_aed_amount
 
     @api.one
     @api.depends('is_penalty_percentage', 'penalty_percentage',
@@ -743,67 +739,43 @@ class Invoice(models.Model):
 
     @api.one
     @api.depends('certified_invoice_amount')
-    def _compute_certified_aed_invoice_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.certified_aed_invoice_amount = self.certified_invoice_amount / rate
+    def _compute_certified_invoice_aed_amount(self):
+        self.certified_invoice_aed_amount = convert_amount(self.currency_id, self.certified_invoice_amount)
 
     @api.one
     @api.depends('certified_capex_amount')
-    def _compute_certified_aed_capex_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.certified_aed_capex_amount = self.certified_capex_amount / rate
+    def _compute_certified_capex_aed_amount(self):
+        self.certified_capex_aed_amount = convert_amount(self.currency_id, self.certified_capex_amount)
 
     @api.one
     @api.depends('certified_opex_amount')
-    def _compute_certified_aed_opex_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.certified_aed_opex_amount = self.certified_opex_amount / rate
+    def _compute_certified_opex_aed_amount(self):
+        self.certified_opex_aed_amount = convert_amount(self.currency_id, self.certified_opex_amount)
 
     @api.one
     @api.depends('certified_revenue_amount')
-    def _compute_certified_aed_revenue_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.certified_aed_revenue_amount = self.certified_revenue_amount / rate
+    def _compute_certified_revenue_aed_amount(self):
+        self.certified_revenue_aed_amount = convert_amount(self.currency_id, self.certified_revenue_amount)
 
     @api.one
     @api.depends('penalty_amount')
     def _compute_penalty_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.penalty_aed_amount = self.penalty_amount / rate
+        self.penalty_aed_amount = convert_amount(self.currency_id, self.penalty_amount)
 
     @api.one
     @api.depends('discount_amount')
     def _compute_discount_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.discount_aed_amount = self.discount_amount / rate
+        self.discount_aed_amount = convert_amount(self.currency_id, self.discount_amount)
 
     @api.one
     @api.depends('on_hold_amount')
     def _compute_on_hold_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.on_hold_aed_amount = self.on_hold_amount / rate
+        self.on_hold_aed_amount = convert_amount(self.currency_id, self.on_hold_amount)
 
     @api.one
     @api.depends('other_deduction_amount')
     def _compute_other_deduction_aed_amount(self):
-        rate = self.currency_id.rate
-        if rate == 0:
-            raise ValidationError("Rate is not defined for this currency")
-        self.other_deduction_aed_amount = self.other_deduction_amount / rate
+        self.other_deduction_aed_amount = convert_amount(self.currency_id, self.other_deduction_amount)
 
     # INVERSE FIELDS
     # ----------------------------------------------------------
@@ -879,9 +851,7 @@ class Invoice(models.Model):
             raise ValidationError(msg)
 
     @api.one
-    @api.constrains('amount_ids', 'amount_ids.currency_id',
-                    'cear_allocation_ids', 'cear_allocation_ids.currency_id',
-                    'oear_allocation_ids', 'oear_allocation_ids.currency_id')
+    @api.constrains('amount_ids', 'cear_allocation_ids', 'oear_allocation_ids')
     def _check_amount_ids_count_currency(self):
         currency_names = self.mapped('amount_ids.currency_id.name') + \
                          self.mapped('cear_allocation_ids.currency_id.name') + \

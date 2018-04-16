@@ -188,26 +188,26 @@
                                 </group>
                                 <group>
                                 </group>
-                                <group>
-                                    <field name="amount_ids" context="{'default_invoice_id': id}">
+                                <group string="Amounts">
+                                    <field name="amount_ids" nolabel="1" context="{'default_invoice_id': id}">
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_no_one"/>
                                             <field name="sequence" widget="handle"/>
                                             <field name="budget_type" required="1"/>
                                             <field name="invoice_type" required="1"/>
                                             <field name="payment_type" required="1"/>
-                                            <field name="currency_id" string="Currency"
+                                            <field name="currency_id" string="Currency" required="1"
                                                    options="{'no_open': True, 'no_create': True}"/>
                                             <field name="amount" required="1" sum="1"/>
                                         </tree>
                                     </field>
                                 </group>
-                                <group>
+                                <group string="CEAR"
+                                       attrs="{'invisible': [('cear_amount','=',0.0), ('total_revenue_amount','=',0.0)]}">
                                     <field name="cear_allocation_ids"
+                                           nolabel="1"
                                            context="{'default_invoice_id': id, 'default_amount': invoice_amount,
-                                                     'default_currency_id': currency_id}"
-                                           attrs="{'invisible': [('cear_amount','=',0.0),
-                                                                 ('total_revenue_amount','=',0.0)]}">
+                                                     'default_currency_id': currency_id}">
                                         <tree editable="bottom" decoration-success="problem == False"
                                               decoration-warning="problem == 'FN overrun'"
                                               decoration-danger="problem in ['IM overrun', 'duplicate']">
@@ -219,19 +219,19 @@
                                             <field name="related_cear_authorized_amount" readonly="1" sum="1"/>
                                             <field name="related_cear_fn_utilized_amount" readonly="1" sum="1"/>
                                             <field name="related_cear_im_utilized_amount" readonly="1" sum="1"/>
-                                            <field name="currency_id" options="{'no_open': True, 'no_create': True}"/>
-                                            <field name="related_currency_name" groups="base.group_no_one"/>
+                                            <field name="currency_id" required="1"
+                                                   options="{'no_open': True, 'no_create': True}"/>
                                             <field name="amount" required="1" sum="1"/>
                                             <field name="amount_aed" sum="1"/>
                                         </tree>
                                     </field>
                                 </group>
-                                <group>
+                                <group string="OEAR"
+                                       attrs="{'invisible': [('oear_amount','=',0.0), ('total_revenue_amount','=',0.0)]}">
                                     <field name="oear_allocation_ids"
+                                           nolabel="1"
                                            context="{'default_invoice_id': id,'default_amount': invoice_amount,
-                                                     'default_currency_id': currency_id}"
-                                           attrs="{'invisible': [('oear_amount','=',0.0),
-                                                                 ('total_revenue_amount','=',0.0)]}">
+                                                     'default_currency_id': currency_id}">
                                         <tree editable="bottom">
                                             <field name="invoice_id" groups="base.group_no_one"/>
                                             <field name="currency_aed_id" groups="base.group_no_one"/>
@@ -240,8 +240,8 @@
                                             <field name="account_code_id" required="1" options="{'no_create': True}"/>
                                             <field name="oear_id"/>
                                             <field name="related_accrued_amount" readonly="1"/>
-                                            <field name="currency_id" options="{'no_open': True, 'no_create': True}"/>
-                                            <field name="related_currency_name" groups="base.group_no_one"/>
+                                            <field name="currency_id" required="1"
+                                                   options="{'no_open': True, 'no_create': True}"/>
                                             <field name="amount" required="1" sum="1"/>
                                             <field name="amount_aed" sum="1"/>
                                         </tree>
@@ -260,23 +260,35 @@
                                     <group>
                                         <label for="certified_invoice_amount" string="Certified Amount"/>
                                         <div class="o_address_format">
-                                            <field name="certified_invoice_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="certified_aed_invoice_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                            <field name="certified_invoice_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="certified_invoice_aed_amount" nolabel="1"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"
+                                                   class="o_address_street"/>
                                         </div>
                                         <label for="certified_capex_amount" string="Certified Capex Amont"/>
                                         <div class="o_address_format">
-                                            <field name="certified_capex_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="certified_aed_capex_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                            <field name="certified_capex_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="certified_capex_aed_amount" nolabel="1"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"
+                                                   class="o_address_street"/>
                                         </div>
                                         <label for="certified_opex_amount" string="Certified Opex Amount"/>
                                         <div class="o_address_format">
-                                            <field name="certified_opex_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="certified_aed_opex_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                            <field name="certified_opex_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="certified_opex_aed_amount" nolabel="1"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"
+                                                   class="o_address_street"/>
                                         </div>
                                         <label for="certified_revenue_amount" string="Certified Revenue Amount"/>
                                         <div class="o_address_format">
-                                            <field name="certified_revenue_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="certified_aed_revenue_amount" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                            <field name="certified_revenue_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="certified_revenue_aed_amount" nolabel="1"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"
+                                                   class="o_address_street"/>
                                         </div>
                                     </group>
                                 </group>
@@ -284,48 +296,68 @@
                                     <group>
                                         <label for="capex_amount" string="Capex Amount"/>
                                         <div class="o_address_format">
-                                            <field name="capex_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="capex_aed_amount" readonly="1" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}" class="o_address_street"/>
+                                            <field name="capex_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="capex_aed_amount" readonly="1" nolabel="1"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"
+                                                   class="o_address_street"/>
                                         </div>
                                         <newline/>
                                         <label for="opex_amount" string="Opex Amount"/>
                                         <div class="o_address_format">
-                                            <field name="opex_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="opex_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="opex_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="opex_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                         <newline/>
                                         <label for="revenue_amount" string="Revenue Amount"/>
                                         <div class="o_address_format">
-                                            <field name="revenue_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="revenue_aed_amount" class="o_address_street" readonly="1" nolabel="1" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="revenue_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="revenue_aed_amount" class="o_address_street" readonly="1"
+                                                   nolabel="1"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                         <newline/>
                                         <label for="invoice_amount" string="Invoice Amount"/>
                                         <div class="o_address_format">
-                                            <field name="invoice_amount" readonly="1" nolabel="1" class="o_address_street"/>
-                                            <field name="invoice_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="invoice_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"/>
+                                            <field name="invoice_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                     </group>
                                     <group>
                                         <label for="penalty_amount" string="Penalty Amount"/>
                                         <div class="o_address_format">
                                             <field name="penalty_amount" readonly="1" class="o_address_street"/>
-                                            <field name="penalty_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="penalty_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                         <label for="discount_amount" string="Discount Amount"/>
                                         <div class="o_address_format">
                                             <field name="discount_amount" readonly="1" class="o_address_street"/>
-                                            <field name="discount_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="discount_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                         <label for="on_hold_amount" string="On Hold Amount"/>
                                         <div class="o_address_format">
                                             <field name="on_hold_amount" readonly="1" class="o_address_street"/>
-                                            <field name="on_hold_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="on_hold_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                         <label for="other_deduction_amount" string="Tools/Other Deduction Amount"/>
                                         <div class="o_address_format">
                                             <field name="other_deduction_amount" readonly="1" class="o_address_street"/>
-                                            <field name="other_deduction_aed_amount" readonly="1" nolabel="1" class="o_address_street" attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                            <field name="other_deduction_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
                                     </group>
                                 </group>

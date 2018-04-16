@@ -22,7 +22,7 @@ class OearAllocation(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    currency_id = fields.Many2one('res.currency', readonly=False, required=True,
+    currency_id = fields.Many2one('res.currency', readonly=False, required=False,
                                   default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
                                                                                        limit=1))
     currency_aed_id = fields.Many2one('res.currency', readonly=True,
@@ -52,7 +52,6 @@ class OearAllocation(models.Model):
 
     # RELATED FIELDS
     # ----------------------------------------------------------
-    related_currency_name = fields.Char(string='Currency Name', related='currency_id.name')
     related_accrued_amount = fields.Monetary(string='Accrued Amount',
                                              related='oear_id.operation_id.accrued_amount',
                                              currency_field='currency_id')

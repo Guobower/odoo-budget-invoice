@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import string
+import random
 
 from odoo.tests.common import TransactionCase
-import random
-import math
-from odoo.tools.float_utils import float_round
+
+from ..models.invoice import convert_amount
+
+THRESHOLD = 1
 
 
 class TestInvoiceCalculation01(TransactionCase):
@@ -77,7 +80,8 @@ class TestInvoiceCalculation01(TransactionCase):
     def test_calculation_total_revenue_amount(self):
         # TOTAL REVENUE
         expected_amount = 7000.00
-        self.assertTrue(self.invoice.total_revenue_amount == expected_amount, "Total Revenue Amount must be {}, Given {}".
+        self.assertTrue(self.invoice.total_revenue_amount == expected_amount,
+                        "Total Revenue Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.total_revenue_amount))
 
     def test_calculation_invoice_amount(self):
@@ -119,34 +123,11 @@ class TestInvoiceCalculation01(TransactionCase):
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.certified_invoice_amount))
 
-    def test_calculation_capex_aed_amount(self):
-        expected_amount = 3000
-        self.assertTrue(self.invoice.capex_aed_amount == expected_amount, "Capex Amount (AED) must be {}, Given {}".
-                        format(expected_amount, self.invoice.capex_aed_amount))
-
-    def test_calcuation_opex_aed_amount(self):
-        # OPEX AMOUNT
-        expected_amount = 4000.00
-        self.assertTrue(self.invoice.opex_aed_amount == expected_amount, "Opex Amount (AED) must be {}, Given {}".
-                        format(expected_amount, self.invoice.opex_aed_amount))
-
-    def test_calculation_revenue_aed_amount(self):
-        # REVENUE AMOUNT
-        expected_amount = 7000.00
-        self.assertTrue(self.invoice.revenue_aed_amount == expected_amount, "Revenue Amount must be {}, Given {}".
-                        format(expected_amount, self.invoice.revenue_aed_amount))
-
-    def test_calculation_invoice_aed_amount(self):
-        # INVOICE AMOUNT
-        expected_amount = 14000.00
-        self.assertTrue(self.invoice.invoice_aed_amount == expected_amount, "Invoice Amount must be {}, Given {}".
-                        format(expected_amount, self.invoice.invoice_aed_amount))
-
 
 class TestInvoiceCalculation02(TransactionCase):
     """
     Test Invoice function using explicit amount with the following
-    input_penalty_amount, input_on_hold_amount, 
+    input_penalty_amount, input_on_hold_amount,
     input_discount_amount, input_other_deduction_amount
     """
 
@@ -219,7 +200,8 @@ class TestInvoiceCalculation02(TransactionCase):
     def test_calculation_total_revenue_amount(self):
         # OEAR AMOUNT
         expected_amount = 7000.00
-        self.assertTrue(self.invoice.total_revenue_amount == expected_amount, "Total Revenue Amount must be {}, Given {}".
+        self.assertTrue(self.invoice.total_revenue_amount == expected_amount,
+                        "Total Revenue Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.total_revenue_amount))
 
     def test_calculation_invoice_amount(self):
@@ -261,25 +243,79 @@ class TestInvoiceCalculation02(TransactionCase):
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.certified_invoice_amount))
 
-    def test_calculation_capex_aed_amount(self):
-        expected_amount = 3000
-        self.assertTrue(self.invoice.capex_aed_amount == expected_amount, "Capex Amount (AED) must be {}, Given {}".
-                        format(expected_amount, self.invoice.capex_aed_amount))
 
-    def test_calcuation_opex_aed_amount(self):
-        # OPEX AMOUNT
-        expected_amount = 4000.00
-        self.assertTrue(self.invoice.opex_aed_amount == expected_amount, "Opex Amount (AED) must be {}, Given {}".
-                        format(expected_amount, self.invoice.opex_aed_amount))
+class TestInvoiceCalculation03(TransactionCase):
+    """
+    Test Invoice that convert all to AED
+    """
 
-    def test_calculation_revenue_aed_amount(self):
-        # REVENUE AMOUNT
-        expected_amount = 7000.00
-        self.assertTrue(self.invoice.revenue_aed_amount == expected_amount, "Revenue Amount must be {}, Given {}".
-                        format(expected_amount, self.invoice.revenue_aed_amount))
+    at_install = False
+    post_install = True
 
-    def test_calculation_invoice_aed_amount(self):
-        # INVOICE AMOUNT
-        expected_amount = 14000.00
-        self.assertTrue(self.invoice.invoice_aed_amount == expected_amount, "Invoice Amount must be {}, Given {}".
-                        format(expected_amount, self.invoice.invoice_aed_amount))
+    def setUp(self):
+        super(TestInvoiceCalculation03, self).setUp()
+
+        self.currency = self.env['res.currency'].create({
+            'name': ''.join(random.choices(string.ascii_uppercase + string.digits, k=3)),
+            'symbol': ''.join(random.choices(string.ascii_uppercase + string.digits, k=3)),
+            'rate_ids': [(0, 0, {'rate': 0.27})]
+        })
+
+        self.invoice = self.env['budget.invoice.invoice'].create(
+            {
+                'invoice_no': 'test invoice 03',
+                'is_penalty_percentage': False,
+                'is_on_hold_percentage': False,
+                'is_discount_percentage': False,
+                'is_other_deduction_percentage': False,
+                'input_penalty_amount': 1960,
+                'input_on_hold_amount': 1820,
+                'input_discount_amount': 1680,
+                'input_other_deduction_amount': 2380,
+                'amount_ids': [(0, 0, {'budget_type': 'capex',
+                                       'invoice_type': 'others',
+                                       'payment_type': 'others',
+                                       'currency_id': self.currency.id,
+                                       'amount': 3000}),
+                               (0, 0, {'budget_type': 'opex',
+                                       'invoice_type': 'others',
+                                       'payment_type': 'others',
+                                       'currency_id': self.currency.id,
+                                       'amount': 4000}),
+                               (0, 0, {'budget_type': 'revenue',
+                                       'invoice_type': 'others',
+                                       'payment_type': 'others',
+                                       'currency_id': self.currency.id,
+                                       'amount': 7000})
+                               ],
+                'cear_allocation_ids': [(0, 0, {
+                    'currency_id': self.currency.id,
+                    'amount': 3000
+                })],
+                'oear_allocation_ids': [(0, 0, {
+                    'currency_id': self.currency.id,
+                    'amount': 4000
+                })],
+            }
+        )
+
+    def test_convert_amount(self):
+        expected_amount = 3703.70
+        amount = convert_amount(self.currency, 1000.00)
+
+        self.assertTrue(abs(amount - expected_amount) <= THRESHOLD,
+                        "Converted Amount must be {}, Given {}".
+                        format(expected_amount, amount))
+
+    def test_converted_amount(self):
+        # (field, expected)
+        fixtures = [
+            ('invoice_aed_amount', 51851.85),
+            ('certified_invoice_aed_amount', 22814.81)
+        ]
+
+        for fixture in fixtures:
+            value = sum(self.invoice.mapped(fixture[0]))
+            self.assertTrue(abs(value - fixture[1]) <= THRESHOLD,
+                            "Converted Amount must be {}, Given {}".
+                            format(fixture[1], value))

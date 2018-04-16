@@ -22,7 +22,7 @@ class CearAllocation(models.Model):
 
     # RELATIONSHIPS
     # ----------------------------------------------------------
-    currency_id = fields.Many2one('res.currency', readonly=False, required=True,
+    currency_id = fields.Many2one('res.currency', readonly=False, required=False,
                                   default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
                                                                                        limit=1)
                                   )
@@ -52,7 +52,6 @@ class CearAllocation(models.Model):
 
     # RELATED FIELD
     # ----------------------------------------------------------
-    related_currency_name = fields.Char(string='Currency Name', related='currency_id.name')
     related_invoice_state = fields.Selection(related='invoice_id.state')
     related_invoice_certified_invoice_amount = fields.Monetary(currency_field='currency_id',
                                                                related='invoice_id.certified_invoice_amount')
