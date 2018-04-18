@@ -69,7 +69,7 @@ class TaskInherit(models.Model):
                                                                               ('invoice_id.state', 'not in',
                                                                                ['draft', 'on hold', 'rejected'])
                                                                               ])
-        self.im_utilized_amount = sum(cear_allocations.mapped('amount'))
+        self.im_utilized_amount = sum(cear_allocations.mapped('amount_aed'))
 
     # BUTTONS
     # ----------------------------------------------------------
