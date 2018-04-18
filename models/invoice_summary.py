@@ -214,16 +214,18 @@ class InvoiceSummary(models.Model):
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 12
+        row = 13
         column = 1
         sr = 1
-        signature_coor = "B17"
+        signature_coor = "B18"
         logo_coor = "K1"
         header_coor = "A3"
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("C5").value = self.summary_no
         ws.cell("C6").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        currency = self.mapped("invoice_ids.currency_id")
+        ws.cell("C7").value = currency[0].name if currency else ""
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -277,20 +279,21 @@ class InvoiceSummary(models.Model):
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 12
+        row = 13
         column = 1
         sr = 1
-        signature_coor = "B17"
+        signature_coor = "B18"
         logo_coor = "M1"
         header_coor = "A3"
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("C5").value = self.summary_no
         ws.cell("C6").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
+        currency = self.mapped("invoice_ids.currency_id")
+        ws.cell("C7").value = currency[0].name if currency else ""
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
-        set_curency_header = True
         # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
         # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
         for r in self.mapped('invoice_ids').sorted(key=lambda rec: rec.sequence):
@@ -302,16 +305,6 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 5).value = r.revenue_amount or ''
             ws.cell(row=row, column=column + 6).value = r.opex_amount or ''
             ws.cell(row=row, column=column + 7).value = r.capex_amount or ''
-            if set_curency_header:
-                ws.cell(row=row - 2, column=column + 5).value = ws.cell(row=row - 2, column=column + 5).value + "(" \
-                                                                + r.currency_id.name + ")"
-                ws.cell(row=row - 2, column=column + 6).value = ws.cell(row=row - 2, column=column + 6).value + "(" \
-                                                                + r.currency_id.name + ")"
-                ws.cell(row=row - 2, column=column + 7).value = ws.cell(row=row - 2, column=column + 7).value + "(" \
-                                                                 + r.currency_id.name + ")"
-                ws.cell(row=row - 2, column=column + 8).value = ws.cell(row=row - 2, column=column + 8).value + "(" \
-                                                                + r.currency_id.name + ")"
-                set_curency_header = False
             # ws.cell(row=row, column=column + 8).value = r.currency_id.name or ''
             ws.cell(row=row, column=column + 8).value = r.invoice_amount or ''
             # ws.cell(row=row, column=column + 9).value = r.cear_allocation_ids.cear_id.im_utilized_amount
@@ -354,10 +347,10 @@ class InvoiceSummary(models.Model):
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 18
+        row = 22
         column = 2
         sr = 1
-        signature_coor = "B28"
+        signature_coor = "B32"
         logo_coor = "N1"
         header_coor = "B3"
         ws = wb.get_sheet_by_name('main')
@@ -368,6 +361,8 @@ class InvoiceSummary(models.Model):
         ws.cell("J11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
         ws.cell("J15").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
         ws.cell("M15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
+        currency = self.mapped("invoice_ids.currency_id")
+        ws.cell("B19").value = currency[0].name if currency else ""
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -429,10 +424,10 @@ class InvoiceSummary(models.Model):
 
         # WORK SHEET MAIN
         # ----------------------------------------------------------
-        row = 18
+        row = 22
         column = 2
         sr = 1
-        signature_coor = "E24"
+        signature_coor = "E32"
         logo_coor = "R1"
         header_coor = "B3"
         ws = wb.get_sheet_by_name('main')
@@ -443,6 +438,8 @@ class InvoiceSummary(models.Model):
         ws.cell("K11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
         ws.cell("K15").value = get_joined_value(self.mapped('invoice_ids.contract_id.contract_ref'))
         ws.cell("N15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
+        currency = self.mapped("invoice_ids.currency_id")
+        ws.cell("B19").value = currency[0].name if currency else ""
 
         # Create Table
         ws.insert_rows(row, len(self.invoice_ids) - 1)
@@ -558,6 +555,8 @@ class InvoiceSummary(models.Model):
         # TODO CREATE LOGIC FOR CONTRACT VALIDITY
         ws.cell("F9").value = get_joined_value(self.mapped('invoice_ids.contract_id.end_date'))
         ws.cell("F11").value = get_joined_value(self.mapped('invoice_ids.contract_id.amount'))
+        currency = self.mapped("invoice_ids.currency_id")
+        ws.cell("F17").value = currency[0].name if currency else ""
 
         # Prepare Tables
         ws.insert_rows(row, row_count)  # Table 1

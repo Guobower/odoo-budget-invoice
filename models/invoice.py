@@ -165,6 +165,7 @@ class Invoice(models.Model):
                                       default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
                                                                                            limit=1))
     currency_id = fields.Many2one('res.currency', readonly=True,
+                                  store=True,
                                   compute='_compute_currency_id',
                                   default=lambda self: self.env.user.company_id.currency_id)
 
