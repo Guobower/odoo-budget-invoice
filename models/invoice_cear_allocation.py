@@ -27,7 +27,7 @@ class CearAllocation(models.Model):
                                                                                        limit=1)
                                   )
 
-    currency_aed_id = fields.Many2one('res.currency', readonly=True,
+    currency_aed_id = fields.Many2one('res.currency', readonly=False,
                                       default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
                                                                                            limit=1))
     invoice_id = fields.Many2one('budget.invoice.invoice',
@@ -53,13 +53,13 @@ class CearAllocation(models.Model):
     # RELATED FIELD
     # ----------------------------------------------------------
     related_invoice_state = fields.Selection(related='invoice_id.state')
-    related_invoice_certified_invoice_amount = fields.Monetary(currency_field='currency_id',
+    related_invoice_certified_invoice_amount = fields.Monetary(currency_field='currency_aed_id',
                                                                related='invoice_id.certified_invoice_amount')
-    related_cear_im_utilized_amount = fields.Monetary(currency_field='currency_id',
+    related_cear_im_utilized_amount = fields.Monetary(currency_field='currency_aed_id',
                                                       related='cear_id.im_utilized_amount')
-    related_cear_fn_utilized_amount = fields.Monetary(currency_field='currency_id',
+    related_cear_fn_utilized_amount = fields.Monetary(currency_field='currency_aed_id',
                                                       related='cear_id.fn_utilized_amount')
-    related_cear_authorized_amount = fields.Monetary(currency_field='currency_id',
+    related_cear_authorized_amount = fields.Monetary(currency_field='currency_aed_id',
                                                      related='cear_id.authorized_amount')
     related_cear_problem = fields.Char(related='cear_id.problem')
 
