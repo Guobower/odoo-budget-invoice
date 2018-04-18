@@ -560,7 +560,7 @@ class Invoice(models.Model):
         return
 
     @api.one
-    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type', 'amount_ids.currency_id')
     def _compute_opex_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type == 'opex'):
             self.opex_amount += amount_id.amount
@@ -571,7 +571,7 @@ class Invoice(models.Model):
         self.opex_aed_amount = convert_amount(self.currency_id, self.opex_amount)
 
     @api.one
-    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type', 'amount_ids.currency_id')
     def _compute_capex_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type in ['capex']):
             self.capex_amount += amount_id.amount
@@ -582,7 +582,7 @@ class Invoice(models.Model):
         self.capex_aed_amount = convert_amount(self.currency_id, self.capex_amount)
 
     @api.one
-    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type')
+    @api.depends('amount_ids', 'amount_ids.amount', 'amount_ids.budget_type', 'amount_ids.currency_id')
     def _compute_revenue_amount(self):
         for amount_id in self.amount_ids.filtered(lambda r: r.budget_type in ['revenue']):
             self.revenue_amount += amount_id.amount
