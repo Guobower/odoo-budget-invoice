@@ -13,6 +13,18 @@ from openpyxl.styles import PatternFill
 from .invoice import Invoice
 
 
+def format_footer(ws, row, sr):
+    footer_cell = ws.cell(row=row + sr - 2, column=1)  # A15 + sr(row) - 2 row
+    footer_cell.font = Font(size=11, bold=True)
+    ws.row_dimensions[footer_cell.row].height = 83
+
+
+def inject_signature(ws, signatory_img, signature_coor, sr):
+    tmpfile = tempfile.TemporaryFile()
+    signatory_img.save(tmpfile, format="PNG")
+    ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+
+
 def inject_form_header(ws, team, creator, logo_coor, header_coor):
     color = {
         'head office': 'ADE75F',
@@ -94,10 +106,10 @@ class InvoiceSummary(models.Model):
         ('signature0004.png', 'SVP/ET & SD/TBPC & SVP/MN & CTO & FINANCE')
     ]
     FORMS = [
-        ('form_a0001ver01.xlsx', 'Regional'),
-        ('form_a0002ver01.xlsx', 'Regional - Volume Discount'),
-        ('form_b0001ver04.xlsx', 'Resource'),
-        ('form_c0001ver01.xlsx', 'Head Office'),
+        ('form_a0001ver02.xlsx', 'Regional'),
+        ('form_a0002ver02.xlsx', 'Regional - Volume Discount'),
+        ('form_b0001ver05.xlsx', 'Resource'),
+        ('form_c0001ver02.xlsx', 'Head Office'),
     ]
 
     OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])
@@ -201,7 +213,7 @@ class InvoiceSummary(models.Model):
         return super(InvoiceSummary, self).copy(default)
 
     @api.one
-    def form_a0001ver01(self, creator):
+    def form_a0001ver02(self, creator):
         """
         GENERATE FORM ACCORDING TO form_a0001ver01
         """
@@ -220,6 +232,7 @@ class InvoiceSummary(models.Model):
         signature_coor = "B18"
         logo_coor = "K1"
         header_coor = "A3"
+        footer_row = 16
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("C5").value = self.summary_no
@@ -248,25 +261,20 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
-        footer_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
-        footer_cell.font = Font(size=11, bold=True)
-        ws.row_dimensions[footer_cell.row].height = 83
+        format_footer(ws, footer_row, sr)
 
         # SIGNATURE
-        signatory_img = self.get_signatories()
-        tmpfile = tempfile.TemporaryFile()
-        signatory_img.save(tmpfile, format="PNG")
-        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        inject_signature(ws, self.get_signatories(), signature_coor, sr)
 
         # SAVE FINAL ATTACHMENT
         creator.save()
         creator.attach(self.env)
 
     @api.one
-    def form_a0002ver01(self, creator):
+    def form_a0002ver02(self, creator):
         """
         GENERATE FORM ACCORDING TO form_a0002ver01
         """
@@ -282,9 +290,10 @@ class InvoiceSummary(models.Model):
         row = 13
         column = 1
         sr = 1
-        signature_coor = "B18"
+        signature_coor = "C18"
         logo_coor = "M1"
         header_coor = "A3"
+        footer_row = 16
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("C5").value = self.summary_no
@@ -316,102 +325,20 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
-        footer_cell = ws.cell(row=15 + sr - 2, column=1)  # A15 + sr(row) - 2 row
-        footer_cell.font = Font(size=11, bold=True)
-        ws.row_dimensions[footer_cell.row].height = 83
+        format_footer(ws, footer_row, sr)
 
         # SIGNATURE
-        signatory_img = self.get_signatories()
-        tmpfile = tempfile.TemporaryFile()
-        signatory_img.save(tmpfile, format="PNG")
-        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        inject_signature(ws, self.get_signatories(), signature_coor, sr)
 
         # SAVE FINAL ATTACHMENT
         creator.save()
         creator.attach(self.env)
 
     @api.one
-    def form_b0001ver02(self, creator):
-        """
-        GENERATE FORM ACCORDING TO form_b0001ver02
-        """
-
-        wb = creator.get_wb()
-
-        # CREATE ALLOCATION SHEET
-        # ----------------------------------------------------------
-        create_allocation_sheet(self, wb)
-
-        # WORK SHEET MAIN
-        # ----------------------------------------------------------
-        row = 22
-        column = 2
-        sr = 1
-        signature_coor = "B32"
-        logo_coor = "N1"
-        header_coor = "B3"
-        ws = wb.get_sheet_by_name('main')
-
-        ws.cell("B11").value = self.summary_no
-        ws.cell("B15").value = fields.Datetime.from_string(self.create_date).strftime('%d-%b-%Y')
-        ws.cell("E15").value = get_joined_value(self.mapped('invoice_ids.approval_ref'))
-        ws.cell("J11").value = get_joined_value(self.mapped('invoice_ids.contractor_id.name'))
-        ws.cell("J15").value = get_joined_value(self.mapped('invoice_ids.contract_id.no'))
-        ws.cell("M15").value = get_joined_value(self.mapped('invoice_ids.division_id.alias'))
-        currency = self.mapped("invoice_ids.currency_id")
-        ws.cell("B19").value = currency[0].name if currency else ""
-
-        # Create Table
-        ws.insert_rows(row, len(self.invoice_ids) - 1)
-
-        # No, Reg, Contractor, Invoice No, Contract, Revenue, OpEx, CapEx, Total Amt, Budget/Yr.
-        # 1 , 2  , 3,        , 4         , 5  6    , 7      , 8   , 9    , 10       , 11
-        for r in self.mapped('invoice_ids').sorted(key=lambda rec: rec.sequence):
-            ws.cell(row=row, column=column).value = sr
-            ws.cell(row=row, column=column + 1).value = fields.Datetime.from_string(r.invoice_date).strftime(
-                '%d-%b-%Y') or ''
-            ws.cell(row=row, column=column + 2).value = r.invoice_no or ''
-            ws.cell(row=row, column=column + 3).value = r.description or ''
-            ws.cell(row=row, column=column + 4).value = r.revenue_amount
-            ws.cell(row=row, column=column + 5).value = r.opex_amount
-            ws.cell(row=row, column=column + 6).value = r.capex_amount
-            ws.cell(row=row, column=column + 7).value = r.discount_amount
-            ws.cell(row=row, column=column + 8).value = r.certified_invoice_amount
-            ws.cell(row=row, column=column + 9).value = r.other_deduction_amount
-            ws.cell(row=row, column=column + 10).value = r.po_id.no or ''
-            ws.cell(row=row, column=column + 11).value = ', '.join(
-                [i or '' for i in r.mapped('cear_allocation_ids.cear_id.no')])
-            ws.cell(row=row, column=column + 12).value = '{} {}'.format(
-                r.oear_allocation_ids[0].cost_center_id.cost_center or '',
-                r.oear_allocation_ids[0].account_code_id.account_code or '')
-            ws.cell(row=row, column=column + 13).value = "71101"
-            ws.cell(row=row, column=column + 14).value = r.remark
-            ws.cell(row=row, column=column + 16).value = r.discount_amount or 0
-            ws.cell(row=row, column=column + 17).value = r.discount_percentage or 0
-
-            row += 1
-            sr += 1
-
-        # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
-
-        # FORMAT FOOTER
-
-        # SIGNATURE
-        signatory_img = self.get_signatories()
-        tmpfile = tempfile.TemporaryFile()
-        signatory_img.save(tmpfile, format="PNG")
-        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
-
-        # SAVE FINAL ATTACHMENT
-        creator.save()
-        creator.attach(self.env)
-
-    @api.one
-    def form_b0001ver04(self, creator):
+    def form_b0001ver05(self, creator):
         """
         GENERATE FORM ACCORDING TO form_b0001ver04
         """
@@ -427,9 +354,10 @@ class InvoiceSummary(models.Model):
         row = 22
         column = 2
         sr = 1
-        signature_coor = "E32"
+        signature_coor = "E28"
         logo_coor = "R1"
         header_coor = "B3"
+        footer_row = 26
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("B11").value = self.summary_no
@@ -485,22 +413,20 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
+        format_footer(ws, footer_row, sr)
 
         # SIGNATURE
-        signatory_img = self.get_signatories()
-        tmpfile = tempfile.TemporaryFile()
-        signatory_img.save(tmpfile, format="PNG")
-        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        inject_signature(ws, self.get_signatories(), signature_coor, sr)
 
         # SAVE FINAL ATTACHMENT
         creator.save()
         creator.attach(self.env)
 
     @api.one
-    def form_c0001ver01(self, creator):
+    def form_c0001ver02(self, creator):
         """
         GENERATE FORM ACCORDING TO form_c0001ver01
         """
@@ -526,6 +452,7 @@ class InvoiceSummary(models.Model):
         signature_coor = "A32"
         logo_coor = "K2"
         header_coor = "A2"
+        footer_row = 30
         ws = wb.get_sheet_by_name('main')
 
         ws.cell("A5").value = self.summary_no
@@ -596,19 +523,19 @@ class InvoiceSummary(models.Model):
         #     sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        ws = inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
 
-        # FORMAT FOOTER
+        # TABLE FORMAT
         for r in [28, 30]:  # A28, A30
             footer_cell = ws.cell(row=r + row_count, column=1)  # A28 + row_count - 2 row
             footer_cell.font = Font(size=11, bold=True)
             ws.row_dimensions[footer_cell.row].height = 83
 
+        # FORMAT FOOTER
+        format_footer(ws, footer_row, sr)
+
         # SIGNATURE
-        signatory_img = self.get_signatories()
-        tmpfile = tempfile.TemporaryFile()
-        signatory_img.save(tmpfile, format="PNG")
-        ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
+        inject_signature(ws, self.get_signatories(), signature_coor, sr)
 
         # SAVE FINAL ATTACHMENT
         creator.save()
