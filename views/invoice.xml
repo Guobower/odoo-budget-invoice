@@ -385,7 +385,9 @@
                     <field name="po_id"/>
                     <field name="contract_id"/>
                     <field name="certified_invoice_amount" sum="1"/>
+                    <field name="currency_id" invisible="1"/>
                     <field name="certified_invoice_aed_amount" sum="1"/>
+                    <field name="aed_currency_id" invisible="1"/>
                     <field name="invoice_date"/>
                     <field name="invoice_cert_date"/>
                     <field name="received_date"/>
