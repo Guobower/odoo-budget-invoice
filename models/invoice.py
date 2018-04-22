@@ -164,13 +164,14 @@ class Invoice(models.Model):
     aed_currency_id = fields.Many2one('res.currency', readonly=True,
                                       default=lambda self: self.env['res.currency'].search([('name', '=', 'AED')],
                                                                                            limit=1))
+
     currency_id = fields.Many2one('res.currency', readonly=True,
                                   store=True,
                                   compute='_compute_currency_id',
                                   default=lambda self: self.env.user.company_id.currency_id)
 
     is_different_currency = fields.Boolean(string="Is Diff. Currency", readonly=True,
-                                           compute='_compute_is_different_currency', store=False)
+                                           compute='_compute_is_different_currency', store=True)
 
     responsible_id = fields.Many2one('res.users', string='Responsible',
                                      default=lambda self: self.env.user.id)
@@ -739,6 +740,7 @@ class Invoice(models.Model):
         self.currency_id = False if not self.mapped('amount_ids.currency_id') \
             else self.mapped('amount_ids.currency_id')[0]
 
+    @api.one
     @api.depends('currency_id', 'aed_currency_id')
     def _compute_is_different_currency(self):
         if self.currency_id == self.aed_currency_id:
@@ -873,6 +875,13 @@ class Invoice(models.Model):
         if len(set(currency_names)) > 1:
             msg = 'Amount currency in an invoice should only be one and same for all elements'
             raise ValidationError(msg)
+
+    @api.constrains('currency_id')
+    def _check_purchase_order_invoice_currency(self):
+        currency = self.mapped('po_id.currency_id.name') + \
+            [self.currency_id.name]
+        if len(set(currency)) > 1:
+            raise ValidationError("Purchase order and invoice currencies are different.")
 
     # BUTTONS/TRANSITIONS
     # ----------------------------------------------------------
