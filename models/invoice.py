@@ -396,64 +396,67 @@ class Invoice(models.Model):
                                  store=True)
 
     capex_aed_amount = fields.Monetary(currency_field='aed_currency_id',
-                                       store='True',
-                                       string='Capex Amount AED',
-                                       compute='_compute_capex_aed_amount')
+                                       store=True,
+                                       compute='_compute_capex_aed_amount',
+                                       string='Capex Amount AED'
+                                       )
 
-    opex_aed_amount = fields.Monetary(compute='_compute_opex_aed_amount',
-                                      store='True',
-                                      string='Opex Amount AED',
-                                      currency_field='aed_currency_id')
+    opex_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                      store=True,
+                                      compute='_compute_opex_aed_amount',
+                                      string='Opex Amount AED'
+                                      )
 
-    invoice_aed_amount = fields.Monetary(compute='_compute_invoice_aed_amount',
-                                         store='True',
-                                         string='Invoice Amount AED',
-                                         currency_field='aed_currency_id')
+    invoice_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                         store=True,
+                                         compute='_compute_invoice_aed_amount',
+                                         string='Invoice Amount AED'
+                                         )
 
-    revenue_aed_amount = fields.Monetary(compute="_compute_revenue_aed_amount",
-                                         store='True',
-                                         string='Revenue Amount AED',
-                                         currency_field='aed_currency_id')
+    revenue_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                         store=True,
+                                         compute="_compute_revenue_aed_amount",
+                                         string='Revenue Amount AED')
 
-    certified_invoice_aed_amount = fields.Monetary(compute="_compute_certified_invoice_aed_amount",
-                                                   store='True',
-                                                   string='Certified Amount AED',
-                                                   currency_field='aed_currency_id')
+    certified_invoice_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                                   store=True,
+                                                   compute="_compute_certified_invoice_aed_amount",
+                                                   string='Certified Amount AED')
 
-    certified_capex_aed_amount = fields.Monetary(compute="_compute_certified_capex_aed_amount",
-                                                 store='True',
-                                                 string='Certified Capex AED',
-                                                 currency_field='aed_currency_id')
+    certified_capex_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                                 store=True,
+                                                 compute="_compute_certified_capex_aed_amount",
+                                                 string='Certified Capex AED')
 
-    certified_opex_aed_amount = fields.Monetary(compute="_compute_certified_opex_aed_amount",
-                                                store='True',
-                                                string='Certified Opex AED',
-                                                currency_field='aed_currency_id')
+    certified_opex_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                                store=True,
+                                                compute="_compute_certified_opex_aed_amount",
+                                                string='Certified Opex AED')
 
-    certified_revenue_aed_amount = fields.Monetary(compute="_compute_certified_revenue_aed_amount",
-                                                   store='True',
-                                                   string='Certified Revenue AED',
-                                                   currency_field='aed_currency_id')
+    certified_revenue_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                                   store=True,
+                                                   compute="_compute_certified_revenue_aed_amount",
+                                                   string='Certified Revenue AED')
 
-    penalty_aed_amount = fields.Monetary(compute="_compute_penalty_aed_amount",
-                                         store='True',
-                                         string='Penalty Amount AED',
-                                         currency_field='aed_currency_id')
+    penalty_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                         store=True,
+                                         compute="_compute_penalty_aed_amount",
+                                         string='Penalty Amount AED')
 
-    discount_aed_amount = fields.Monetary(compute="_compute_discount_aed_amount",
-                                          store='True',
-                                          string='Discount Amount AED',
-                                          currency_field='aed_currency_id')
+    discount_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                          store=True,
+                                          compute="_compute_discount_aed_amount",
+                                          string='Discount Amount AED')
 
-    on_hold_aed_amount = fields.Monetary(compute="_compute_on_hold_aed_amount",
-                                         store='True',
-                                         string='On Hold Amount AED',
-                                         currency_field='aed_currency_id')
+    on_hold_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                         store=True,
+                                         compute="_compute_on_hold_aed_amount",
+                                         string='On Hold Amount AED')
 
-    other_deduction_aed_amount = fields.Monetary(compute="_compute_other_deduction_aed_amount",
-                                                 store='True',
-                                                 string='Other Deduction Amount AED',
-                                                 currency_field='aed_currency_id')
+    other_deduction_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                                 store=True,
+                                                 compute="_compute_other_deduction_aed_amount",
+                                                 string='Other Deduction Amount AED')
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
