@@ -25,17 +25,11 @@ def inject_signature(ws, signatory_img, signature_coor, sr):
     ws.add_image(Image(tmpfile), "%s" % signature_coor[0] + str(int(signature_coor[1:]) + sr))
 
 
-def inject_form_header(ws, team, creator, logo_coor, header_coor):
-    color = {
-        'head office': 'ADE75F',
-        'regional': 'ADE75F',
-        'resource': 'AFDC7E'
-    }
-    fill = PatternFill(start_color=color[team], end_color=color[team], fill_type='solid')
+def inject_form_header(ws, creator, logo_coor, header_coor):
+    fill = PatternFill(start_color='ADE75F', end_color='ADE75F', fill_type='solid')
 
     h_cell = ws.cell(header_coor)
     h_cell.fill = fill
-    #    h_cell.value += " ({})".format(team.upper())
     ws.add_image(creator.logo, logo_coor)
     return ws
 
@@ -117,6 +111,9 @@ class InvoiceSummary(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     active = fields.Boolean(default=True, help="Set active to false to hide the tax without removing it.")
+    is_head_office = fields.Boolean(default=False)
+    is_regional = fields.Boolean(default=False)
+
     state = fields.Selection(STATES, default='draft', track_visibility='onchange')
     # TODO CONSIDER MAKING SUMMARY NO AS NAME
     # TODO USE GET DEFAULT_SUMMARY IN CREATE
@@ -125,6 +122,7 @@ class InvoiceSummary(models.Model):
     form = fields.Selection(FORMS)
     signature = fields.Selection(SIGNATURES)
     objective = fields.Selection(OBJECTIVES, default='invoice certification')
+    # TODO DEPRECATE
     team = Invoice.team
 
     # TODO DEPRECATE
@@ -161,12 +159,19 @@ class InvoiceSummary(models.Model):
                                    compute='_compute_invoice_count',
                                    store=True)
 
-    @api.onchange('objective', 'team')
+    @api.onchange('objective')
     def _onchange_invoice_ids_filter(self):
         if self.objective == 'invoice certification':
-            return {'domain': {'invoice_ids': [('state', '=', 'verified'), ('team', '=', self.team)]}}
+            return {'domain': {'invoice_ids': [('state', '=', 'verified'),
+                                               ('is_head_office', '=', self.is_head_office),
+                                               ('is_regional', '=', self.is_regional)
+                                               ]}}
         elif self.objective == 'on hold certification':
-            return {'domain': {'invoice_ids': [('has_hold_amount', '=', True), ('team', '=', self.team)]}}
+            return {'domain': {'invoice_ids': [('has_hold_amount', '=', True),
+                                               ('is_head_office', '=', self.is_head_office),
+                                               ('is_regional', '=', self.is_regional)
+                                               ]}}
+
 
     @api.one
     @api.depends('invoice_ids')
@@ -261,7 +266,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         format_footer(ws, footer_row, sr)
@@ -325,7 +330,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         format_footer(ws, footer_row, sr)
@@ -413,7 +418,7 @@ class InvoiceSummary(models.Model):
             sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, creator, logo_coor, header_coor)
 
         # FORMAT FOOTER
         format_footer(ws, footer_row, sr)
@@ -523,7 +528,7 @@ class InvoiceSummary(models.Model):
         #     sr += 1
 
         # INSERT HEADER LOGO AND SIGNATURE
-        inject_form_header(ws, self.team, creator, logo_coor, header_coor)
+        inject_form_header(ws, creator, logo_coor, header_coor)
 
         # TABLE FORMAT
         for r in [28, 30]:  # A28, A30

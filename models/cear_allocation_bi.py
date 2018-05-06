@@ -34,9 +34,10 @@ class InvoiceCearAllocationBI(models.Model):
     state = fields.Selection(selection=STATES,
                              string='State',
                              readonly=True)
-    team = fields.Selection(selection=TEAMS,
-                            string='Team',
-                            readonly=True)
+    is_regional = fields.Boolean(string='Is Regional',
+                                 readonly=True)
+    is_head_office = fields.Boolean(string='Is Head Office',
+                                    readonly=True)
     cear_year = fields.Selection(selection=YEARS,
                                  string='Year',
                                  readonly=True)
@@ -86,7 +87,8 @@ class InvoiceCearAllocationBI(models.Model):
                   inv.contract_id                AS contract_id,
                   inv.contractor_id              AS contractor_id,
                   inv.responsible_id             AS responsible_id,
-                  inv.team                       AS team
+                  inv.is_regional                AS is_regional,
+                  inv.is_head_office             AS is_head_office
                 FROM
                   budget_invoice_cear_allocation AS al
                   LEFT JOIN budget_invoice_invoice AS inv ON inv.id = al.invoice_id

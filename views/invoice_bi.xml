@@ -14,7 +14,8 @@
                     <field name="po_id"/>
                     <field name="amount"/>
                     <field name="state"/>
-                    <field name="team"/>
+                    <field name="is_regional"/>
+                    <field name="is_head_office"/>
                 </tree>
             </field>
         </record>
@@ -30,17 +31,13 @@
                     <field name="po_id"/>
                     <field name="amount"/>
                     <field name="state"/>
-                    <field name="team"/>
+                    <field name="is_regional"/>
+                    <field name="is_head_office"/>
                     <filter
                             name="processed"
                             string="Processed"
                             domain="[('state', 'in', ['verified', 'summary generated', 'sd signed', 'svp signed',
                                                       'cto signed', 'sent to finance', 'closed'])]"/>
-                    <!--<seperator/>-->
-                    <!--<filter-->
-                            <!--name="my_activity"-->
-                            <!--string="My Activities"-->
-                            <!--domain="[('create_uid', '=', uid)]"/>-->
                 </search>
             </field>
         </record>

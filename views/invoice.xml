@@ -44,25 +44,19 @@
                             <group>
                                 <field name="write_date"/>
                                 <field name="team"/>
+                                <field name="is_regional"/>
+                                <field name="is_head_office"/>
                                 <field name="system_remark"/>
+                                <field name="summary_ids" widget="many2many_tags"/>
+                            </group>
+                            <group>
+                                <field name="is_different_currency"/>
                                 <field name="aed_currency_id"/>
                                 <field name="currency_id"/>
                                 <field name="cear_amount"/>
                                 <field name="oear_amount"/>
                                 <field name="total_revenue_amount"/>
                                 <field name="has_hold_amount"/>
-                                <field name="summary_ids" widget="many2many_tags"/>
-                                <field name="is_different_currency"/>
-                            </group>
-                            <group string="DEPRECATED">
-                                <!-- TODO DEPRECATE -->
-                                <field name="signed_date"/>
-                                <field name="old_section_id"/>
-                                <field name="old_sub_section_id"/>
-                                <field name="old_contractor_id"/>
-                                <field name="cost_center_id" options="{'no_create': True}"/>
-                                <field name="account_code_id" options="{'no_create': True}"/>
-                                <field name="proj_no"/>
                             </group>
                         </group>
                         <div class="oe_button_box" name="button_box">
@@ -89,17 +83,12 @@
                                     </group>
                                     <group>
                                         <field name="pec_id"/>
-                                        <!-- TODO DEPRECATED -->
-                                        <!--<field name="charge_account"-->
-                                        <!--attrs="{'invisible': [('team','!=','resource')]}"/>-->
-                                        <field name="approval_ref"
-                                               attrs="{'invisible': [('team','!=','resource')]}"/>
                                         <field name="mms_no"
-                                               attrs="{'invisible': [('team','!=','head office')]}"/>
+                                               attrs="{'invisible': [('is_head_office','!=',True)]}"/>
                                         <field name="mms_month"
-                                               attrs="{'invisible': [('team','!=','head office')]}"/>
+                                               attrs="{'invisible': [('is_head_office','!=',True)]}"/>
                                         <field name="mms_year"
-                                               attrs="{'invisible': [('team','!=','head office')]}"/>
+                                               attrs="{'invisible': [('is_head_office','!=',True)]}"/>
                                     </group>
                                 </group>
                                 <hr/>
@@ -116,7 +105,8 @@
                                         <field name="start_date"/>
                                         <field name="end_date"/>
                                         <field name="rfs_date"/>
-                                        <field name="actual_rfs_date" attrs="{'invisible': [('team','=','regional')]}"/>
+                                        <field name="actual_rfs_date"
+                                               attrs="{'invisible': [('is_regional','=',True)]}"/>
                                     </group>
                                     <group attrs="{'invisible': [('write_date','=',False)]}">
                                         <field name="sd_signed_date"/>
@@ -437,13 +427,10 @@
                     </group>
                     <filter name="regional"
                             string="Regional"
-                            domain="[('team', '=', 'regional')]"/>
+                            domain="[('is_regional', '=', True)]"/>
                     <filter name="head_office"
                             string="Head Office"
-                            domain="[('team', '=', 'head office')]"/>
-                    <filter name="resource"
-                            string="Resource"
-                            domain="[('team', '=', 'resource')]"/>
+                            domain="[('is_head_office', '=', True)]"/>
                     <separator/>
                     <filter name="my_activity"
                             string="My Activities"
@@ -465,6 +452,7 @@
         </record>
         <!--END SEARCH-->
         <!--START ACTIONS-->
+
         <!--Invoice Action-->
         <record model="ir.actions.act_window" id="action_invoice_no_filter">
             <field name="name">Invoice</field>
@@ -496,7 +484,9 @@
             <field name="view_mode">tree,form,pivot</field>
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
+            <field name="context">{
+                'form_view_ref': 'budget_core.view_form_invoice',
+                'default_is_regional': True,
                 'search_default_regional': 1,
                 'search_default_need_action': 1,
                 }
@@ -510,29 +500,15 @@
             <field name="view_mode">tree,form,pivot</field>
             <field name="view_id" ref="view_tree_invoice_head_office"/>
             <field name="search_view_id" ref="search_invoice"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
+            <field name="context">{
+                'form_view_ref': 'budget_core.view_form_invoice',
+                'default_is_head_office': True,
                 'search_default_head_office': 1,
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1,
                 }
             </field>
         </record>
-        <!--Invoice Resource Action-->
-        <record model="ir.actions.act_window" id="action_invoice_resource">
-            <field name="name">Invoice</field>
-            <field name="res_model">budget.invoice.invoice</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form,pivot</field>
-            <field name="view_id" ref="view_tree_invoice"/>
-            <field name="search_view_id" ref="search_invoice"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice',
-                'search_default_resource': 1,
-                'search_default_need_action': 1,
-                'search_default_my_activity': 1,
-                }
-            </field>
-        </record>
-
         <!--END ACTIONS-->
     </data>
 </odoo>

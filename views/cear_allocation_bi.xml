@@ -16,7 +16,8 @@
                     <field name="po_id"/>
                     <field name="amount"/>
                     <field name="state"/>
-                    <field name="team"/>
+                    <field name="is_regional"/>
+                    <field name="is_head_office"/>
                     <field name="responsible_id"/>
                 </tree>
             </field>
@@ -33,7 +34,8 @@
                     <field name="po_id"/>
                     <field name="amount"/>
                     <field name="state"/>
-                    <field name="team"/>
+                    <field name="is_regional"/>
+                    <field name="is_head_office"/>
                     <filter
                             name="processed"
                             string="Processed"

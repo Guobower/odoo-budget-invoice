@@ -60,7 +60,8 @@
                             <group>
                                 <field name="invoice_count"/>
                                 <field name="write_date"/>
-                                <field name="team"/>
+                                <field name="is_regional"/>
+                                <field name="is_head_office"/>
                                 <field name="responsible_id"/>
                             </group>
                             <group string="DEPRECATED">
@@ -166,6 +167,13 @@
             <field name="model">budget.invoice.invoice.summary</field>
             <field name="arch" type="xml">
                 <search string="Search">
+                    <filter name="regional"
+                            string="Regional"
+                            domain="[('is_regional', '=', True)]"/>
+                    <filter name="head_office"
+                            string="Head Office"
+                            domain="[('is_head_office', '=', True)]"/>
+                    <separator/>
                     <filter name="need_action"
                             string="Need Action"
                             domain="[('state', 'not in', ['closed', 'cancelled'])]"/>
@@ -178,20 +186,52 @@
             </field>
         </record>
         <!--END SEARCH-->
-
         <!--START ACTIONS-->
+        <!--Invoice Summary Action-->
         <record model="ir.actions.act_window" id="action_invoice_summary">
             <field name="name">Invoice Summary</field>
             <field name="res_model">budget.invoice.invoice.summary</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,pivot,form</field>
             <field name="view_id" ref="view_tree_invoice_summary"/>
-            <!--<field name="search_view_id" ref="search_invoice_summary"/>-->
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary',
+            <field name="search_view_id" ref="search_invoice_summary"/>
+            <field name="context">{
+                'form_view_ref': 'budget_core.view_form_invoice_summary',
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1}
             </field>
         </record>
+        <!--Invoice Summary Regional Action-->
+        <record model="ir.actions.act_window" id="action_invoice_summary_regional">
+            <field name="name">Invoice Summary</field>
+            <field name="res_model">budget.invoice.invoice.summary</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,pivot,form</field>
+            <field name="view_id" ref="view_tree_invoice_summary"/>
+            <field name="search_view_id" ref="search_invoice_summary"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary_regional',
+                'default_is_regional': True,
+                'search_default_regional': 1,
+                'search_default_need_action': 1,
+                'search_default_my_activity': 1}
+            </field>
+        </record>
+        <!--Invoice Summary Head Office Action-->
+        <record model="ir.actions.act_window" id="action_invoice_summary_head_office">
+            <field name="name">Invoice Summary</field>
+            <field name="res_model">budget.invoice.invoice.summary</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,pivot,form</field>
+            <field name="view_id" ref="view_tree_invoice_summary"/>
+            <field name="search_view_id" ref="search_invoice_summary"/>
+            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary_head_office',
+                'default_is_head_office': True,
+                'search_default_head_office': 1,
+                'search_default_need_action': 1,
+                'search_default_my_activity': 1}
+            </field>
+        </record>
+
         <!--END ACTIONS-->
 
     </data>

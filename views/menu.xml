@@ -11,7 +11,20 @@
                 id="menu_invoice_left"
                 name="Invoice"
                 sequence="1"
-                parent="menu_invoice_top"/>
+                parent="menu_invoice_top"
+                groups="base.group_system,budget_invoice.group_invoice_dependent"/>
+        <menuitem
+                id="menu_invoice_regional_left"
+                name="Regional"
+                sequence="2"
+                parent="menu_invoice_top"
+                groups="base.group_no_one,budget_invoice.group_invoice_regional_user,budget_invoice.group_invoice_regional_manager"/>
+        <menuitem
+                id="menu_invoice_head_office_left"
+                name="Head Office"
+                sequence="3"
+                parent="menu_invoice_top"
+                groups="base.group_no_one,budget_invoice.group_invoice_head_office_user,budget_invoice.group_invoice_head_office_manager"/>
         <menuitem
                 id="menu_bi_left"
                 name="Business Intelligence"
@@ -30,80 +43,93 @@
                 name="Invoice"
                 sequence="1"
                 parent="menu_invoice_left"
-                action="action_invoice"
-                groups="base.group_system,budget_invoice.group_invoice_dependent"/>
-        <!-- INVOICE VIEW FOR REGIONAL -->
-        <menuitem
-                id="menu_invoice_regional_left_child"
-                name="Invoice (Regional)"
-                sequence="1"
-                parent="menu_invoice_left"
-                action="action_invoice_regional"
-                groups="base.group_no_one,budget_invoice.group_invoice_regional_user,budget_invoice.group_invoice_regional_manager"/>
-        <!-- INVOICE VIEW FOR HEAD OFFICE -->
-        <menuitem
-                id="menu_invoice_head_office_left_child"
-                name="Invoice (Head Office)"
-                sequence="1"
-                parent="menu_invoice_left"
-                action="action_invoice_head_office"
-                groups="base.group_no_one,budget_invoice.group_invoice_head_office_user,budget_invoice.group_invoice_head_office_manager"/>
-        <!-- INVOICE VIEW FOR RESOURCE -->
-        <menuitem
-                id="menu_invoice_resource_left_child"
-                name="Invoice (Resource)"
-                sequence="1"
-                parent="menu_invoice_left"
-                action="action_invoice_resource"
-                groups="base.group_no_one,budget_invoice.group_invoice_resource_user,budget_invoice.group_invoice_resource_manager"/>
+                action="action_invoice"/>
         <menuitem
                 id="menu_invoice_summary_left_child"
                 name="Invoice Summary"
-                sequence="3"
+                sequence="2"
                 parent="menu_invoice_left"
                 action="action_invoice_summary"/>
         <menuitem
                 id="menu_purchase_order_left_child"
                 name="Purchase Order"
-                sequence="4"
+                sequence="3"
                 parent="menu_invoice_left"
                 action="budget_purchase_order.action_purchase_order"/>
+        <!-- INVOICE VIEW FOR REGIONAL -->
         <menuitem
-                id="menu_cear_left"
-                name="Cear"
+                id="menu_invoice_regional_left_child"
+                name="Invoice"
+                sequence="1"
+                parent="menu_invoice_regional_left"
+                action="action_invoice_regional"/>
+        <menuitem
+                id="menu_invoice_summary_regional_left_child"
+                name="Invoice Summary"
                 sequence="2"
-                parent="menu_invoice_top"
-                action="budget_capex.action_cear"/>
+                parent="menu_invoice_regional_left"
+                action="action_invoice_summary_regional"/>
+        <menuitem
+                id="menu_purchase_order_regional_left_child"
+                name="Purchase Order"
+                sequence="3"
+                parent="menu_invoice_regional_left"
+                action="budget_purchase_order.action_purchase_order"/>
+        <!-- INVOICE VIEW FOR HEAD OFFICE -->
+        <menuitem
+                id="menu_invoice_head_office_left_child"
+                name="Invoice"
+                sequence="1"
+                parent="menu_invoice_head_office_left"
+                action="action_invoice_head_office"
+        />
+        <menuitem
+                id="menu_invoice_summary_head_office_left_child"
+                name="Invoice Summary"
+                sequence="2"
+                parent="menu_invoice_head_office_left"
+                action="action_invoice_summary_head_office"/>
+        <menuitem
+                id="menu_purchase_order_head_office_left_child"
+                name="Purchase Order"
+                sequence="3"
+                parent="menu_invoice_head_office_left"
+                action="budget_purchase_order.action_purchase_order"/>
         <menuitem
                 id="menu_external_left"
                 name="Dependencies"
-                sequence="3"
+                sequence="97"
                 parent="menu_invoice_top"/>
+        <menuitem
+                id="menu_cear_left"
+                name="Cear"
+                sequence="1"
+                parent="menu_external_left"
+                action="budget_capex.action_cear"/>
         <menuitem
                 id="menu_contractor_left_child"
                 name="Contractor"
-                sequence="1"
+                sequence="2"
                 parent="menu_external_left"
                 action="budget_contractor.action_contractor"/>
         <menuitem
                 id="menu_pec_left_child"
                 name="Project Estimated Cost"
-                sequence="2"
+                sequence="3"
                 parent="menu_external_left"
                 action="action_pec"/>
         <menuitem
                 id="menu_currency_rate_left_child"
                 name="Currency Rate"
-                sequence="99"
+                sequence="98"
                 parent="menu_external_left"
                 action="action_currency_rate"/>
         <!-- BUSINESS INTELLIGENCE VIEW -->
         <menuitem
                 id="menu_cear_allocation_left_child"
                 name="By Cear Allocation"
-                sequence="1"
+                sequence="99"
                 parent="menu_bi_left"
                 action="action_cear_allocation_bi"/>
-
     </data>
 </odoo>

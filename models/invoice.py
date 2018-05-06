@@ -36,6 +36,7 @@ def amount_setter(invoice=None, budget_type=None):
 
 
 def _set_team(self=None):
+    # TODO REMOVE
     # CHECK USER GROUP AND ASSIGN IF TEAM IS REGIONAL OR HEAD OFFICE
     current_user = self.env.user
     # user = self.env['res.users'].browse(self.env.uid)
@@ -81,15 +82,19 @@ class Invoice(models.Model):
     # BASIC FIELDS
     # ----------------------------------------------------------
     # division_id, section_id, sub_section_id exist in enduser.mixin
+    is_head_office = fields.Boolean(default=False)
+    is_regional = fields.Boolean(default=False)
 
     # TODO REMOVE AFTER MIGRATION
     # ----------------------------------------------------------
     odoo10_id = fields.Integer()
     # ----------------------------------------------------------
     state = fields.Selection(STATES, default='draft', track_visibility='onchange')
+    # TODO REMOVE
     team = fields.Selection(TEAMS, string='Team', default=lambda self: _set_team(self))
 
     invoice_no = fields.Char(string="Invoice No")
+    # TODO MOVE TO OUTSOURING
     approval_ref = fields.Char(string="Approval Ref")
     mms_no = fields.Char(string="MMS No")
     mms_month = fields.Selection(MMS_MONTH, string="MMS Month")
@@ -477,13 +482,15 @@ class Invoice(models.Model):
     @api.one
     @api.depends('kpi_lapse_days')
     def _compute_kpi_state(self):
-        threshold = self.env['budget.invoice.invoice.kpi.checker'].search([('team', '=', self.team)], limit=1)
-
-        if not threshold:
-            self.kpi_state = 'pending'
-            return
-
-        self.kpi_state = 'in' if self.kpi_lapse_days <= threshold.threshold else 'out'
+        # TODO FIX THIS
+        return
+        # threshold = self.env['budget.invoice.invoice.kpi.checker'].search([('team', '=', self.team)], limit=1)
+        #
+        # if not threshold:
+        #     self.kpi_state = 'pending'
+        #     return
+        #
+        # self.kpi_state = 'in' if self.kpi_lapse_days <= threshold.threshold else 'out'
 
     @api.one
     @api.depends('claim_start_date', 'claim_end_date')
