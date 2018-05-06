@@ -196,7 +196,7 @@
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{
-                'form_view_ref': 'budget_core.view_form_invoice_summary',
+                'form_view_ref': 'budget_invoice.view_form_invoice_summary',
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1}
             </field>
@@ -209,7 +209,7 @@
             <field name="view_mode">tree,pivot,form</field>
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary_regional',
+            <field name="context">{'form_view_ref': 'budget_invoice.view_form_invoice_summary_regional',
                 'default_is_regional': True,
                 'search_default_regional': 1,
                 'search_default_need_action': 1,
@@ -224,7 +224,7 @@
             <field name="view_mode">tree,pivot,form</field>
             <field name="view_id" ref="view_tree_invoice_summary"/>
             <field name="search_view_id" ref="search_invoice_summary"/>
-            <field name="context">{'form_view_ref': 'budget_core.view_form_invoice_summary_head_office',
+            <field name="context">{'form_view_ref': 'budget_invoice.view_form_invoice_summary_head_office',
                 'default_is_head_office': True,
                 'search_default_head_office': 1,
                 'search_default_need_action': 1,
