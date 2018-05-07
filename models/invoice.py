@@ -48,7 +48,6 @@ def _set_team(self=None):
     options = {
         'regional': ['group_invoice_regional_user', 'group_invoice_regional_manager'],
         'head office': ['group_invoice_head_office_user', 'group_invoice_head_office_manager'],
-        'resource': ['group_invoice_resource_user', 'group_invoice_resource_manager']
     }
     for team, groups in options.items():
         for group in groups:
