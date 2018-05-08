@@ -881,15 +881,19 @@ class Invoice(models.Model):
                          self.mapped('cear_allocation_ids.currency_id.name') + \
                          self.mapped('oear_allocation_ids.currency_id.name') + \
                          [self.currency_id.name]
+
+        currency_names = [i for i in currency_names if i]
         if len(set(currency_names)) > 1:
             msg = 'Amount currency in an invoice should only be one and same for all elements'
             raise ValidationError(msg)
 
     @api.constrains('currency_id')
     def _check_purchase_order_invoice_currency(self):
-        currency = self.mapped('po_id.currency_id.name') + \
+        currency_names = self.mapped('po_id.currency_id.name') + \
             [self.currency_id.name]
-        if len(set(currency)) > 1:
+
+        currency_names = [i for i in currency_names if i]
+        if len(set(currency_names)) > 1:
             raise ValidationError("Purchase order and invoice currencies are different.")
 
     # BUTTONS/TRANSITIONS
