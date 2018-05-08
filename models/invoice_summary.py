@@ -159,7 +159,7 @@ class InvoiceSummary(models.Model):
                                    compute='_compute_invoice_count',
                                    store=True)
 
-    @api.onchange('objective')
+    @api.onchange('objective', 'is_head_office', 'is_regional')
     def _onchange_invoice_ids_filter(self):
         if self.objective == 'invoice certification':
             return {'domain': {'invoice_ids': [('state', '=', 'verified'),
