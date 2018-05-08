@@ -167,10 +167,10 @@
             <field name="model">budget.invoice.invoice.summary</field>
             <field name="arch" type="xml">
                 <search string="Search">
-                    <filter name="regional"
+                    <filter name="is_regional"
                             string="Regional"
                             domain="[('is_regional', '=', True)]"/>
-                    <filter name="head_office"
+                    <filter name="is_head_office"
                             string="Head Office"
                             domain="[('is_head_office', '=', True)]"/>
                     <separator/>
@@ -211,7 +211,7 @@
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'form_view_ref': 'budget_invoice.view_form_invoice_summary_regional',
                 'default_is_regional': True,
-                'search_default_regional': 1,
+                'search_default_is_regional': 1,
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1}
             </field>
@@ -226,7 +226,7 @@
             <field name="search_view_id" ref="search_invoice_summary"/>
             <field name="context">{'form_view_ref': 'budget_invoice.view_form_invoice_summary_head_office',
                 'default_is_head_office': True,
-                'search_default_head_office': 1,
+                'search_default_is_head_office': 1,
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1}
             </field>

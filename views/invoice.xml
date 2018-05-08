@@ -425,10 +425,10 @@
                         <filter string="Contractor" domain="[]" context="{'group_by':'contractor_id'}"/>
                         <filter string="Contract" domain="[]" context="{'group_by':'contract_id'}"/>
                     </group>
-                    <filter name="regional"
+                    <filter name="is_regional"
                             string="Regional"
                             domain="[('is_regional', '=', True)]"/>
-                    <filter name="head_office"
+                    <filter name="is_head_office"
                             string="Head Office"
                             domain="[('is_head_office', '=', True)]"/>
                     <separator/>
@@ -487,7 +487,7 @@
             <field name="context">{
                 'form_view_ref': 'budget_invoice.view_form_invoice',
                 'default_is_regional': True,
-                'search_default_regional': 1,
+                'search_default_is_regional': 1,
                 'search_default_need_action': 1,
                 }
             </field>
@@ -503,7 +503,7 @@
             <field name="context">{
                 'form_view_ref': 'budget_invoice.view_form_invoice',
                 'default_is_head_office': True,
-                'search_default_head_office': 1,
+                'search_default_is_head_office': 1,
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1,
                 }
