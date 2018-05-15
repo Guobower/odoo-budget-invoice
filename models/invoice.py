@@ -815,7 +815,8 @@ class Invoice(models.Model):
     @api.one
     @api.depends('tool_deduction_amount')
     def _compute_tool_deduction_aed_amount(self):
-        self.tool_deduction_aed_amount = convert_amount(self.currency_id, self.tool_deduction_amount)
+        # self.tool_deduction_aed_amount = convert_amount(self.currency_id, self.tool_deduction_amount)
+        self.tool_deduction_aed_amount = 0.0
 
     @api.one
     @api.depends('discount_amount')
