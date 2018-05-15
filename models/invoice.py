@@ -103,14 +103,19 @@ class Invoice(models.Model):
 
     on_hold_percentage = fields.Float(string='On Hold Percent (%)', digits=(5, 2))
     penalty_percentage = fields.Float(string='Penalty Percent (%)', digits=(5, 2))
+    # TODO MOVE TO OUTSOURCE
+    tool_deduction_percentage = fields.Float(string='Tool Deduction Percent (%)', digits=(5, 2))
     discount_percentage = fields.Float(string='Discount Percent (%)', digits=(5, 2))
     other_deduction_percentage = fields.Float(string='Other Deduction Amount(%)', digits=(5, 2))
     due_percentage = fields.Float(string='Due Amount (%)', digits=(5, 2), default=100)
 
     is_on_hold_percentage = fields.Boolean(string='Is On Hold (%)', default=True)
     is_penalty_percentage = fields.Boolean(string='Is Penalty (%)', default=True)
+    # TODO MOVE TO OUTSOURCE
+    is_tool_deduction_percentage = fields.Boolean(string='Is Tool Deduction (%)', default=True)
     is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
+    # TODO RENAME TO apply_after_other_deduction
     is_discount_apply_after_other_deduction_percentage = fields.Boolean(string='Apply Discount After Other Deduction',
                                                                         default=False)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
@@ -120,11 +125,11 @@ class Invoice(models.Model):
                                                   " not used for any calculation")
     input_on_hold_amount = fields.Monetary(currency_field='currency_id', string='On Hold Amount')
     input_penalty_amount = fields.Monetary(currency_field='currency_id', string='Penalty Amount')
+    # TODO MOVE TO OUTSOURCE
+    input_tool_deduction_amount = fields.Monetary(currency_field='currency_id', string='Tool Deduction Amount')
     input_discount_amount = fields.Monetary(currency_field='currency_id', string='Discount Amount')
-    input_other_deduction_amount = fields.Monetary(currency_field='currency_id',
-                                                   string='Other Deduction Amount')
-    input_due_amount = fields.Monetary(currency_field='currency_id',
-                                       string='Due Amount')
+    input_other_deduction_amount = fields.Monetary(currency_field='currency_id', string='Other Deduction Amount')
+    input_due_amount = fields.Monetary(currency_field='currency_id', string='Due Amount')
 
     # TODO DEPRECATE
     period_start_date = fields.Date(string='Period Start Date')
@@ -350,6 +355,10 @@ class Invoice(models.Model):
     penalty_amount = fields.Monetary(currency_field='currency_id', store=True,
                                      compute='_compute_penalty_amount',
                                      string='Penalty Amount')
+    # TODO MOVE TO OUTSOURCE
+    tool_deduction_amount = fields.Monetary(currency_field='currency_id', store=True,
+                                            compute='_compute_tool_deduction_amount',
+                                            string='Tool Deduction Amount')
     discount_amount = fields.Monetary(currency_field='currency_id', store=True,
                                       compute='_compute_discount_amount',
                                       string='Discount Amount')
@@ -446,6 +455,11 @@ class Invoice(models.Model):
                                          store=True,
                                          compute="_compute_penalty_aed_amount",
                                          string='Penalty Amount AED')
+
+    tool_deduction_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                                store=True,
+                                                compute="_compute_tool_deduction_aed_amount",
+                                                string='Tool Deduction Amount AED')
 
     discount_aed_amount = fields.Monetary(currency_field='aed_currency_id',
                                           store=True,
@@ -639,10 +653,22 @@ class Invoice(models.Model):
         self.penalty_amount = self.input_penalty_amount
         self.penalty_percentage = 0
 
+    # TODO MOVE TO OUTSOURCE
+    @api.one
+    @api.depends('is_tool_deduction_percentage', 'tool_deduction_percentage',
+                 'input_tool_deduction_amount', 'invoice_amount')
+    def _compute_tool_deduction_amount(self):
+        if self.is_tool_deduction_percentage:
+            self.tool_deduction_amount = self.invoice_amount * self.tool_deduction_percentage / 100
+            self.input_tool_deduction_amount = 0
+            return
+        self.tool_deduction_amount = self.input_tool_deduction_amount
+        self.tool_deduction_percentage = 0
+
     @api.one
     @api.depends('is_discount_percentage', 'discount_percentage',
                  'is_discount_apply_after_other_deduction_percentage',
-                 'input_discount_amount', 'invoice_amount')
+                 'input_discount_amount', 'invoice_amount', 'other_deduction_amount')
     def _compute_discount_amount(self):
         if self.is_discount_percentage:
 
@@ -692,11 +718,11 @@ class Invoice(models.Model):
         self.due_percentage = 0
 
     @api.one
-    @api.depends('invoice_amount', 'penalty_amount', 'discount_amount',
+    @api.depends('invoice_amount', 'penalty_amount', 'tool_deduction_amount', 'discount_amount',
                  'on_hold_amount', 'other_deduction_amount')
     def _compute_certified_invoice_amount(self):
-        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount - self.discount_amount - \
-                                        self.on_hold_amount - self.other_deduction_amount
+        self.certified_invoice_amount = self.invoice_amount - self.penalty_amount - self.tool_deduction_amount - \
+                                        self.discount_amount - self.on_hold_amount - self.other_deduction_amount
 
     @api.one
     @api.depends('invoice_amount', 'certified_invoice_amount', 'capex_amount')
@@ -785,6 +811,11 @@ class Invoice(models.Model):
     @api.depends('penalty_amount')
     def _compute_penalty_aed_amount(self):
         self.penalty_aed_amount = convert_amount(self.currency_id, self.penalty_amount)
+
+    @api.one
+    @api.depends('tool_deduction_amount')
+    def _compute_tool_deduction_aed_amount(self):
+        self.tool_deduction_aed_amount = convert_amount(self.currency_id, self.tool_deduction_amount)
 
     @api.one
     @api.depends('discount_amount')
@@ -890,7 +921,7 @@ class Invoice(models.Model):
     @api.constrains('currency_id')
     def _check_purchase_order_invoice_currency(self):
         currency_names = self.mapped('po_id.currency_id.name') + \
-            [self.currency_id.name]
+                         [self.currency_id.name]
 
         currency_names = [i for i in currency_names if i]
         if len(set(currency_names)) > 1:

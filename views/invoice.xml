@@ -139,6 +139,7 @@
                                     <group>
                                         <field name="is_penalty_percentage"/>
                                         <field name="is_on_hold_percentage"/>
+                                        <field name="is_tool_deduction_percentage"/>
                                         <field name="is_discount_percentage"/>
                                         <field name="is_other_deduction_percentage"/>
                                         <field name="is_due_percentage"/>
@@ -152,6 +153,10 @@
                                                attrs="{'invisible': [('is_on_hold_percentage','=',False)]}"/>
                                         <field name="input_on_hold_amount"
                                                attrs="{'invisible': [('is_on_hold_percentage','=',True)]}"/>
+                                        <field name="tool_deduction_percentage"
+                                               attrs="{'invisible': [('is_tool_deduction_percentage','=',False)]}"/>
+                                        <field name="input_tool_deduction_amount"
+                                               attrs="{'invisible': [('is_tool_deduction_percentage','=',True)]}"/>
                                         <field name="discount_percentage"
                                                attrs="{'invisible': [('is_discount_percentage','=',False)]}"/>
                                         <field name="input_discount_amount"
@@ -325,6 +330,13 @@
                                         <div class="o_address_format">
                                             <field name="penalty_amount" readonly="1" class="o_address_street"/>
                                             <field name="penalty_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
+                                        <label for="discount_amount" string="Discount Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="tool_deduction_amount" readonly="1" class="o_address_street"/>
+                                            <field name="tool_deduction_aed_amount" readonly="1" nolabel="1"
                                                    class="o_address_street"
                                                    attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
