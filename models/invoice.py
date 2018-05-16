@@ -673,7 +673,7 @@ class Invoice(models.Model):
         if self.is_discount_percentage:
 
             if self.is_discount_apply_after_other_deduction_percentage:
-                to_be_discounted_amount = self.invoice_amount - self.other_deduction_amount
+                to_be_discounted_amount = self.invoice_amount - self.tool_deduction_amount
             else:
                 to_be_discounted_amount = self.invoice_amount
 
