@@ -333,7 +333,7 @@
                                                    class="o_address_street"
                                                    attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
-                                        <label for="discount_amount" string="Discount Amount"/>
+                                        <label for="tool_deduction_amount" string="Tool Deduction Amount"/>
                                         <div class="o_address_format">
                                             <field name="tool_deduction_amount" readonly="1" class="o_address_street"/>
                                             <field name="tool_deduction_aed_amount" readonly="1" nolabel="1"
@@ -354,7 +354,7 @@
                                                    class="o_address_street"
                                                    attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
-                                        <label for="other_deduction_amount" string="Tools/Other Deduction Amount"/>
+                                        <label for="other_deduction_amount" string="Other Deduction Amount"/>
                                         <div class="o_address_format">
                                             <field name="other_deduction_amount" readonly="1" class="o_address_street"/>
                                             <field name="other_deduction_aed_amount" readonly="1" nolabel="1"

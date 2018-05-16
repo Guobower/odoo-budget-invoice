@@ -367,7 +367,7 @@ class Invoice(models.Model):
                                      string='On Hold Amount')
     other_deduction_amount = fields.Monetary(currency_field='currency_id', store=True,
                                              compute='_compute_other_deduction_amount',
-                                             string='Tools/Other Deduction Amount')
+                                             string='Other Deduction Amount')
     due_amount = fields.Monetary(currency_field='currency_id', store=True,
                                  compute='_compute_due_amount',
                                  string='Due Amount')
