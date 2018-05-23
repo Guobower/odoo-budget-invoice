@@ -402,7 +402,7 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 6).value = charge_account
             ws.cell(row=row, column=column + 7).value = r.description or ''
             ws.cell(row=row, column=column + 8).value = r.invoice_amount
-            ws.cell(row=row, column=column + 9).value = r.other_deduction_amount
+            ws.cell(row=row, column=column + 9).value = r.tool_deduction_amount
             ws.cell(row=row, column=column + 10).value = r.invoice_amount - r.other_deduction_amount
             ws.cell(row=row, column=column + 11).value = r.discount_amount
             ws.cell(row=row, column=column + 12).value = r.certified_invoice_amount
