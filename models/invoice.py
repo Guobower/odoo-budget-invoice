@@ -893,7 +893,7 @@ class Invoice(models.Model):
         if current_user.has_group('base.group_system'):
             return
 
-        amount = sum([amount_id.amount / amount_id.currency_id.rate for amount_id in self.mapped('amount_ids')])
+        amount = sum([amount_id.amount for amount_id in self.mapped('amount_ids')])
 
         allocation_cear_amount = sum(self.mapped('cear_allocation_ids.amount'))
         allocation_oear_amount = sum(self.mapped('oear_allocation_ids.amount'))
