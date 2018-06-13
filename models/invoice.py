@@ -115,7 +115,7 @@ class Invoice(models.Model):
     is_tool_deduction_percentage = fields.Boolean(string='Is Tool Deduction (%)', default=True)
     is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
-    # TODO RENAME TO apply_after_other_deduction
+    # TODO RENAME TO apply_after_tool_deduction
     is_discount_apply_after_other_deduction_percentage = fields.Boolean(string='Apply Discount After Other Deduction',
                                                                         default=False)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)

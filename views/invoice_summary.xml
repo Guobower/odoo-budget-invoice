@@ -182,6 +182,7 @@
                             string="My Activities"
                             domain="[('responsible_id', '=', uid)]"/>
                     <field name="summary_no"/>
+                    <field name="invoice_ids"/>
                 </search>
             </field>
         </record>
