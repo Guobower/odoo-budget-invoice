@@ -36,8 +36,8 @@ class PurchaseOrder(models.Model):
     @api.one
     @api.depends('invoice_ids', 'invoice_ids.certified_invoice_amount', 'invoice_ids.state')
     def _compute_total_invoice_amount(self):
-        states = ['verified', 'summary generated',
-                  'under certification', 'sent to finance', 'closed']
+        states = ['verified', 'summary generated', 'sd signed', 'svp signed',
+                  'cto signed', 'sent to finance', 'closed']
         invoice_ids = self.invoice_ids.filtered(lambda r: r.state in states)
         self.total_invoice_amount = sum(invoice_ids.mapped('certified_invoice_amount'))
 
