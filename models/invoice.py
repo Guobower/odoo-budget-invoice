@@ -986,8 +986,8 @@ class Invoice(models.Model):
         form_id = self.env.ref('budget_invoice.view_form_invoice_summary').id
         context = {
             'default_invoice_ids': [(6, 0, self.ids)],
-            'default_is_head_office': True,
-            'default_is_regional': True,
+            'default_is_head_office': self.is_head_office,
+            'default_is_regional': self.is_regional,
             'auto_generate': True
         }
         res = {

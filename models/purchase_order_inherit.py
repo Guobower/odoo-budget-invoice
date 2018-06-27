@@ -44,6 +44,4 @@ class PurchaseOrder(models.Model):
     @api.one
     @api.depends('total_invoice_amount')
     def _compute_total_invoice_amount_shorthand(self):
-        if not self.total_invoice_amount:
-            return
         self.total_invoice_amount_shorthand = num_to_shorthand(self.total_invoice_amount)

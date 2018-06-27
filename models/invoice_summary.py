@@ -172,7 +172,6 @@ class InvoiceSummary(models.Model):
                                                ('is_regional', '=', self.is_regional)
                                                ]}}
 
-
     @api.one
     @api.depends('invoice_ids')
     def _compute_invoice_count(self):

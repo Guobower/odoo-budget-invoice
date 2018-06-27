@@ -12,7 +12,7 @@
                 name="Invoice"
                 sequence="1"
                 parent="menu_invoice_top"
-                groups="base.group_system,budget_invoice.group_invoice_dependent"/>
+                groups="base.group_system"/>
         <menuitem
                 id="menu_invoice_regional_left"
                 name="Regional"
@@ -123,7 +123,9 @@
                 name="Currency Rate"
                 sequence="98"
                 parent="menu_external_left"
-                action="action_currency_rate"/>
+                action="action_currency_rate"
+                groups="base.group_system,base.group_no_one"/>
+        />
         <!-- BUSINESS INTELLIGENCE VIEW -->
         <menuitem
                 id="menu_cear_allocation_left_child"
