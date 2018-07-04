@@ -99,6 +99,7 @@
                 id="menu_external_left"
                 name="Dependencies"
                 sequence="97"
+                groups="base.group_system,budget_invoice.group_invoice_dependent"
                 parent="menu_invoice_top"/>
         <menuitem
                 id="menu_cear_left"
