@@ -43,13 +43,13 @@ class CearAllocation(models.Model):
                                  currency_field='currency_aed_id')
 
     @api.one
-    @api.depends('currency_id', 'amount', 'invoice_id', 'invoice_id.discount_percentage')
+    @api.depends('currency_id', 'amount', 'invoice_id', 'invoice_id.discount_amount')
     def _compute_amount_aed(self):
         if self.currency_id.name == 'AED':
             amount_aed = self.amount
         else:
             amount_aed = self.amount if not self.currency_id.rate else self.amount / self.currency_id.rate
-        self.amount_aed = amount_aed * (1 - (self.invoice_id.discount_percentage / 100))
+        self.amount_aed = amount_aed - self.invoice_id.discount_aed_amount
 
     # RELATED FIELD
     # ----------------------------------------------------------
