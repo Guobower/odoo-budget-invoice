@@ -767,7 +767,7 @@ class Invoice(models.Model):
     @api.depends('summary_ids')
     def _compute_summary_id(self):
         if self.summary_ids:
-            self.summary_id = self.summary_ids.sorted(key='id', reverse=True)[0]
+            self.summary_id = self.summary_ids.filtered(lambda r: r.state != 'cancelled').sorted(key='id', reverse=True)[0]
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.currency_id')
@@ -1058,6 +1058,10 @@ class Invoice(models.Model):
 
     @api.multi
     def write(self, vals):
+        # not allowed to modify if state is not draft and has group of enduser
+        if self.state != 'draft' and self.env.user.has_group('budget_invoice.group_invoice_end_user'):
+            raise ValidationError("You can only modify this record in DRAFT state, Please contact the Team for assistance")
+
         list_invoice_no = self.mapped('invoice_no')
         if vals.get('invoice_no', False):
             list_invoice_no.append(vals.get('invoice_no'))

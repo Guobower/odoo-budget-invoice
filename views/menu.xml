@@ -123,9 +123,17 @@
                 name="Currency Rate"
                 sequence="98"
                 parent="menu_external_left"
-                action="action_currency_rate"
-                groups="base.group_system,base.group_no_one"/>
-        />
+                action="action_currency_rate"/>
+
+        <!-- INVOICE VIEW FOR ENDUSER -->
+        <!-- TODO MAKE A DESIGN TO PLACE IS_HEAD_OFFICE OR IS_REGIONAL OR IS_OUTSOURCE-->
+        <menuitem
+                id="menu_invoice_enduser_left"
+                name="Invoice"
+                sequence="4"
+                parent="menu_invoice_top"
+                groups="base.group_no_one,budget_invoice.group_invoice_end_user"
+                action="action_invoice_end_user"/>
         <!-- BUSINESS INTELLIGENCE VIEW -->
         <menuitem
                 id="menu_cear_allocation_left_child"

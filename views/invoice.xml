@@ -14,26 +14,31 @@
                                 string="Reset"
                                 name="reset"
                                 type="object"
+                                groups="budget_invoice.group_invoice_user"
                                 states="verified,on hold"/>
                         <button
                                 string="Verify"
                                 name="set2verified"
                                 type="object"
+                                groups="budget_invoice.group_invoice_user"
                                 states="draft"/>
                         <button
                                 string="Place On-hold"
                                 name="set2on_hold"
                                 type="object"
+                                groups="budget_invoice.group_invoice_user"
                                 states="draft,verified"/>
                         <button
                                 string="Reject"
                                 name="set2rejected"
                                 type="object"
+                                groups="budget_invoice.group_invoice_user"
                                 states="draft,verified,on hold"/>
                         <button
                                 string="Create Summary"
                                 name="summary_wizard"
                                 type="object"
+                                groups="budget_invoice.group_invoice_user"
                                 states="verified"/>
 
                         <field name="state" widget="statusbar"
@@ -82,7 +87,7 @@
                                         <field name="sub_section_id" options="{'no_create': True}"/>
                                     </group>
                                     <group>
-                                        <field name="pec_id"/>
+                                        <field name="pec_id" options="{'no_create_edit': True}"/>
                                         <field name="mms_no"
                                                attrs="{'invisible': [('is_head_office','!=',True)]}"/>
                                         <field name="mms_month"
@@ -122,7 +127,9 @@
                                 <hr/>
                                 <group>
                                     <group>
-                                        <field name="responsible_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="responsible_id"
+                                               groups="budget_invoice.group_invoice_user"
+                                               options="{'no_create': True, 'no_open': True}"/>
                                         <field name="summary_id" readonly="1"
                                                attrs="{'invisible': [('write_date', '=', False)]}"/>
                                     </group>
@@ -179,7 +186,8 @@
                                     </group>
                                 </group>
                                 <group>
-                                    <field name="initial_invoice_amount"/>
+                                    <field name="initial_invoice_amount"
+                                           groups="budget_invoice.group_invoice_user"/>
                                 </group>
                                 <group>
                                 </group>
@@ -447,6 +455,9 @@
                     <filter name="my_activity"
                             string="My Activities"
                             domain="[('responsible_id', '=', uid)]"/>
+                    <filter name="my_creation"
+                            string="My Invoice"
+                            domain="[('create_uid', '=', uid)]"/>
                     <separator/>
                     <filter name="need_action"
                             string="Need Action"
@@ -518,6 +529,23 @@
                 'search_default_is_head_office': 1,
                 'search_default_need_action': 1,
                 'search_default_my_activity': 1,
+                }
+            </field>
+        </record>
+        <!--Invoice End User Action-->
+        <record model="ir.actions.act_window" id="action_invoice_end_user">
+            <field name="name">Invoice</field>
+            <field name="res_model">budget.invoice.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="view_id" ref="view_tree_invoice"/>
+            <field name="search_view_id" ref="search_invoice"/>
+            <field name="domain">['|', ('division_id.spoc_ids.user_id','=',uid),
+                                       ('create_uid','=',uid)]</field>
+            <field name="context">{
+                'form_view_ref': 'budget_invoice.view_form_invoice',
+                'search_default_need_action': 1,
+                'search_default_my_creation': 1,
                 }
             </field>
         </record>
