@@ -35,6 +35,12 @@
                                 groups="budget_invoice.group_invoice_user"
                                 states="draft,verified,on hold"/>
                         <button
+                                string="Create Certification"
+                                name="summary_wizard"
+                                type="object"
+                                groups="budget_invoice.group_invoice_end_user"
+                                states="draft"/>
+                        <button
                                 string="Create Summary"
                                 name="summary_wizard"
                                 type="object"
