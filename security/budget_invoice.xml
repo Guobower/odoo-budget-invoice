@@ -24,6 +24,7 @@
             <field name="category_id" ref="category_invoice"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
+
         <record model="res.groups" id="group_invoice_summary_user">
             <field name="name">Summary Updater</field>
             <field name="category_id" ref="category_invoice"/>
@@ -66,6 +67,13 @@
             <field name="name">Head Office Manager</field>
             <field name="category_id" ref="category_invoice"/>
             <field name="implied_ids" eval="[(4, ref('group_invoice_manager'))]"/>
+        </record>
+
+        <!-- END USER -->
+        <record model="res.groups" id="group_invoice_end_user">
+            <field name="name">End User</field>
+            <field name="category_id" ref="category_invoice"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
     </data>
 </odoo>
