@@ -12,7 +12,7 @@
                 name="Invoice"
                 sequence="1"
                 parent="menu_invoice_top"
-                groups="base.group_system"/>
+                groups="base.group_system,budget_invoice.group_invoice_dependent"/>
         <menuitem
                 id="menu_invoice_regional_left"
                 name="Regional"
