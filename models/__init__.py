@@ -19,3 +19,7 @@ from . import ir_autovacuum
 # REPORT VIEW MODELS
 # ----------------------------------------------------------
 from . import cear_allocation_bi
+
+# INHERITANCE MODELS FROM SAME MODULE
+# ----------------------------------------------------------
+from . invoice_summary_transient import InvoiceSummaryTransient

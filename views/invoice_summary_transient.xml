@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!--START INVOICE SUMMARY VIEWS-->
+        <!--INVOICE SUMMARY FORM VIEW-->
+        <record model="ir.ui.view" id="view_form_invoice_summary_transient">
+            <field name="name">Invoice Summary Transient</field>
+            <field name="model">budget.invoice.invoice.summary.transient</field>
+            <field name="arch" type="xml">
+                <form string="Invoice Summary Transient">
+                    <header>
+                    </header>
+                    <sheet>
+                        <group readonly="1" groups="base.group_no_one">
+                            <group>
+                                <field name="form"/>
+                                <field name="summary_no"/>
+                            </group>
+                            <group string="DEPRECATED">
+                            </group>
+                        </group>
+
+                        <div class="oe_button_box" name="box">
+                        </div>
+                        <group>
+                            <group>
+                                <field name="objective" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="signature_ids"
+                                       string="Signatories"
+                                       options="{'no_create': True, 'no_open': True}">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="designation"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Invoices">
+                                <field name="invoice_ids">
+                                    <tree default_order="sequence"
+                                          decoration-success="problem in ['ok', False]"
+                                          decoration-danger="problem in ['duplicate', 'overrun']">
+                                        <field name="currency_id" groups="base.group_no_one"/>
+                                        <field name="problem"/>
+                                        <field name="state"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="invoice_no"/>
+                                        <field name="contract_id"/>
+                                        <field name="invoice_amount" sum="1"/>
+                                        <field name="invoice_date"/>
+                                        <field name="invoice_cert_date"/>
+                                        <field name="received_date"/>
+                                        <field name="sent_finance_date"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--INVOICE SUMMARY TREE VIEW-->
+        <!--END INVOICE SUMMARY VIEWS-->
+        <!--START SEARCH-->
+        <!--END SEARCH-->
+        <!--START ACTIONS-->
+        <!--Invoice Summary Transient Action-->
+        <record model="ir.actions.act_window" id="action_invoice_summary_transient">
+            <field name="name">Invoice Summary Transient</field>
+            <field name="res_model">budget.invoice.invoice.summary.transient</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="context">
+                {'form_view_ref': 'budget_invoice.view_form_invoice_summary_transient'}
+            </field>
+        </record>
+        <!--END ACTIONS-->
+
+    </data>
+</odoo>

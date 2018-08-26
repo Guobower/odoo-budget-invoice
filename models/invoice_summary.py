@@ -93,12 +93,6 @@ class InvoiceSummary(models.Model):
     # ----------------------------------------------------------
     STATES = choices_tuple(['draft', 'file generated', 'sd signed', 'svp signed', 'cto signed',
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
-    SIGNATURES = [
-        ('signature0001.png', 'SD/TBPC & SVP/MN & CTO'),
-        ('signature0002.png', 'SD/TBPC & SVP/CSE & SVP/MN & CTO'),
-        ('signature0003.png', 'SVP/ET & SD/TBPC & SVP/MN & FINANCE'),
-        ('signature0004.png', 'SVP/ET & SD/TBPC & SVP/MN & CTO & FINANCE')
-    ]
     FORMS = [
         ('form_a0001ver02.xlsx', 'Regional'),
         ('form_a0002ver02.xlsx', 'Regional - Volume Discount'),
@@ -120,14 +114,7 @@ class InvoiceSummary(models.Model):
     summary_no = fields.Char(string='Summary No',
                              default=lambda self: self._get_default_summary_no())
     form = fields.Selection(FORMS)
-    signature = fields.Selection(SIGNATURES)
     objective = fields.Selection(OBJECTIVES, default='invoice certification')
-    # TODO DEPRECATE
-    team = Invoice.team
-
-    # TODO DEPRECATE
-    signed_date = fields.Date(string='Signed Date')
-    # --------------
 
     sd_signed_date = fields.Date(string='SD Signed Date', track_visibility='onchange')
     svp_signed_date = fields.Date(string='SVP Signed Date', track_visibility='onchange')
@@ -150,8 +137,6 @@ class InvoiceSummary(models.Model):
                                      'budget_invoice_summary_signature',
                                      'summary_id',
                                      'signature_id')
-    # TODO REMOVE
-    section_id = fields.Many2one('res.partner', string='Section')
 
     # COMPUTE FIELDS
     # ----------------------------------------------------------
@@ -566,8 +551,9 @@ class InvoiceSummary(models.Model):
             raise ValidationError("Summary can only be generated for invoices with same currency.")
 
         creator = Creator(summary_no=self.summary_no,
-                          summary_res_id=self.id,
-                          form_filename=self.form)
+                          res_id=self.id,
+                          form_filename=self.form,
+                          res_model=self._name)
 
         # get attribute from form name removing .xlsx
         # eg. self.form_c0001ver01

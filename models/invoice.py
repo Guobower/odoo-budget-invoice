@@ -1002,6 +1002,26 @@ class Invoice(models.Model):
         }
         return res
 
+    def summary_transient_wizard(self):
+        form_id = self.env.ref('budget_invoice.view_form_invoice_summary_transient').id
+        context = {
+            'default_invoice_ids': [(6, 0, self.ids)],
+            'default_form': 'form_c0001ver02.xlsx',
+            'default_objective': 'invoice certification',
+            'auto_generate': True
+        }
+
+        return {
+            'name': 'Create Certification',
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'new',
+            'res_model': 'budget.invoice.invoice.summary.transient',
+            'context': context,
+            'views': [(form_id, 'form')],
+        }
+
     # ADDITIONAL FUNCTIONS
     # ----------------------------------------------------------
     @api.model

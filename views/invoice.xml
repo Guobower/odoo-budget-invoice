@@ -36,7 +36,7 @@
                                 states="draft,verified,on hold"/>
                         <button
                                 string="Create Certification"
-                                name="summary_wizard"
+                                name="summary_transient_wizard"
                                 type="object"
                                 groups="budget_invoice.group_invoice_end_user"
                                 states="draft"/>

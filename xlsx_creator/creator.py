@@ -133,10 +133,11 @@ Worksheet.insert_rows = insert_rows
 # END OPENPYXL
 
 class Creator(object):
-    def __init__(self, logo='logo.png', summary_no=None, summary_res_id=None,
+    def __init__(self, logo='logo.png', res_model=None, summary_no=None, res_id=None,
                  form_filename=None, data=None):
         self.summary_no = summary_no
-        self.summary_res_id = summary_res_id
+        self.res_id = res_id
+        self.res_model = res_model
         self.form_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'form_template'))
         self.form_template = os.path.join(self.form_template_path, form_filename)
 
@@ -167,8 +168,8 @@ class Creator(object):
         values = dict(
             name=filename,
             datas_fname=filename,
-            res_id=self.summary_res_id,
-            res_model='budget.invoice.invoice.summary',
+            res_id=self.res_id,
+            res_model=self.res_model,
             type='binary',
             datas=data,
         )
