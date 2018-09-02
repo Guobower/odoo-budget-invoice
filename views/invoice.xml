@@ -186,7 +186,7 @@
                                 </group>
                                 <group>
                                     <group>
-                                        <field name="is_discount_apply_after_other_deduction_percentage"/>
+                                        <field name="is_discount_apply_after_tool_deduction_percentage"/>
                                     </group>
                                     <group>
                                     </group>

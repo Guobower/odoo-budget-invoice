@@ -115,9 +115,8 @@ class Invoice(models.Model):
     is_tool_deduction_percentage = fields.Boolean(string='Is Tool Deduction (%)', default=True)
     is_discount_percentage = fields.Boolean(string='Is Discount (%)', default=True)
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
-    # TODO RENAME TO apply_after_tool_deduction
-    is_discount_apply_after_other_deduction_percentage = fields.Boolean(string='Apply Discount After Other Deduction',
-                                                                        default=False)
+    is_discount_apply_after_tool_deduction_percentage = fields.Boolean(string='Apply Discount After Tool Deduction',
+                                                                       default=False)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
     initial_invoice_amount = fields.Monetary(currency_field='currency_id', string='Initial Invoice Amount',
@@ -667,12 +666,12 @@ class Invoice(models.Model):
 
     @api.one
     @api.depends('is_discount_percentage', 'discount_percentage',
-                 'is_discount_apply_after_other_deduction_percentage',
-                 'input_discount_amount', 'invoice_amount', 'other_deduction_amount')
+                 'is_discount_apply_after_tool_deduction_percentage',
+                 'input_discount_amount', 'invoice_amount', 'tool_deduction_amount')
     def _compute_discount_amount(self):
         if self.is_discount_percentage:
 
-            if self.is_discount_apply_after_other_deduction_percentage:
+            if self.is_discount_apply_after_tool_deduction_percentage:
                 to_be_discounted_amount = self.invoice_amount - self.tool_deduction_amount
             else:
                 to_be_discounted_amount = self.invoice_amount
@@ -767,7 +766,8 @@ class Invoice(models.Model):
     @api.depends('summary_ids')
     def _compute_summary_id(self):
         if self.summary_ids:
-            self.summary_id = self.summary_ids.filtered(lambda r: r.state != 'cancelled').sorted(key='id', reverse=True)[0]
+            self.summary_id = \
+            self.summary_ids.filtered(lambda r: r.state != 'cancelled').sorted(key='id', reverse=True)[0]
 
     @api.one
     @api.depends('amount_ids', 'amount_ids.currency_id')
@@ -1080,7 +1080,8 @@ class Invoice(models.Model):
     def write(self, vals):
         # not allowed to modify if state is not draft and has group of enduser
         if self.state != 'draft' and self.env.user.has_group('budget_invoice.group_invoice_end_user'):
-            raise ValidationError("You can only modify this record in DRAFT state, Please contact the Team for assistance")
+            raise ValidationError(
+                "You can only modify this record in DRAFT state, Please contact the Team for assistance")
 
         list_invoice_no = self.mapped('invoice_no')
         if vals.get('invoice_no', False):

@@ -43,13 +43,8 @@ class InvoiceSummaryTransient(models.TransientModel):
     def _get_default_summary_no(self):
         return 'invoice_certification'
 
-    _sql_constraints = [
-        (
-            '_uniq_summary_no',
-            '(1==1)',
-            'removed',
-        )
-    ]
+    # TODO DECIDE TO ADD OR NOT TO ADD
+    _sql_constraints = []
 
     # POLYMORPH FUNCTIONS
     # ----------------------------------------------------------

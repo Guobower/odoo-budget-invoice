@@ -26,7 +26,7 @@ class TestInvoiceCalculation01(TransactionCase):
 
         self.invoice = self.env['budget.invoice.invoice'].create(
             {
-                'is_discount_apply_after_other_deduction_percentage': False,
+                'is_discount_apply_after_tool_deduction_percentage': False,
                 'invoice_no': 'test invoice 01',
                 'penalty_percentage': 14,
                 'on_hold_percentage': 13,
@@ -127,24 +127,24 @@ class TestInvoiceCalculation01(TransactionCase):
                         "Other Deduction Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.other_deduction_amount))
 
-    def test_calculation_certified_invoice_amount_before_other_deduction(self):
+    def test_calculation_certified_invoice_amount_before_tool_deduction(self):
         # CERTIFIED INVOICE AMOUNT
         expected_amount = 4060.00
         self.assertTrue(self.invoice.certified_invoice_amount == expected_amount,
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.certified_invoice_amount))
 
-    def test_calculation_certified_invoice_amount_after_other_deduction(self):
+    def test_calculation_certified_invoice_amount_after_tool_deduction(self):
         # CERTIFIED INVOICE AMOUNT
         self.invoice.write({
-            'is_discount_apply_after_other_deduction_percentage': True,
+            'is_discount_apply_after_tool_deduction_percentage': True,
         })
-        expected_discount_amount = 1394.40
+        expected_discount_amount = 1428.00
         self.assertTrue(self.invoice.discount_amount == expected_discount_amount,
                         "Discount Amount must be {}, Given {}".
                         format(expected_discount_amount, self.invoice.discount_amount))
 
-        expected_certified_invoice_amount = 4345.60
+        expected_certified_invoice_amount = 4312.00
         self.assertTrue(self.invoice.certified_invoice_amount == expected_certified_invoice_amount,
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_certified_invoice_amount, self.invoice.certified_invoice_amount))
@@ -166,7 +166,7 @@ class TestInvoiceCalculation02(TransactionCase):
 
         self.invoice = self.env['budget.invoice.invoice'].create(
             {
-                'is_discount_apply_after_other_deduction_percentage': False,
+                'is_discount_apply_after_tool_deduction_percentage': False,
                 'invoice_no': 'test invoice 02',
                 'is_penalty_percentage': False,
                 'is_on_hold_percentage': False,
@@ -176,7 +176,7 @@ class TestInvoiceCalculation02(TransactionCase):
                 'input_penalty_amount': 1960,
                 'input_on_hold_amount': 1820,
                 'input_tool_deduction_amount': 2100,
-                'input_discount_amount': 1680,
+                'input_discount_amount': 1428,
                 'input_other_deduction_amount': 2380,
                 'amount_ids': [(0, 0, {'budget_type': 'capex',
                                        'invoice_type': 'others',
@@ -254,7 +254,7 @@ class TestInvoiceCalculation02(TransactionCase):
 
     def test_calculation_discount_amount(self):
         # DISCOUNT AMOUNT
-        expected_amount = 1680.00
+        expected_amount = 1428.00
         self.assertTrue(self.invoice.discount_amount == expected_amount, "Discount Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.discount_amount))
 
@@ -272,24 +272,24 @@ class TestInvoiceCalculation02(TransactionCase):
                         "Other Deduction Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.other_deduction_amount))
 
-    def test_calculation_certified_invoice_amount_before_other_deduction(self):
+    def test_calculation_certified_invoice_amount_before_tool_deduction(self):
         # CERTIFIED INVOICE AMOUNT
-        expected_amount = 4060.00
+        expected_amount = 4312.00
         self.assertTrue(self.invoice.certified_invoice_amount == expected_amount,
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.certified_invoice_amount))
 
-    def test_calculation_certified_invoice_amount_after_other_deduction(self):
+    def test_calculation_certified_invoice_amount_after_tool_deduction(self):
         # CERTIFIED INVOICE AMOUNT
         self.invoice.write({
-            'is_discount_apply_after_other_deduction_percentage': True,
+            'is_discount_apply_after_tool_deduction_percentage': True,
         })
-        expected_discount_amount = 1680.0
+        expected_discount_amount = 1428.0
         self.assertTrue(self.invoice.discount_amount == expected_discount_amount,
                         "Discount Amount must be {}, Given {}".
                         format(expected_discount_amount, self.invoice.discount_amount))
 
-        expected_certified_invoice_amount = 4060.00
+        expected_certified_invoice_amount = 4312.00
         self.assertTrue(self.invoice.certified_invoice_amount == expected_certified_invoice_amount,
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_certified_invoice_amount, self.invoice.certified_invoice_amount))
