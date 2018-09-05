@@ -155,6 +155,7 @@
                                         <field name="is_tool_deduction_percentage"/>
                                         <field name="is_discount_percentage"/>
                                         <field name="is_other_deduction_percentage"/>
+                                        <field name="is_vat_percentage"/>
                                         <field name="is_due_percentage"/>
                                     </group>
                                     <group>
@@ -178,6 +179,10 @@
                                                attrs="{'invisible': [('is_other_deduction_percentage','=',False)]}"/>
                                         <field name="input_other_deduction_amount"
                                                attrs="{'invisible': [('is_other_deduction_percentage','=',True)]}"/>
+                                        <field name="vat_percentage"
+                                               attrs="{'invisible': [('is_vat_percentage','=',False)]}"/>
+                                        <field name="input_vat_amount"
+                                               attrs="{'invisible': [('is_vat_percentage','=',True)]}"/>
                                         <field name="due_percentage"
                                                attrs="{'invisible': [('is_due_percentage','=',False)]}"/>
                                         <field name="input_due_amount"
@@ -375,6 +380,13 @@
                                                    class="o_address_street"
                                                    attrs="{'invisible': [('is_different_currency','=', False)]}"/>
                                         </div>
+                                        <label for="vat_amount" string="Other Deduction Amount"/>
+                                        <div class="o_address_format">
+                                            <field name="vat_amount" readonly="1" class="o_address_street"/>
+                                            <field name="vat_aed_amount" readonly="1" nolabel="1"
+                                                   class="o_address_street"
+                                                   attrs="{'invisible': [('is_different_currency','=', False)]}"/>
+                                        </div>
                                     </group>
                                 </group>
                             </page>
@@ -547,7 +559,8 @@
             <field name="view_id" ref="view_tree_invoice"/>
             <field name="search_view_id" ref="search_invoice"/>
             <field name="domain">['|', ('division_id.spoc_ids.user_id','=',uid),
-                                       ('create_uid','=',uid)]</field>
+                ('create_uid','=',uid)]
+            </field>
             <field name="context">{
                 'form_view_ref': 'budget_invoice.view_form_invoice',
                 'search_default_need_action': 1,

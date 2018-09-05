@@ -107,6 +107,7 @@ class Invoice(models.Model):
     tool_deduction_percentage = fields.Float(string='Tool Deduction Percent (%)', digits=(5, 2))
     discount_percentage = fields.Float(string='Discount Percent (%)', digits=(5, 2))
     other_deduction_percentage = fields.Float(string='Other Deduction Amount(%)', digits=(5, 2))
+    vat_percentage = fields.Float(string='VAT Amount (%)', digits=(5, 2), default=5)
     due_percentage = fields.Float(string='Due Amount (%)', digits=(5, 2), default=100)
 
     is_on_hold_percentage = fields.Boolean(string='Is On Hold (%)', default=True)
@@ -117,6 +118,7 @@ class Invoice(models.Model):
     is_other_deduction_percentage = fields.Boolean(string='Is Other Deduction (%)', default=True)
     is_discount_apply_after_tool_deduction_percentage = fields.Boolean(string='Apply Discount After Tool Deduction',
                                                                        default=False)
+    is_vat_percentage = fields.Boolean(string='Is VAT Amount (%)', default=True)
     is_due_percentage = fields.Boolean(string='Is Due Amount (%)', default=True)
 
     initial_invoice_amount = fields.Monetary(currency_field='currency_id', string='Initial Invoice Amount',
@@ -128,6 +130,7 @@ class Invoice(models.Model):
     input_tool_deduction_amount = fields.Monetary(currency_field='currency_id', string='Tool Deduction Amount')
     input_discount_amount = fields.Monetary(currency_field='currency_id', string='Discount Amount')
     input_other_deduction_amount = fields.Monetary(currency_field='currency_id', string='Other Deduction Amount')
+    input_vat_amount = fields.Monetary(currency_field='currency_id', string='VAT Amount')
     input_due_amount = fields.Monetary(currency_field='currency_id', string='Due Amount')
 
     # TODO DEPRECATE
@@ -367,6 +370,9 @@ class Invoice(models.Model):
     other_deduction_amount = fields.Monetary(currency_field='currency_id', store=True,
                                              compute='_compute_other_deduction_amount',
                                              string='Other Deduction Amount')
+    vat_amount = fields.Monetary(currency_field='currency_id', store=True,
+                                 compute='_compute_vat_amount',
+                                 string='VAT Amount')
     due_amount = fields.Monetary(currency_field='currency_id', store=True,
                                  compute='_compute_due_amount',
                                  string='Due Amount')
@@ -474,6 +480,11 @@ class Invoice(models.Model):
                                                  store=True,
                                                  compute="_compute_other_deduction_aed_amount",
                                                  string='Other Deduction Amount AED')
+
+    vat_aed_amount = fields.Monetary(currency_field='aed_currency_id',
+                                     store=True,
+                                     compute="_compute_vat_aed_amount",
+                                     string='VAT Amount AED')
 
     @api.one
     @api.depends('contract_id', 'contract_id.commencement_date', 'rfs_date')
@@ -706,6 +717,17 @@ class Invoice(models.Model):
         self.other_deduction_percentage = 0
 
     @api.one
+    @api.depends('is_vat_percentage', 'vat_percentage',
+                 'input_vat_amount', 'certified_invoice_amount')
+    def _compute_vat_amount(self):
+        if self.is_vat_percentage:
+            self.vat_amount = self.certified_invoice_amount * self.vat_percentage / 100
+            self.input_vat_amount = 0
+            return
+        self.vat_amount = self.input_vat_amount
+        self.vat_percentage = 0
+
+    @api.one
     @api.depends('is_due_percentage', 'due_percentage',
                  'input_due_amount')
     def _compute_due_amount(self):
@@ -832,6 +854,11 @@ class Invoice(models.Model):
     @api.depends('other_deduction_amount')
     def _compute_other_deduction_aed_amount(self):
         self.other_deduction_aed_amount = convert_amount(self.currency_id, self.other_deduction_amount)
+
+    @api.one
+    @api.depends('vat_amount')
+    def _compute_vat_aed_amount(self):
+        self.vat_aed_amount = convert_amount(self.currency_id, self.vat_amount)
 
     # INVERSE FIELDS
     # ----------------------------------------------------------

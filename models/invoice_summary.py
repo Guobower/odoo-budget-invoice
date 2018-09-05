@@ -95,9 +95,13 @@ class InvoiceSummary(models.Model):
                             'sent to finance', 'closed', 'cancelled'], is_sorted=False)
     FORMS = [
         ('form_a0001ver02.xlsx', 'Regional'),
-        ('form_a0002ver02.xlsx', 'Regional - Volume Discount'),
+        ('form_a0001ver03.xlsx', 'Regional - VAT'),
+        ('form_a0002ver02.xlsx', 'Regional - VD'),
+        ('form_a0002ver03.xlsx', 'Regional - VD + VAT'),
         ('form_b0001ver05.xlsx', 'Resource'),
+        ('form_b0001ver06.xlsx', 'Resource - VAT'),
         ('form_c0001ver02.xlsx', 'Head Office'),
+        ('form_c0001ver03.xlsx', 'Head Office - VAT'),
     ]
 
     OBJECTIVES = choices_tuple(['invoice certification', 'on hold certification'])

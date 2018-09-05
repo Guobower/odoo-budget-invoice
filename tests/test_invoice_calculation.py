@@ -32,6 +32,7 @@ class TestInvoiceCalculation01(TransactionCase):
                 'on_hold_percentage': 13,
                 'tool_deduction_percentage': 15,
                 'discount_percentage': 12,
+                'vat_percentage': 5,
                 'other_deduction_percentage': 17,
                 'amount_ids': [(0, 0, {'budget_type': 'capex',
                                        'invoice_type': 'others',
@@ -134,6 +135,13 @@ class TestInvoiceCalculation01(TransactionCase):
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.certified_invoice_amount))
 
+    def test_calculation_vat_amount_before_tool_deduction(self):
+        # VAT AMOUNT
+        expected_amount = 203.00
+        self.assertTrue(self.invoice.vat_amount == expected_amount,
+                        "Certified Invoice Amount must be {}, Given {}".
+                        format(expected_amount, self.invoice.vat_amount))
+
     def test_calculation_certified_invoice_amount_after_tool_deduction(self):
         # CERTIFIED INVOICE AMOUNT
         self.invoice.write({
@@ -148,6 +156,16 @@ class TestInvoiceCalculation01(TransactionCase):
         self.assertTrue(self.invoice.certified_invoice_amount == expected_certified_invoice_amount,
                         "Certified Invoice Amount must be {}, Given {}".
                         format(expected_certified_invoice_amount, self.invoice.certified_invoice_amount))
+
+    def test_calculation_vat_amount_after_tool_deduction(self):
+        # VAT AMOUNT
+        self.invoice.write({
+            'is_discount_apply_after_tool_deduction_percentage': True,
+        })
+        expected_amount = 215.6
+        self.assertTrue(self.invoice.vat_amount == expected_amount,
+                        "Certified Invoice Amount must be {}, Given {}".
+                        format(expected_amount, self.invoice.vat_amount))
 
 
 class TestInvoiceCalculation02(TransactionCase):
@@ -173,10 +191,12 @@ class TestInvoiceCalculation02(TransactionCase):
                 'is_tool_deduction_percentage': False,
                 'is_discount_percentage': False,
                 'is_other_deduction_percentage': False,
+                'is_vat_percentage': False,
                 'input_penalty_amount': 1960,
                 'input_on_hold_amount': 1820,
                 'input_tool_deduction_amount': 2100,
                 'input_discount_amount': 1428,
+                'input_vat_amount': 203,
                 'input_other_deduction_amount': 2380,
                 'amount_ids': [(0, 0, {'budget_type': 'capex',
                                        'invoice_type': 'others',
@@ -271,6 +291,13 @@ class TestInvoiceCalculation02(TransactionCase):
         self.assertTrue(self.invoice.other_deduction_amount == expected_amount,
                         "Other Deduction Amount must be {}, Given {}".
                         format(expected_amount, self.invoice.other_deduction_amount))
+
+    def test_calculation_vat_amount(self):
+        # ON HOLD AMOUNT
+        expected_amount = 203.00
+        self.assertTrue(self.invoice.vat_amount == expected_amount,
+                        "VAT Amount must be {}, Given {}".
+                        format(expected_amount, self.invoice.vat_amount))
 
     def test_calculation_certified_invoice_amount_before_tool_deduction(self):
         # CERTIFIED INVOICE AMOUNT
