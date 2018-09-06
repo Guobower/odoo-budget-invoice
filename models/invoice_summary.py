@@ -610,10 +610,10 @@ class InvoiceSummary(models.Model):
             ws.cell(row=row, column=column + 14).value = r.certified_revenue_amount
             ws.cell(row=row, column=column + 15).value = r.certified_opex_amount
             ws.cell(row=row, column=column + 16).value = r.vat_amount or ''
-            ws.cell(row=row, column=column + 17).value = r.remark or ''
+            ws.cell(row=row, column=column + 18).value = r.remark or ''
 
-            ws.cell(row=row, column=column + 19).value = r.discount_amount or 0
-            ws.cell(row=row, column=column + 20).value = r.discount_percentage or 0
+            ws.cell(row=row, column=column + 20).value = r.discount_amount or 0
+            ws.cell(row=row, column=column + 21).value = r.discount_percentage or 0
 
             row += 1
             sr += 1
