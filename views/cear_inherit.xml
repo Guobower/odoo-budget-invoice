@@ -28,6 +28,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='fn_utilized_amount']" position="after">
                     <field name="im_utilized_amount" sum="1"/>
+                </xpath>
+                <xpath expr="//field[@name='state']" position="before">
                     <field name="problem"/>
                 </xpath>
             </field>
